@@ -19,7 +19,7 @@ PowerChain is a modern blockchain SDK ecosystem designed for developers building
 - 🔐 Enterprise-grade security
 - 👛 Wallet & account management
 - ✍️ Transaction signing
-- 📦 Smart contract SDK
+- 📦 Programs (Smart contract) SDK
 - 📡 WebSocket & HTTP providers
 - 🧩 Framework integrations
 - 🎨 UI component library
@@ -147,7 +147,7 @@ flutter pub add powerchain
 import { PowerChain } from "@powerchain/web3.js";
 
 const client = new PowerChain({
-  rpc: "https://rpc.powerchain.io",
+  rpc: "https://rpc.powerchain.energy",
 });
 
 await client.connect();
@@ -199,7 +199,7 @@ await token.transfer(
 Clone the repository.
 
 ```bash
-git clone https://github.com/powerchain/powerchain.git
+git clone https://github.com/powerchain-protocol/powerchain.git
 ```
 
 Install dependencies.
