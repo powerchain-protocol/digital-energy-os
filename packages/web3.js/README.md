@@ -1,8 +1,6 @@
-# @powerchain/web3.js
-
 <div align="center">
 
-# ⚡ PowerChain Web3.js
+# @PowerChain/Web3.js
 
 **The official JavaScript & TypeScript SDK for the PowerChain Network**
 
