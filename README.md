@@ -1,162 +1,294 @@
 # PowerChain SDK
 
-PowerChain is a comprehensive blockchain development platform that provides SDKs, UI components, and developer tools for building decentralized applications across multiple languages and frameworks.
+> Enterprise-grade blockchain development platform for building decentralized applications across JavaScript, TypeScript, Python, Go, Rust, Flutter, and more.
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20-green.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![Build](https://img.shields.io/github/actions/workflow/status/powerchain/sdk/ci.yml?branch=main)](#)
+[![npm](https://img.shields.io/npm/v/@powerchain/web3.js)](#)
+
+PowerChain is a modern blockchain SDK ecosystem designed for developers building decentralized applications, wallets, exchanges, enterprise systems, and smart contract platforms.
+
+---
 
 ## Features
 
-- 🌐 Multi-language SDK support
-- ⚛️ Framework integrations for React, Vue, Angular, and Flutter
-- 🔐 Enterprise-grade SDK
-- 🧩 Reusable UI component library
-- 🖥️ Node.js runtime support
-- 🧪 Testing framework
+- 🌐 Multi-language SDKs
+- ⚡ High-performance JSON-RPC client
+- 🔐 Enterprise-grade security
+- 👛 Wallet & account management
+- ✍️ Transaction signing
+- 📦 Smart contract SDK
+- 📡 WebSocket & HTTP providers
+- 🧩 Framework integrations
+- 🎨 UI component library
+- 🧪 Testing utilities
 - ⚙️ OpenAPI code generation
-- 🚀 Developer CLI
-- 📚 Consistent APIs across all supported platforms
+- 🚀 CLI tooling
+- 📖 First-class TypeScript support
 
-## Packages
+---
+
+# Packages
 
 | Package | Description |
-|---------|-------------|
-| `@powerchain/web3.js` | Core JavaScript/TypeScript SDK for interacting with PowerChain. |
-| `@powerchain/sdk` | Enterprise SDK with advanced features and enterprise integrations. |
-| `@powerchain/react` | React integration for PowerChain applications. |
-| `@powerchain/react-ui` | React UI component library. |
-| `@powerchain/vue` | Vue.js SDK. |
-| `@powerchain/angular` | Angular SDK. |
-| `@powerchain/node` | Node.js runtime SDK for backend applications. |
-| `@powerchain/python` | Python SDK. |
-| `@powerchain/go` | Go SDK. |
-| `@powerchain/rust` | Rust SDK. |
-| `@powerchain/flutter` | Flutter SDK for mobile development. |
-| `@powerchain/cli` | Command-line interface for project creation and deployment. |
-| `@powerchain/testing` | Testing framework and utilities. |
-| `@powerchain/codegen` | OpenAPI Code Generator for generating API clients and SDKs. |
+|----------|-------------|
+| **@powerchain/web3.js** | Core JavaScript & TypeScript SDK |
+| **@powerchain/sdk** | Enterprise SDK |
+| **@powerchain/react** | React SDK |
+| **@powerchain/react-ui** | React UI Components |
+| **@powerchain/vue** | Vue SDK |
+| **@powerchain/angular** | Angular SDK |
+| **@powerchain/node** | Node.js Runtime SDK |
+| **@powerchain/python** | Python SDK |
+| **@powerchain/go** | Go SDK |
+| **@powerchain/rust** | Rust SDK |
+| **@powerchain/flutter** | Flutter SDK |
+| **@powerchain/cli** | Developer CLI |
+| **@powerchain/testing** | Testing Framework |
+| **@powerchain/codegen** | OpenAPI Code Generator |
 
-## Installation
+---
 
-Install the package that matches your development stack.
+# Repository Structure
 
-### JavaScript / TypeScript
+```
+powerchain/
+│
+├── packages/
+│   ├── web3.js/
+│   ├── sdk/
+│   ├── react/
+│   ├── react-ui/
+│   ├── vue/
+│   ├── angular/
+│   ├── node/
+│   ├── python/
+│   ├── go/
+│   ├── rust/
+│   ├── flutter/
+│   ├── cli/
+│   ├── testing/
+│   └── codegen/
+│
+├── examples/
+├── docs/
+├── scripts/
+├── .github/
+└── package.json
+```
+
+---
+
+# Installation
+
+Install the package that matches your project.
+
+## JavaScript
 
 ```bash
 npm install @powerchain/web3.js
 ```
 
-### React
+## React
 
 ```bash
 npm install @powerchain/react @powerchain/react-ui
 ```
 
-### Vue
+## Vue
 
 ```bash
 npm install @powerchain/vue
 ```
 
-### Angular
+## Angular
 
 ```bash
 npm install @powerchain/angular
 ```
 
-### Node.js
+## Node.js
 
 ```bash
 npm install @powerchain/node
 ```
 
-### Python
+## Python
 
 ```bash
 pip install powerchain
 ```
 
-### Go
+## Go
 
 ```bash
 go get github.com/powerchain/go
 ```
 
-### Rust
+## Rust
 
 ```bash
 cargo add powerchain
 ```
 
-### Flutter
+## Flutter
 
 ```bash
 flutter pub add powerchain
 ```
 
-## Quick Start
+---
 
-### JavaScript
+# Quick Start
 
-```javascript
+```ts
 import { PowerChain } from "@powerchain/web3.js";
 
 const client = new PowerChain({
-  apiKey: process.env.POWERCHAIN_API_KEY,
+  rpc: "https://rpc.powerchain.io",
 });
 
 await client.connect();
+
+const latestBlock = await client.getBlockNumber();
+
+console.log(latestBlock);
 ```
 
-### React
+---
 
-```tsx
-import { PowerChainProvider } from "@powerchain/react";
+# Wallet Example
 
-export default function App() {
-  return (
-    <PowerChainProvider apiKey={process.env.REACT_APP_POWERCHAIN_API_KEY}>
-      {/* Your application */}
-    </PowerChainProvider>
-  );
-}
+```ts
+import { Wallet } from "@powerchain/web3.js";
+
+const wallet = Wallet.create();
+
+console.log(wallet.address);
+
+const signature = await wallet.signMessage("Hello PowerChain");
 ```
 
-## Developer Tools
+---
 
-PowerChain includes additional tools to improve the developer experience.
+# Smart Contract Example
 
-- **CLI** – Scaffold projects, manage deployments, and automate workflows.
-- **Testing Framework** – Build reliable applications with testing utilities.
-- **Code Generator** – Generate SDKs and API clients from OpenAPI specifications.
+```ts
+import { Contract } from "@powerchain/web3.js";
 
-## Documentation
+const token = new Contract(
+    CONTRACT_ADDRESS,
+    ABI,
+    wallet
+);
 
-Documentation for each package is located in its respective directory.
+const name = await token.name();
 
-- `/packages/web3.js`
-- `/packages/sdk`
-- `/packages/react`
-- `/packages/react-ui`
-- `/packages/vue`
-- `/packages/angular`
-- `/packages/node`
-- `/packages/python`
-- `/packages/go`
-- `/packages/rust`
-- `/packages/flutter`
-- `/packages/cli`
-- `/packages/testing`
-- `/packages/codegen`
+await token.transfer(
+    RECIPIENT,
+    AMOUNT
+);
+```
 
-## Contributing
+---
 
-Contributions are welcome!
+# Development
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes.
-4. Open a Pull Request.
+Clone the repository.
 
-Please ensure all tests pass before submitting changes.
+```bash
+git clone https://github.com/powerchain/powerchain.git
+```
 
-## License
+Install dependencies.
 
-This project is licensed under the MIT License.
+```bash
+npm install
+```
+
+Build all packages.
+
+```bash
+npm run build
+```
+
+Run tests.
+
+```bash
+npm test
+```
+
+Run linting.
+
+```bash
+npm run lint
+```
+
+---
+
+# Documentation
+
+Documentation is organized by package.
+
+```
+docs/
+packages/*/README.md
+examples/
+```
+
+Future documentation will include:
+
+- Getting Started
+- API Reference
+- Smart Contracts
+- Wallets
+- Transactions
+- Providers
+- CLI Guide
+- Deployment
+- Tutorials
+- Best Practices
+
+---
+
+# Contributing
+
+Contributions are welcome.
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Add tests
+5. Open a Pull Request
+
+Please follow the project's coding standards and ensure all tests pass.
+
+---
+
+# Roadmap
+
+- Core SDK
+- Wallet SDK
+- Transaction SDK
+- Contract SDK
+- RPC Providers
+- Browser SDK
+- Node Runtime
+- React Integration
+- Vue Integration
+- Angular Integration
+- Flutter SDK
+- CLI
+- Testing Framework
+- Code Generator
+- API Documentation
+- Examples
+- CI/CD Automation
+
+---
+
+# License
+
+MIT License © 2026 PowerChain
