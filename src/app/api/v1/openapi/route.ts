@@ -1,0 +1,2 @@
+import { NextResponse } from "next/server";
+export async function GET(){return NextResponse.json({openapi:"3.1.0",info:{title:"PowerChain API",version:"1.0.0-beta.6"},servers:[{url:"/api/v1"}],paths:{"/organizations":{get:{summary:"List organizations",responses:{"200":{description:"OK"}}}},"/assets":{get:{summary:"List renewable assets",responses:{"200":{description:"OK"}}}},"/telemetry":{get:{summary:"Stream telemetry over SSE",responses:{"200":{description:"SSE stream"}}}},"/metrics":{get:{summary:"Prometheus metrics",responses:{"200":{description:"Metrics"}}}}}});}

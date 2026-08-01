@@ -1,0 +1,2 @@
+import{NextResponse}from"next/server";import{gridLlmDefault}from"@powerchain/ai-core";import{aiAgents,loraAdapters,memoryConfigs,promptTemplates}from"@/data/ai/runtime";
+export async function GET(){return NextResponse.json({data:{model:gridLlmDefault,agents:aiAgents,prompts:promptTemplates,memory:memoryConfigs,lora:loraAdapters,pricing:{messageUsd:"0.002",pwrcUsd:"0.000002",estimatedPwrc:"1000"}}},{headers:{"Cache-Control":"no-store"}})}

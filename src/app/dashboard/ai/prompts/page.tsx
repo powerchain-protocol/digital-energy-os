@@ -1,0 +1,1 @@
+import{AiWorkspacePage}from"@/components/ai/workspace-page";export default function Page(){return <AiWorkspacePage title="Prompt library" description="Create, test, version and share PowerChain prompt templates."/>}

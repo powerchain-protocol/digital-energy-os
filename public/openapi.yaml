@@ -1,0 +1,208 @@
+openapi: 3.1.0
+info:
+  title: PowerChain API
+  version: 1.0.0-beta.20.0
+  description: >-
+    Versioned APIs for the PowerChain Renewable Energy Operating System,
+    including identity, AI, Proof of Energy, tokenization, cross-chain PWRC,
+    marketplace settlement, smart meters, carbon, telemetry and platform configuration.
+servers:
+  - url: /api/v1
+security:
+  - sessionCookie: []
+tags:
+  - { name: Identity }
+  - { name: AI }
+  - { name: Energy }
+  - { name: Tokens }
+  - { name: Bridge }
+  - { name: Marketplace }
+  - { name: Settlement }
+  - { name: Platform }
+paths:
+  /auth/signin:
+    post:
+      tags: [Identity]
+      summary: Sign in with email and password
+      responses:
+        "200": { description: Session created }
+        "400": { description: Invalid request }
+  /auth/signup:
+    post:
+      tags: [Identity]
+      summary: Create a user and organization account
+      responses:
+        "201": { description: Account created }
+  /sessions:
+    get:
+      tags: [Identity]
+      summary: Read the current authenticated session
+      responses:
+        "200": { description: Session state }
+  /ai/models:
+    get:
+      tags: [AI]
+      summary: List GRIDLLM, LoRA and retrieval models
+      responses:
+        "200": { description: AI model catalog }
+  /ai/agents:
+    get:
+      tags: [AI]
+      summary: List PowerChain renewable-energy agents and skills
+      responses:
+        "200": { description: Agent catalog }
+  /ai/settings:
+    get:
+      tags: [AI]
+      summary: Read public PowerChain AI configuration
+      responses:
+        "200": { description: AI configuration }
+  /chat:
+    post:
+      tags: [AI]
+      summary: Submit a PowerChain-scoped AI message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, message]
+              properties:
+                chatId: { type: [string, "null"] }
+                userId: { type: string }
+                message: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        "200": { description: Assistant response }
+        "400": { description: Prompt is invalid or outside PowerChain scope }
+  /measurements:
+    post:
+      tags: [Energy]
+      summary: Submit a signed smart-meter measurement
+      responses:
+        "201": { description: Measurement accepted }
+  /measurements/batch:
+    post:
+      tags: [Energy]
+      summary: Submit a batch of smart-meter measurements
+      responses:
+        "201": { description: Measurements accepted }
+  /attestations:
+    post:
+      tags: [Energy]
+      summary: Create a DePIN oracle attestation
+      responses:
+        "201": { description: Attestation created }
+  /proof-of-energy/verify:
+    post:
+      tags: [Energy]
+      summary: Verify an energy measurement and oracle consensus
+      responses:
+        "200": { description: Verification result }
+  /tokens/energy/mint:
+    post:
+      tags: [Tokens]
+      summary: Mint a verified kWh or MWh token
+      responses:
+        "201": { description: Energy token prepared or minted }
+  /tokens/energy/burn:
+    post:
+      tags: [Tokens]
+      summary: Burn an energy token
+      responses:
+        "200": { description: Burn recorded }
+  /tokens/energy/retire:
+    post:
+      tags: [Tokens]
+      summary: Retire an energy token and preserve provenance
+      responses:
+        "200": { description: Retirement recorded }
+  /bridge/pwrc/quote:
+    get:
+      tags: [Bridge]
+      summary: Quote a PowerChain ↔ Solana PWRC transfer
+      parameters:
+        - in: query
+          name: direction
+          required: true
+          schema: { type: string, enum: [powerchain-to-solana, solana-to-powerchain] }
+        - in: query
+          name: amount
+          required: true
+          schema: { type: string, example: "1000.0" }
+      responses:
+        "200": { description: Bridge quote }
+        "400": { description: Invalid direction or amount }
+  /bridge/pwrc/transfer:
+    post:
+      tags: [Bridge]
+      summary: Prepare a signature-required PWRC bridge transfer
+      description: Solana PWRC circulating supply must never exceed native PWRC locked for the Solana integration.
+      responses:
+        "201": { description: Transfer prepared }
+        "400": { description: Validation error }
+  /marketplace/orders:
+    post:
+      tags: [Marketplace]
+      summary: Create a marketplace order
+      responses:
+        "201": { description: Order created }
+  /settlements:
+    post:
+      tags: [Settlement]
+      summary: Create a signature-required settlement
+      responses:
+        "201": { description: Settlement created }
+  /transactions:
+    post:
+      tags: [Settlement]
+      summary: Prepare a validated Solana, Sui or EVM transaction
+      responses:
+        "201": { description: Transaction prepared }
+        "400": { description: Validation error }
+  /status:
+    get:
+      tags: [Platform]
+      summary: Read platform and integration status
+      responses:
+        "200": { description: Platform status }
+  /config/networks:
+    get:
+      tags: [Platform]
+      summary: List supported Solana and Sui networks without secrets
+      responses:
+        "200": { description: Network catalog }
+  /api/v1/certification/programs:
+    get:
+      summary: List certification programs
+      responses:
+        "200": { description: Certification programs }
+  /api/v1/certification/certificates:
+    get:
+      summary: List tokenized certificates
+      responses:
+        "200": { description: Certificates }
+    post:
+      summary: Request certificate issuance
+      responses:
+        "202": { description: Issuance accepted }
+  /api/v1/energy/prices:
+    get:
+      summary: Fetch sourced regional energy prices and tariffs
+      parameters:
+        - in: query
+          name: region
+          schema: { type: string }
+      responses:
+        "200": { description: Explicit provider-state price records }
+  /api/v1/payments:
+    post:
+      summary: Create a decimal-safe payment authorization
+      responses:
+        "201": { description: Payment authorization created }
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: powerchain_session

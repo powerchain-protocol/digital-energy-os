@@ -1,0 +1,6 @@
+"use client";
+import {SettingsLayout} from "@/components/profile/settings-layout";
+import {Button} from "@/components/ui/button";
+import {Avatar} from "@/components/avatars";
+const users=[['Avery Morgan','avery@powerchain.energy','Admin'],['Leena Korhonen','leena@northgrid.fi','Company'],['Mika Ranta','mika@northgrid.fi','Prosumer'],['Noah Wilson','noah@client.energy','Client']];
+export default function Users(){return <SettingsLayout title="Users and roles" subtitle="Assign role-based dashboards and least-privilege access across your organization."><section className="panel overflow-hidden"><div className="flex items-center justify-between border-b border-[var(--border)] p-5"><div><h2 className="font-bold">Organization members</h2><p className="text-sm muted">4 active seats · Enterprise tier</p></div><Button>Invite member</Button></div><div className="divide-y divide-[var(--border)]">{users.map(([name,email,role])=><div key={email} className="flex items-center gap-3 p-4 sm:px-5"><Avatar name={name}/><div className="min-w-0 flex-1"><p className="font-semibold">{name}</p><p className="truncate text-sm muted">{email}</p></div><span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-xs font-semibold">{role}</span></div>)}</div></section></SettingsLayout>}

@@ -1,0 +1,1 @@
+import{AiWorkspacePage}from"@/components/ai/workspace-page";export default function Page(){return <AiWorkspacePage title="Agents" description="Versioned agents with scoped tools, spending limits, knowledge access and execution history."/>}

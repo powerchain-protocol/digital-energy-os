@@ -1,0 +1,5 @@
+"use client";
+import {SettingsLayout} from "@/components/profile/settings-layout";
+import {Button} from "@/components/ui/button";
+export default function Company(){return <SettingsLayout title="Company information" subtitle="Verified business details used for contracts, settlements and regulatory reporting."><section className="panel p-5 sm:p-6"><div className="grid gap-5 md:grid-cols-2"><Field label="Legal company name" value="NorthGrid Energy Oy"/><Field label="Business ID" value="FI-2948137-2"/><Field label="Workspace slug" value="northgrid-energy"/><Field label="Primary market" value="Finland · Nordics"/><Field label="Registered address" value="Satamakatu 12, 00160 Helsinki"/><Field label="Energy license" value="EU-RE-884291"/></div><div className="mt-6 flex justify-end"><Button>Save company</Button></div></section></SettingsLayout>}
+function Field({label,value}:{label:string;value:string}){return <label className="grid gap-2 text-sm font-semibold">{label}<input defaultValue={value} className="h-11 rounded-xl border border-[var(--border)] bg-transparent px-3 outline-none focus:border-emerald-600"/></label>}

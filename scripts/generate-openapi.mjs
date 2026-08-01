@@ -1,0 +1,1 @@
+import fs from "node:fs";const source=fs.readFileSync("api/swagger.yaml","utf8");if(!source.includes("/api/v1/chat"))throw new Error("Chat endpoint missing from OpenAPI");fs.copyFileSync("api/swagger.yaml","public/openapi.yaml");console.log("OpenAPI copied to public/openapi.yaml");
