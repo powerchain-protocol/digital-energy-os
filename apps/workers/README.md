@@ -1,3 +1,7 @@
 # PowerChain Workers
 
-Workspace application boundary for the PowerChain monorepo. This package is intentionally isolated from provider implementations and consumes typed domain packages.
+Idempotent job service on port `3108`. It accepts supported reconciliation,
+notification, and health jobs, exposes queue statistics, and keeps explicit
+queued, running, completed, and failed states.
+
+Run with `pnpm --filter @powerchain/workers dev`.

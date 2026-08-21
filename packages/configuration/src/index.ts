@@ -1,1 +1,2 @@
-export const packageName = "@powerchain/configuration" as const;
+export * from "./config";
+export * from "./env";

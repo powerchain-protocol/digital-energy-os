@@ -6,3 +6,4 @@ export * as integration from "./integration/index";
 export * as governance from "./governance/index";
 export * as deployment from "./deployment/index";
 export * as admin from "./admin/index";
+export * as application from "./application/index";

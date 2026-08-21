@@ -1,3 +1,3 @@
 # @powerchain/programs
 
-Framework-independent PowerChain package. It must not depend on Next.js application code unless explicitly classified as a UI package.
+Canonical on-chain boundary for Solana/Anchor and Sui program metadata. The production Rust crate, Anchor networks, domain modules, toolchain, tests, and isolated Cargo target live under `anchor`.

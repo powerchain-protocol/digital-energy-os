@@ -1,3 +1,7 @@
 # PowerChain Checkout
 
-Workspace application boundary for the PowerChain monorepo. This package is intentionally isolated from provider implementations and consumes typed domain packages.
+Non-custodial checkout service on port `3102`. Routes cover session creation,
+review, wallet approval, signature submission, verified confirmation, and
+cancellation. Amounts use integer minor units; the service never signs.
+
+Run with `pnpm --filter @powerchain/checkout-app dev`.

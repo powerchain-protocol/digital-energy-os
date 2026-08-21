@@ -1,3 +1,7 @@
-# PowerChain Ai Gateway
+# PowerChain AI Gateway
 
-Workspace application boundary for the PowerChain monorepo. This package is intentionally isolated from provider implementations and consumes typed domain packages.
+Controlled GridLLM inference service on port `3104`. It validates request size,
+applies the canonical model configuration, preserves request IDs, and routes
+through the shared AI gateway boundary.
+
+Run with `pnpm --filter @powerchain/ai-gateway-app dev`.

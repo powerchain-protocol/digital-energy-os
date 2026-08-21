@@ -1,3 +1,0 @@
-export type SupabaseConfig={url:string;anonKey:string};
-export function getSupabaseConfig():SupabaseConfig{const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const anonKey=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!anonKey)throw new Error("Supabase is not configured.");return{url,anonKey};}
-export async function supabaseRest<T>(path:string,init:RequestInit={}):Promise<T>{const{url,anonKey}=getSupabaseConfig();const response=await fetch(`${url}/rest/v1/${path}`,{...init,headers:{apikey:anonKey,Authorization:`Bearer ${anonKey}`,"content-type":"application/json",...init.headers}});if(!response.ok)throw new Error(`Supabase request failed with ${response.status}`);return response.json() as Promise<T>;}

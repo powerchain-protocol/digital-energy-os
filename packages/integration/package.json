@@ -26,9 +26,17 @@
     "./web3/metaplex": "./src/web3/metaplex/index.ts",
     "./web3/helium": "./src/web3/helium/index.ts",
     "./web3/cetus": "./src/web3/cetus/index.ts",
-    "./web3/streamflow": "./src/web3/streamflow/index.ts"
+    "./web3/streamflow": "./src/web3/streamflow/index.ts",
+    "./payments": "./src/payments/index.ts",
+    "./payments/stripe": "./src/payments/stripe/index.ts",
+    "./payments/moonpay": "./src/payments/moonpay/index.ts",
+    "./payments/coinbase-pay": "./src/payments/coinbase-pay/index.ts",
+    "./payments/solana-pay": "./src/payments/solana-pay/index.ts"
   },
   "peerDependencies": {
     "zod": "^3.25.76"
+  },
+  "dependencies": {
+    "helius-sdk": "3.1.0"
   }
 }

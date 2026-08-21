@@ -1,25 +1,158 @@
-import type { IntegrationAdapter, IntegrationContext } from "../../core/adapter";
+import { createHelius, type HeliusClient } from "helius-sdk";
+import type {
+  IntegrationAdapter,
+  IntegrationContext,
+} from "../../core/adapter";
 import type { IntegrationHealth } from "../../core/health";
 import type { IntegrationResult } from "../../core/result";
 
-export interface HeliusAdapterRequest { operation: string; payload?: Record<string, unknown>; }
-export interface HeliusAdapterResponse { provider: "helius"; operation: string; payload: Record<string, unknown>; }
+export type HeliusOperation =
+  "getAsset" | "getAssetsByOwner" | "getPriorityFeeEstimate";
+export interface HeliusAdapterRequest {
+  operation: HeliusOperation;
+  payload: Record<string, unknown>;
+}
+export interface HeliusAdapterResponse {
+  provider: "helius";
+  operation: HeliusOperation;
+  payload: unknown;
+}
+export interface HeliusAdapterOptions {
+  apiKey?: string;
+  network?: "mainnet" | "devnet";
+  baseUrl?: string;
+}
 
-/** Helius: Solana RPC, DAS, transaction, and webhook services. Never returns synthetic production data. */
-export class HeliusAdapter implements IntegrationAdapter<HeliusAdapterRequest, HeliusAdapterResponse> {
+function validationFailure(
+  message: string,
+): IntegrationResult<HeliusAdapterResponse> {
+  return {
+    state: "unavailable",
+    source: "helius",
+    observedAt: new Date().toISOString(),
+    error: { code: "VALIDATION_FAILED", message, retryable: false },
+  };
+}
+
+/** Helius SDK boundary for DAS assets and fee estimation. */
+export class HeliusAdapter implements IntegrationAdapter<
+  HeliusAdapterRequest,
+  HeliusAdapterResponse
+> {
   readonly provider = "helius";
-  constructor(private readonly endpoint?: string, private readonly credentialReference?: string) {}
-  async execute(request: HeliusAdapterRequest, context: IntegrationContext): Promise<IntegrationResult<HeliusAdapterResponse>> {
-    if (!this.endpoint) return { state: "misconfigured", source: this.provider, observedAt: new Date().toISOString(), error: { code: "INVALID_CONFIGURATION", message: "Helius endpoint is not configured", retryable: false } };
-    if (!request.operation.trim()) return { state: "unavailable", source: this.provider, observedAt: new Date().toISOString(), error: { code: "VALIDATION_FAILED", message: "Operation is required", retryable: false } };
+  private readonly client?: HeliusClient;
+
+  constructor(private readonly options: HeliusAdapterOptions = {}) {
+    if (options.apiKey || options.baseUrl)
+      this.client = createHelius({
+        apiKey: options.apiKey,
+        network: options.network ?? "mainnet",
+        baseUrl: options.baseUrl,
+        userAgent: "powerchain-integration/1.0.0",
+      });
+  }
+
+  async execute(
+    request: HeliusAdapterRequest,
+    context: IntegrationContext,
+  ): Promise<IntegrationResult<HeliusAdapterResponse>> {
+    if (!this.client)
+      return {
+        state: "misconfigured",
+        source: this.provider,
+        observedAt: new Date().toISOString(),
+        error: {
+          code: "INVALID_CONFIGURATION",
+          message: "Helius API key or base URL is not configured",
+          retryable: false,
+        },
+      };
+    if (context.signal.aborted)
+      return validationFailure("Helius request was cancelled");
     try {
-      const response = await fetch(this.endpoint, { method: "POST", headers: { "content-type": "application/json", "x-request-id": context.requestId, ...(this.credentialReference ? { "x-credential-reference": this.credentialReference } : {}) }, body: JSON.stringify(request), signal: context.signal, cache: "no-store" });
-      if (!response.ok) return { state: response.status === 429 ? "degraded" : "unavailable", source: this.provider, observedAt: new Date().toISOString(), error: { code: response.status === 429 ? "RATE_LIMITED" : "PROVIDER_UNAVAILABLE", message: "Helius request failed", retryable: response.status >= 429, providerStatus: response.status } };
-      const payload = await response.json() as Record<string, unknown>;
-      return { state: "available", source: this.provider, observedAt: new Date().toISOString(), data: { provider: "helius", operation: request.operation, payload } };
+      let payload: unknown;
+      switch (request.operation) {
+        case "getAsset": {
+          const id =
+            typeof request.payload.id === "string"
+              ? request.payload.id.trim()
+              : "";
+          if (!id) return validationFailure("A Solana asset id is required");
+          payload = await this.client.getAsset({ id });
+          break;
+        }
+        case "getAssetsByOwner": {
+          const ownerAddress =
+            typeof request.payload.ownerAddress === "string"
+              ? request.payload.ownerAddress.trim()
+              : "";
+          if (!ownerAddress)
+            return validationFailure("A Solana owner address is required");
+          const limit =
+            typeof request.payload.limit === "number"
+              ? Math.min(Math.max(Math.trunc(request.payload.limit), 1), 1000)
+              : 100;
+          payload = await this.client.getAssetsByOwner({ ownerAddress, limit });
+          break;
+        }
+        case "getPriorityFeeEstimate": {
+          const accountKeys = Array.isArray(request.payload.accountKeys)
+            ? request.payload.accountKeys.filter(
+                (value): value is string =>
+                  typeof value === "string" && value.length > 0,
+              )
+            : undefined;
+          const transaction =
+            typeof request.payload.transaction === "string"
+              ? request.payload.transaction
+              : undefined;
+          if (!transaction && !accountKeys?.length)
+            return validationFailure(
+              "A transaction or accountKeys list is required",
+            );
+          payload = await this.client.getPriorityFeeEstimate({
+            transaction,
+            accountKeys,
+          });
+          break;
+        }
+        default:
+          return validationFailure("Unsupported Helius operation");
+      }
+      if (context.signal.aborted)
+        throw new DOMException("Request timed out", "AbortError");
+      return {
+        state: "available",
+        source: this.provider,
+        observedAt: new Date().toISOString(),
+        data: { provider: "helius", operation: request.operation, payload },
+      };
     } catch (error) {
-      return { state: context.signal.aborted ? "degraded" : "unavailable", source: this.provider, observedAt: new Date().toISOString(), error: { code: context.signal.aborted ? "TIMEOUT" : "PROVIDER_UNAVAILABLE", message: error instanceof Error ? error.message : "Provider request failed", retryable: true } };
+      const timedOut =
+        context.signal.aborted ||
+        (error instanceof DOMException && error.name === "AbortError");
+      return {
+        state: timedOut ? "degraded" : "unavailable",
+        source: this.provider,
+        observedAt: new Date().toISOString(),
+        error: {
+          code: timedOut ? "TIMEOUT" : "PROVIDER_UNAVAILABLE",
+          message: timedOut
+            ? "Helius request timed out"
+            : error instanceof Error
+              ? error.message
+              : "Helius request failed",
+          retryable: true,
+        },
+      };
     }
   }
-  async health(): Promise<IntegrationHealth> { return { provider: this.provider, state: this.endpoint ? "available" : "misconfigured", checkedAt: new Date().toISOString() }; }
+
+  async health(): Promise<IntegrationHealth> {
+    return {
+      provider: this.provider,
+      state: this.client ? "available" : "misconfigured",
+      checkedAt: new Date().toISOString(),
+    };
+  }
 }

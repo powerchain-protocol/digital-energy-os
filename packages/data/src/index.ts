@@ -8,3 +8,6 @@ export * as energy from "./energy/index";
 export * as depin from "./depin/index";
 export * as marketplace from "./marketplace/index";
 export * as blockchain from "./blockchain/index";
+export * as catalog from "./application/catalog/index";
+export * as store from "./application/store/index";
+export * as storage from "./application/storage/index";

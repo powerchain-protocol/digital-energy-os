@@ -7,3 +7,4 @@ export * as payment from "./payment/index";
 export * as wallet from "./wallet/index";
 export * as confirmation from "./confirmation/index";
 export * as receipts from "./receipts/index";
+export * from "./service";

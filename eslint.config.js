@@ -3,7 +3,7 @@ export default [
     ignores: [".next/**", "dist/**", "node_modules/**", "storybook-static/**", "public/**"],
   },
   {
-    files: ["scripts/**/*.mjs", "tests/**/*.mjs", "eslint.config.js"],
+    files: ["packages/tooling/scripts/**/*.mjs", "packages/tooling/tests/**/*.mjs", "eslint.config.js"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",

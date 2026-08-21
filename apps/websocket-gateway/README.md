@@ -1,3 +1,7 @@
-# PowerChain Websocket Gateway
+# PowerChain WebSocket Gateway
 
-Workspace application boundary for the PowerChain monorepo. This package is intentionally isolated from provider implementations and consumes typed domain packages.
+Realtime service on port `3107`. HTTP health and channel discovery share the
+listener with the WebSocket endpoint at `/ws`; clients can subscribe and
+unsubscribe from canonical operational channels.
+
+Run with `pnpm --filter @powerchain/websocket-gateway dev`.

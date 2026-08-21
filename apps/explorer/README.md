@@ -1,3 +1,7 @@
 # PowerChain Explorer
 
-Workspace application boundary for the PowerChain monorepo. This package is intentionally isolated from provider implementations and consumes typed domain packages.
+Network-aware explorer resolver on port `3106`. It validates supported Solana
+and Sui networks, address or transaction kinds, and returns canonical external
+explorer URLs.
+
+Run with `pnpm --filter @powerchain/explorer dev`.

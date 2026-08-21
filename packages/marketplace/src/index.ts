@@ -9,3 +9,4 @@ export * as reviews from "./reviews/index";
 export * as auctions from "./auctions/index";
 export * as subscriptions from "./subscriptions/index";
 export * as analytics from "./analytics/index";
+export * from "./service";

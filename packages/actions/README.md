@@ -1,3 +1,3 @@
 # @powerchain/actions
 
-Framework-independent PowerChain package. It must not depend on Next.js application code unless explicitly classified as a UI package.
+Canonical owner for PowerChain action contracts, server actions, and the searchable `actions.json` manifest. Application actions are grouped by domain under `src/application/actions`; package-level action catalogs remain isolated by capability.

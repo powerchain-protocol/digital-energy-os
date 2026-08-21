@@ -1,3 +1,3 @@
 # @powerchain/data
 
-Framework-independent PowerChain package. It must not depend on Next.js application code unless explicitly classified as a UI package.
+Canonical owner for application catalogs, fixtures, typed state stores, storage adapters, telemetry, analytics, validation data, and domain datasets. Reusable state is exported through the `store`, `storage`, and `catalog` namespaces.

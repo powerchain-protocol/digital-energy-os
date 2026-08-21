@@ -1,3 +1,7 @@
 # PowerChain Integration Gateway
 
-Workspace application boundary for the PowerChain monorepo. This package is intentionally isolated from provider implementations and consumes typed domain packages.
+Provider discovery service on port `3105`. It exposes the canonical integration
+registry, capability search, availability, and documentation paths without
+leaking provider credentials.
+
+Run with `pnpm --filter @powerchain/integration-gateway dev`.

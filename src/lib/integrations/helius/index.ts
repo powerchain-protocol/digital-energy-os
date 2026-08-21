@@ -1,1 +1,1 @@
-export { Helius } from "helius-sdk";
+export Helius from "helius-sdk";
