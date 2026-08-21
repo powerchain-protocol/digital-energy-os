@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["DOM", "ES2024"],
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@powerchain/*": ["packages/*/src/index.ts"]
+    },
+    "types": ["node", "react", "react-dom"]
+  },
+  "include": ["apps/*/src/**/*.ts", "packages/*/src/**/*.ts", "packages/*/src/**/*.tsx"],
+  "exclude": ["node_modules", "**/dist/**", "**/tests/**"]
+}

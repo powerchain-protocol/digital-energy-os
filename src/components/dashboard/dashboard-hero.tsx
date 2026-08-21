@@ -5,7 +5,7 @@ export interface DashboardHeroProps {
   roleLabel: string;
   title: string;
   subtitle: string;
-  quickActions: string[];
+  quickActions: readonly string[];
   canTrade: boolean;
 }
 

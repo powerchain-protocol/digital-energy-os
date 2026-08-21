@@ -7,8 +7,8 @@ export async function GET() {
   const checks = {
     database: Boolean(env.DATABASE_URL),
     supabase: Boolean(env.NEXT_PUBLIC_SUPABASE_URL),
-    rpc: Boolean(env.SOLANA_RPC_URL),
-    email: Boolean(env.RESEND_API_KEY),
+    rpc: Boolean(env.SOLANA_CUSTOM_RPC_URL || env.SOLANA_MAINNET_RPC_URL || env.SOLANA_DEVNET_RPC_URL),
+    email: Boolean(env.MAIL_API_KEY && env.MAIL_FROM),
   };
 
   const configured = Object.values(checks).filter(Boolean).length;

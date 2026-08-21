@@ -37,6 +37,8 @@ export function LoginForm() {
     }
   }
 
+  const social = (provider: string) => setError(`${provider} sign-in is available after its OAuth connection is configured.`);
+
   return (
     <form onSubmit={submit} className="auth-form">
       <label className="auth-field">
@@ -64,8 +66,8 @@ export function LoginForm() {
       <div className="auth-divider"><span>or continue with</span></div>
       <Web3SignInButton />
       <div className="auth-social-grid">
-        <button type="button" className="auth-social"><span className="google-mark">G</span>Continue with Google</button>
-        <button type="button" className="auth-social"><span className="microsoft-mark" aria-hidden><i/><i/><i/><i/></span>Continue with Microsoft</button>
+        <button type="button" onClick={()=>social("Google")} className="auth-social"><span className="google-mark">G</span>Continue with Google</button>
+        <button type="button" onClick={()=>social("Microsoft")} className="auth-social"><span className="microsoft-mark" aria-hidden><i/><i/><i/><i/></span>Continue with Microsoft</button>
       </div>
 
       <p className="auth-account-copy">Don&apos;t have an account? <Link href="/auth/signup">Create an account</Link></p>

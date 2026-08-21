@@ -34,6 +34,7 @@ export function SignupForm() {
   }
 
   const field = (label: string, icon: ReactNode, input: ReactNode) => <label className="auth-field"><span>{label}</span><div className="auth-input-wrap">{icon}{input}</div></label>;
+  const social = (provider: string) => setError(`${provider} sign-up is available after its OAuth connection is configured.`);
 
   return (
     <form onSubmit={submit} className="auth-form">
@@ -48,7 +49,7 @@ export function SignupForm() {
       <button type="submit" disabled={pending} className="auth-submit">{pending ? "Creating workspace…" : "Create workspace"}</button>
       <div className="auth-divider"><span>or continue with</span></div>
       <Web3SignInButton />
-      <div className="auth-social-grid"><button type="button" className="auth-social"><span className="google-mark">G</span>Google</button><button type="button" className="auth-social"><span className="microsoft-mark" aria-hidden><i/><i/><i/><i/></span>Microsoft</button></div>
+      <div className="auth-social-grid"><button type="button" onClick={()=>social("Google")} className="auth-social"><span className="google-mark">G</span>Google</button><button type="button" onClick={()=>social("Microsoft")} className="auth-social"><span className="microsoft-mark" aria-hidden><i/><i/><i/><i/></span>Microsoft</button></div>
       <p className="auth-account-copy">Already registered? <Link href="/auth/signin">Sign in</Link></p>
     </form>
   );

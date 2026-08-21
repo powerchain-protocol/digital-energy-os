@@ -3,6 +3,8 @@ import { clientEnvironmentSchema } from "./schema";
 /** Browser-safe environment values. Never add secrets to this object. */
 export const clientEnv = clientEnvironmentSchema.parse({
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   NEXT_PUBLIC_AI_ENABLED: process.env.NEXT_PUBLIC_AI_ENABLED,
   NEXT_PUBLIC_SOLANA_CLUSTER: process.env.NEXT_PUBLIC_SOLANA_CLUSTER,
   NEXT_PUBLIC_SOLANA_DEVNET_RPC_URL: process.env.NEXT_PUBLIC_SOLANA_DEVNET_RPC_URL,

@@ -4,6 +4,11 @@ packages:
   - "packages/*"
 
 minimumReleaseAge: 0
+pmOnFail: ignore
+engineStrict: true
+verifyDepsBeforeRun: error
+trustLockfile: true
+blockExoticSubdeps: true
 strictDepBuilds: true
 strictPeerDependencies: false
 autoInstallPeers: true

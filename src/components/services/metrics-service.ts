@@ -1,1 +1,5 @@
-import { metrics } from '@/data/metrics'; export async function getMetrics(){return Promise.resolve(metrics)}
+import { generation } from "@/data/metrics";
+
+export async function getMetrics() {
+  return generation;
+}

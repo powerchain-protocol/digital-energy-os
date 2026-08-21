@@ -38,7 +38,7 @@ export const roleDashboards: Record<UserRole, RoleDashboard> = {
     primaryAction: "Manage users",
     quickActions: ["Manage users", "Review policies"],
   },
-  super_admin: {
+  "super-admin": {
     title: "Global platform control",
     subtitle: "Operate tenants, networks, standards, and platform services.",
     primaryAction: "Open system console",

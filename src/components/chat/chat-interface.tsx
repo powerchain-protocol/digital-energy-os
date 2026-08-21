@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { Bot, Gauge, Link as LinkIcon, Upload } from "lucide-react";
 import Link from "next/link";
 import type { ChatMessage } from "@/types/ai/chat";
@@ -20,8 +20,14 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
   const chars = input.length;
   const valid = useMemo(() => !input.trim() || allowed.test(input), [input]);
+
+  function attachLink() {
+    const url = window.prompt("Paste a link to energy or operational context");
+    if (url?.trim()) setInput((value) => `${value}${value ? "\n" : ""}${url.trim()}`);
+  }
 
   async function submit(event?: FormEvent) {
     event?.preventDefault();
@@ -78,8 +84,9 @@ export function ChatInterface() {
           <textarea id="chat-message" maxLength={MAX} value={input} onChange={(event) => setInput(event.target.value)} rows={3} className="min-h-20 w-full resize-none rounded-[15px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm shadow-inner outline-none transition focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10" placeholder="Ask about renewables, grid operations, tokenomics or energy prices…" />
           <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-1.5">
-              <button type="button" className="icon-button h-9 w-9" aria-label="Upload operational data"><Upload className="h-4 w-4" /></button>
-              <button type="button" className="icon-button h-9 w-9" aria-label="Attach link"><LinkIcon className="h-4 w-4" /></button>
+              <input ref={fileInput} type="file" accept=".csv,.json,.txt" className="sr-only" onChange={(event)=>{const file=event.target.files?.[0];if(file)setInput((value)=>`${value}${value?"\n":""}Analyze uploaded operational file: ${file.name}`);}} />
+              <button type="button" onClick={()=>fileInput.current?.click()} className="icon-button h-9 w-9" aria-label="Upload operational data"><Upload className="h-4 w-4" /></button>
+              <button type="button" onClick={attachLink} className="icon-button h-9 w-9" aria-label="Attach link"><LinkIcon className="h-4 w-4" /></button>
               <span className={valid ? "truncate text-xs text-[var(--muted)]" : "truncate text-xs text-red-600"}>{valid ? "PowerChain use cases only" : "Ask about PowerChain energy, markets or tokens"}</span>
             </div>
             <div className="flex items-center justify-end gap-3">

@@ -20,8 +20,8 @@ export function Header(){
    <select aria-label="Currency" value={currency} onChange={e=>setCurrency(e.target.value as "USD"|"EUR")} className="header-select hidden sm:block"><option>USD</option><option>EUR</option></select>
    <select aria-label="Distance unit" value={distanceUnit} onChange={e=>setDistanceUnit(e.target.value as "km"|"mi")} className="header-select hidden lg:block"><option value="km">km</option><option value="mi">mi</option></select>
    <Link href="/chat" className="icon-button" aria-label="PowerChain AI"><Bot className="h-5 w-5 text-emerald-700"/></Link>
-   <button className="icon-button relative" aria-label="Notifications"><Bell className="h-5 w-5"/><span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-[var(--surface)] bg-amber-500"/></button>
-   <button onClick={toggle} className="icon-button" aria-label="Toggle theme">{theme==="light"?<Moon className="h-5 w-5"/>:<Sun className="h-5 w-5"/>}</button>
+   <Link href="/notifications" className="icon-button relative" aria-label="Notifications"><Bell className="h-5 w-5"/><span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-[var(--surface)] bg-amber-500"/></Link>
+   <button onClick={toggle} className="icon-button" aria-label="Toggle theme">{theme==="white"||theme==="framed"?<Moon className="h-5 w-5"/>:<Sun className="h-5 w-5"/>}</button>
    <WalletButton/>
    <Link href="/settings" aria-label="Open profile" className="rounded-full transition hover:-translate-y-px"><Avatar name={session?.user.name??"PowerChain User"} coin/></Link>
   </div>

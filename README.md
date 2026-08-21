@@ -58,17 +58,18 @@ PWRC retains the `PWRC` ticker on both the PowerChain native network and Solana.
 ## Development
 
 ```bash
-npm install
-npm run validate
-npm run typecheck
-npm run build
-npm run dev
+corepack enable
+pnpm install --frozen-lockfile
+pnpm validate
+pnpm typecheck
+pnpm build
+pnpm dev
 ```
 
 Playwright is included through `@playwright/test`. Install browsers once with:
 
 ```bash
-npx playwright install --with-deps chromium
+pnpm exec playwright install --with-deps chromium
 ```
 
 ## Solana networks
@@ -89,7 +90,7 @@ See [`PROGRAMS.md`](./PROGRAMS.md) and [`programs/README.md`](./programs/README.
 
 ## Validation
 
-`npm run validate` checks environment configuration, routing, schemas, contracts, OpenAPI, smoke tests and migrations. `npm run build` remains the final release gate.
+`pnpm validate` checks environment configuration, routing, schemas, contracts, OpenAPI, smoke tests and migrations. `pnpm check` runs lint, workspace type-checking, smoke tests, and the production build as the final release gate.
 
 ## Security
 
@@ -97,26 +98,15 @@ PowerChain validates public wallet addresses only and never requests seed phrase
 
 ## License
 
-Proprietary beta software unless otherwise stated in individual modules.
+Proprietary software unless otherwise stated in individual modules.
 
 
-### Beta.18 App Router and migration consolidation
+### App Router and migration consolidation
 
 - UI routes now use the Next.js App Router under `src/app`.
 - `src/pages` was removed.
 - Database history is canonical under `prisma/migrations`; duplicate `migration`, `migrations`, and `supabase/migrations` directories were removed.
 - Administration UI code is organized under `src/workspaces/admin`.
-
-## Local P2P energy market
-
-PowerChain includes a local peer-to-peer energy workspace at `/p2p-energy`. Consumers, prosumers, and organizations can discover nearby renewable offers, buy local energy, sell surplus production, and rent shared batteries or EV-charging capacity. The implementation includes proximity filters, verified sellers, pricing and network-fee calculations, renewable-energy provenance, carbon estimates, and a wallet-signature order state.
-
-API routes:
-
-- `GET /api/v1/p2p/listings`
-- `POST /api/v1/p2p/orders`
-
-Canonical persistence is defined in `prisma/schema.prisma` and `prisma/migrations/20260731190000_p2p_energy`.
 
 ## Local P2P energy market
 
@@ -139,7 +129,7 @@ Relevant endpoints:
 
 ## Distributed Energy Exchange
 
-PowerChain now includes a multi-market Digital Energy Exchange at `/exchange`. It supports renewable energy, storage, EV charging, carbon, certificates, flexibility, capacity and future hydrogen markets through one commercial workspace. The current beta includes typed listings, order-book levels, clearing-price logic, liquidity metrics, live transactions and settlement-state APIs.
+PowerChain includes a multi-market Digital Energy Exchange at `/exchange`. It supports renewable energy, storage, EV charging, carbon, certificates, flexibility, capacity and future hydrogen markets through one commercial workspace. The release includes typed listings, order-book levels, clearing-price logic, liquidity metrics, live transactions and settlement-state APIs.
 
 Core endpoints:
 

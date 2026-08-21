@@ -1,8 +1,8 @@
-export * from "./hotspots/index";
-export * from "./miners/index";
-export * from "./gateways/index";
-export * from "./rewards/index";
-export * from "./verification/index";
-export * from "./telemetry/index";
-export * from "./discovery/index";
-export * from "./analytics/index";
+export * as hotspots from "./hotspots/index";
+export * as miners from "./miners/index";
+export * as gateways from "./gateways/index";
+export * as rewards from "./rewards/index";
+export * as verification from "./verification/index";
+export * as telemetry from "./telemetry/index";
+export * as discovery from "./discovery/index";
+export * as analytics from "./analytics/index";

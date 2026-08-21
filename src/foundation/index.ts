@@ -1,6 +1,7 @@
 /** Public entry point for the PowerChain foundation layer. */
+import { PLATFORM_VERSION } from "@/config/release";
 export const foundationLayer = {
   id: "foundation",
-  version: "1.0.0-beta.19.2",
+  version: PLATFORM_VERSION,
   status: "active" as const,
 };

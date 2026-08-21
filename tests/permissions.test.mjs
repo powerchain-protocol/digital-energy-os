@@ -7,7 +7,7 @@ test("permission matrix defines enterprise roles", async () => {
   for (const role of ["viewer", "operator", "manager", "administrator"]) assert.match(source, new RegExp(role));
 });
 
-test("package version is beta.20.0", async () => {
+test("package version is the stable 1.0.0 release", async () => {
   const pkg = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
   assert.equal(pkg.version, "1.0.0");
 });

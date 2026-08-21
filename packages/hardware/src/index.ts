@@ -1,8 +1,8 @@
-export * from "./smart-meters/index";
-export * from "./gateways/index";
-export * from "./edge/index";
-export * from "./lora/index";
-export * from "./modbus/index";
-export * from "./opc/index";
-export * from "./firmware/index";
-export * from "./diagnostics/index";
+export * as smartMeters from "./smart-meters/index";
+export * as gateways from "./gateways/index";
+export * as edge from "./edge/index";
+export * as lora from "./lora/index";
+export * as modbus from "./modbus/index";
+export * as opc from "./opc/index";
+export * as firmware from "./firmware/index";
+export * as diagnostics from "./diagnostics/index";

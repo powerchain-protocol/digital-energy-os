@@ -8,6 +8,7 @@ export type ErrorCode =
   | "RPC_ERROR"
   | "PAYMENT_ERROR"
   | "INTEGRATION_ERROR"
+  | "PROVIDER_ERROR"
   | "INTERNAL_ERROR";
 
 export interface ErrorDetails { [key: string]: unknown }

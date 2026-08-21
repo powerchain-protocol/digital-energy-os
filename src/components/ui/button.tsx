@@ -1,6 +1,7 @@
 "use client";
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import Link, { type LinkProps } from "next/link";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 import { LoaderCircle } from "lucide-react";
 import { cn } from "@/utils/util";
 
@@ -24,6 +25,23 @@ const sizes: Record<ButtonSize, string> = {
   icon: "h-10 w-10 p-0",
 };
 
+export function buttonClassName({
+  variant = "dark-green",
+  size = "md",
+  className,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string;
+} = {}) {
+  return cn(
+    "inline-flex shrink-0 items-center justify-center gap-2 rounded-[13px] border font-semibold transition-[transform,background-color,border-color,box-shadow,color] duration-150 ease-out hover:-translate-y-px active:translate-y-0 active:scale-[.985] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-700/15 disabled:pointer-events-none disabled:opacity-50",
+    variants[variant],
+    sizes[size],
+    className,
+  );
+}
+
 export function Button({
   variant = "dark-green",
   size = "md",
@@ -46,16 +64,30 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={cn(
-        "inline-flex shrink-0 items-center justify-center gap-2 rounded-[13px] border font-semibold transition-[transform,background-color,border-color,box-shadow,color] duration-150 ease-out hover:-translate-y-px active:translate-y-0 active:scale-[.985] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-700/15 disabled:pointer-events-none disabled:opacity-50",
-        variants[variant],
-        sizes[size],
-        className,
-      )}
+      className={buttonClassName({ variant, size, className })}
       {...props}
     >
       {loading && <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden />}
       {loading ? loadingLabel : children}
     </button>
+  );
+}
+
+export function ButtonLink({
+  variant = "dark-green",
+  size = "md",
+  className,
+  children,
+  ...props
+}: LinkProps &
+  Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    children?: ReactNode;
+  }) {
+  return (
+    <Link className={buttonClassName({ variant, size, className })} {...props}>
+      {children}
+    </Link>
   );
 }

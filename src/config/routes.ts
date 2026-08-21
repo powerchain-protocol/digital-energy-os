@@ -78,18 +78,16 @@ export const ROUTES = {
 } as const;
 
 export const routes = {
+  ...ROUTES,
   overview: ROUTES.home,
   assets: ROUTES.portfolio,
-  digitalTwins: ROUTES.digitalTwins,
   map: ROUTES.smartGridMap,
   alerts: ROUTES.analytics,
   incidents: ROUTES.analytics,
   carbon: ROUTES.portfolio,
   treasury: ROUTES.wallet,
-  integrations: ROUTES.integrations,
   plugins: ROUTES.integrations,
   admin: ROUTES.users,
-  ...ROUTES,
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

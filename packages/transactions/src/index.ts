@@ -1,9 +1,9 @@
-export * from "./builders/index";
-export * from "./signing/index";
-export * from "./submission/index";
-export * from "./confirmation/index";
-export * from "./history/index";
-export * from "./receipts/index";
-export * from "./simulation/index";
-export * from "./batching/index";
-export * from "./reconciliation/index";
+export * as builders from "./builders/index";
+export * as signing from "./signing/index";
+export * as submission from "./submission/index";
+export * as confirmation from "./confirmation/index";
+export * as history from "./history/index";
+export * as receipts from "./receipts/index";
+export * as simulation from "./simulation/index";
+export * as batching from "./batching/index";
+export * as reconciliation from "./reconciliation/index";

@@ -19,7 +19,7 @@ export function OrderTicket() {
     <label className="block text-sm font-medium">Market<select name="commodity" className="mt-1 w-full rounded-xl border bg-transparent px-3 py-2"><option value="SOLAR_MWH">Solar MWh</option><option value="WIND_MWH">Wind MWh</option><option value="REC">REC</option><option value="CCT">CCT</option></select></label>
     <div className="grid grid-cols-2 gap-3"><label className="text-sm font-medium">Quantity<input required min="0.01" step="0.01" name="quantity" type="number" className="mt-1 w-full rounded-xl border bg-transparent px-3 py-2" /></label><label className="text-sm font-medium">Limit price<input required min="0.01" step="0.01" name="limitPrice" type="number" className="mt-1 w-full rounded-xl border bg-transparent px-3 py-2" /></label></div>
     <label className="block text-sm font-medium">Settlement<select name="currency" className="mt-1 w-full rounded-xl border bg-transparent px-3 py-2"><option>USDC</option><option>USD</option><option>PWRC</option></select></label>
-    <button className="pc-focus w-full rounded-xl bg-emerald-800 px-4 py-3 font-semibold text-white hover:bg-emerald-700">Review {side} order</button>
+    <button type="submit" className="pc-focus w-full rounded-xl bg-emerald-800 px-4 py-3 font-semibold text-white hover:bg-emerald-700">Review {side} order</button>
     <p role="status" aria-live="polite" className="min-h-5 text-sm text-slate-500">{status}</p>
   </form>;
 }

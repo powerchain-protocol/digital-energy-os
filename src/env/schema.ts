@@ -5,6 +5,8 @@ const optionalSecret = z.string().trim().min(1).optional().or(z.literal(""));
 
 export const clientEnvironmentSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_SUPABASE_URL: optionalUrl,
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optionalSecret,
   NEXT_PUBLIC_AI_ENABLED: z.enum(["true", "false"]).default("true"),
   NEXT_PUBLIC_SOLANA_CLUSTER: z.enum(["devnet", "mainnet-beta", "custom"]).default("devnet"),
   NEXT_PUBLIC_SOLANA_DEVNET_RPC_URL: optionalUrl,
@@ -44,6 +46,8 @@ export const serverEnvironmentSchema = clientEnvironmentSchema.extend({
   CETUS_FULLNODE_URL: optionalUrl,
   CORS_ALLOWED_ORIGINS: z.string().trim().optional(),
   DATABASE_URL: z.string().trim().optional(),
+  DIRECT_URL: z.string().trim().optional(),
+  SUPABASE_SECRET_KEY: optionalSecret,
   SENTRY_DSN: optionalUrl
 });
 

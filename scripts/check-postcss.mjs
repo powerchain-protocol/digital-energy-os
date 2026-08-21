@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 
 const root = resolve(process.cwd());
 const allowed = "postcss.config.mjs";

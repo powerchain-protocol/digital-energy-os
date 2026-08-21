@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "ES2024",
+    "lib": ["dom", "dom.iterable", "es2024"],
     "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
@@ -13,8 +13,17 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "ignoreDeprecations": "6.0",
-    "paths": {"@/*": ["./src/*"]},
+    "paths": {
+      "@/*": ["./src/*"],
+      "@powerchain/ai-core": ["./packages/ai-core/src/index.ts"],
+      "@powerchain/ai-gateway": ["./packages/ai-gateway/src/index.ts"],
+      "@powerchain/ai-ui": ["./packages/ai-ui/src/index.ts"],
+      "@powerchain/contracts": ["./packages/contracts/src/index.ts"],
+      "@powerchain/credits": ["./packages/credits/src/index.ts"],
+      "@powerchain/integration": ["./packages/integration/src/index.ts"],
+      "@powerchain/integration/*": ["./packages/integration/src/*/index.ts"],
+      "@powerchain/shared": ["./packages/shared/src/index.ts"]
+    },
     "plugins": [{"name": "next"}]
   },
   "include": [
@@ -33,6 +42,7 @@
     ".next",
     "dist",
     "coverage",
+    "src/**/*.stories.tsx",
     "tests/e2e",
     "playwright.config.ts",
     ".storybook"

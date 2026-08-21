@@ -1,9 +1,10 @@
 {
-  "name": "@powerchain/ai-gateway",
+  "name": "@powerchain/ai-gateway-app",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   }
 }

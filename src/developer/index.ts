@@ -1,6 +1,7 @@
 /** Public entry point for the PowerChain developer layer. */
+import { PLATFORM_VERSION } from "@/config/release";
 export const developerLayer = {
   id: "developer",
-  version: "1.0.0-beta.19.2",
+  version: PLATFORM_VERSION,
   status: "active" as const,
 };
