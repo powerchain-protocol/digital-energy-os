@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/digital-energy-os/instrumentation.ts"],"sourcesContent":["/**\n * Optional Next.js instrumentation hook.\n *\n * This entry point is intentionally dependency-free. Provider-specific tracing\n * is initialized from server-only runtime modules after application startup.\n */\nexport async function register(): Promise<void> {\n  if (process.env.NEXT_RUNTIME !== \"nodejs\") return;\n  if (process.env.OTEL_ENABLED === \"true\") {\n    console.info(\"[PowerChain] Observability hooks enabled.\");\n  }\n}\n"],"names":["register","process","env","OTEL_ENABLED","console","info"],"mappings":"AAAA;;;;;CAKC;;;;AACM,eAAeA;IACpB;;IACA,IAAIC,QAAQC,GAAG,CAACC,YAAY,KAAK,QAAQ;QACvCC,QAAQC,IAAI,CAAC;IACf;AACF"}}]
-}

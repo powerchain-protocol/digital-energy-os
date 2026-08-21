@@ -17,7 +17,7 @@ Application code is organized under `src/`. The `@/*` TypeScript alias resolves 
 
 ## Release
 
-`1.0.0-beta.20.0` introduces the Platform Shell 2.0 authentication experience, responsive sign-in and sign-up screens, supplied PowerChain/PWRC/CCT assets, and a multi-network Web3 wallet abstraction.
+`1.0.0` introduces the Platform Shell 2.0 authentication experience, responsive sign-in and sign-up screens, supplied PowerChain/PWRC/CCT assets, and a multi-network Web3 wallet abstraction.
 
 ## Architecture
 

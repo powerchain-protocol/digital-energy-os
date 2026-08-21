@@ -7,7 +7,7 @@
 - Added professional legal document layouts.
 - Added checkout, Solana Pay, Blinks, zero-knowledge claim, Renewable SVM and LoRaWAN verification foundations.
 - Expanded canonical routes and dashboard navigation.
-## 1.0.0-beta.20.0 — Programs and documentation hardening
+## 1.0.0 — Programs and documentation hardening
 
 - Added shared Anchor errors, canonical program events, and cross-domain energy and PWRC supply invariants.
 - Exported Proof of Energy, digital-twin, GRIDLLM, error, event, and invariant modules from the canonical program crate.
@@ -26,7 +26,7 @@
 - Added visible per-message pricing configuration at $0.002 and the initial $0.000002 PWRC reference price, yielding 1,000 PWRC per message.
 - Added explicit server-side credential and scoped agent-tool boundaries.
 
-## 1.0.0-beta.20.0 — operational hardening update
+## 1.0.0 — operational hardening update
 
 - Removed the optional root instrumentation hook and added automatic `.next` cache cleanup before development startup.
 - Added enterprise data-card and data-table primitives.
@@ -35,7 +35,7 @@
 - Added a server-safe Cetus Sui CLMM adapter with mainnet/testnet and custom full-node support.
 - Added configuration, integration, and data-component documentation.
 # Changelog
-## 1.0.0-beta.20.0 — Stabilization update
+## 1.0.0 — Stabilization update
 
 - Removed the instrumentation-time dependency on the observability module so Turbopack can always compile the root instrumentation hook.
 - Added the canonical `src/store/` provider and public barrel.
@@ -532,7 +532,7 @@ All notable changes to PowerChain Platform are documented here.
 - Navigation now presents the Engineering Framework as the public entry point while retaining detailed architecture and standards workspaces.
 - Platform version and Docker tag updated to beta.19.5.
 
-## 1.0.0-beta.20.0
+## 1.0.0
 
 ### Added
 
@@ -545,10 +545,10 @@ All notable changes to PowerChain Platform are documented here.
 
 ### Changed
 
-- Updated the reference application and container release to `1.0.0-beta.20.0`.
+- Updated the reference application and container release to `1.0.0`.
 - Expanded the wallet session API to validate Solana, Sui, and EVM public addresses.
 
-## 1.0.0-beta.20.0 — structure and runtime stabilization
+## 1.0.0 — structure and runtime stabilization
 
 - Moved Supabase clients into `src/lib/database/supabase` and removed the stale top-level Supabase folder.
 - Moved the wallet provider into `src/components/provider`.
@@ -568,7 +568,7 @@ All notable changes to PowerChain Platform are documented here.
 - Kept Prisma Client and CLI aligned at 6.19.3; Prisma 7 remains an explicit future migration.
 - Added a command to disable anonymous Next.js telemetry.
 
-## 1.0.0-beta.20.0 — enterprise UI refinement
+## 1.0.0 — enterprise UI refinement
 
 - Refined the PowerChain wordmark with semibold “Power” and light “Chain” typography.
 - Removed the desktop hamburger/collapse control from the fixed header and added a dedicated GRIDLLM bot icon.
@@ -581,7 +581,7 @@ All notable changes to PowerChain Platform are documented here.
 - Upgraded project and crowdfunding cards with branded image placeholders, locations, capacity, financing progress, and richer project metadata.
 - Removed separate AI and network entries from sidebar navigation; configuration remains under Settings.
 
-## 1.0.0-beta.20.0 — Documentation, AI and PWRC bridge refinement
+## 1.0.0 — Documentation, AI and PWRC bridge refinement
 
 - Added the in-app References and Documentation workspace with architecture, API, AI, token and legal sections.
 - Moved architecture, engineering framework, technical standards and legal navigation into the References sidebar group.

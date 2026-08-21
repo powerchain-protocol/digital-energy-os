@@ -9,5 +9,5 @@ test("permission matrix defines enterprise roles", async () => {
 
 test("package version is beta.20.0", async () => {
   const pkg = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
-  assert.equal(pkg.version, "1.0.0-beta.20.0");
+  assert.equal(pkg.version, "1.0.0");
 });

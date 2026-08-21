@@ -4,7 +4,7 @@ import fs from "node:fs";
 
 test("PTSP 5.0 portfolio is published", () => {
   const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
-  assert.equal(packageJson.version, "1.0.0-beta.20.0");
+  assert.equal(packageJson.version, "1.0.0");
   assert.equal(fs.existsSync("src/app/standards/page.tsx"), true);
   assert.equal(fs.existsSync("src/app/api/v1/standards/catalog/route.ts"), true);
   assert.equal(fs.existsSync("docs/PTSP/compatibility-policy.md"), true);
