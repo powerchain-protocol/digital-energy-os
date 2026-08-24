@@ -1,7 +1,16 @@
 export type EnergySource = "solar" | "wind" | "hydro" | "battery" | "mixed";
 export type ListingMode = "buy" | "sell" | "rent";
 export type ListingStatus = "active" | "matched" | "paused" | "completed";
-export type P2POrderStatus = "draft" | "requires_signature" | "escrowed" | "metering" | "settled" | "cancelled";
+export type P2POrderStatus =
+  | "review_required"
+  | "reserved"
+  | "delivering"
+  | "delivered"
+  | "reconciled"
+  | "settlement_ready"
+  | "settled"
+  | "cancelled"
+  | "disputed";
 
 export interface LocalEnergyListing {
   id: string;
@@ -55,24 +64,30 @@ export interface P2POrder {
   listingId: string;
   buyerId: string;
   quantityKwh: number;
+  deliveredKwh?: number;
+  varianceKwh?: number;
   currency: "EUR" | "USD";
   settlementAsset: "USDC" | "PWRC" | "FIAT";
   status: P2POrderStatus;
   pricing: { subtotal: number; networkFee: number; escrowReserve: number; total: number };
   meterReadingId?: string;
   signature?: string;
+  settlementReference?: string;
   createdAt: string;
-  expiresAt: string;
+  updatedAt?: string;
+  expiresAt?: string;
 }
 
 export interface EnergyCommunitySummary {
-  members: number;
-  producers: number;
-  consumers: number;
-  batteries: number;
-  localSupplyKwh: number;
-  localDemandKwh: number;
-  matchedPercent: number;
-  averagePrice: number;
-  carbonAvoidedKg: number;
+  members: number | null;
+  producers: number | null;
+  consumers: number | null;
+  batteries: number | null;
+  localSupplyKwh: number | null;
+  localDemandKwh: number | null;
+  matchedPercent: number | null;
+  averagePrice: number | null;
+  carbonAvoidedKg: number | null;
+  dataState?: "DEMO" | "LIVE" | "UNAVAILABLE";
+  source?: string;
 }

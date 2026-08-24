@@ -12,7 +12,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
           <div className="truncate text-[1.1rem] tracking-[-.035em]">
             <span className="font-semibold">Power</span><span className="font-light">Chain</span>
           </div>
-          <div className="mt-0.5 truncate text-[10px] font-medium tracking-[.015em] text-[var(--muted)]">Renewable Energy OS</div>
+          <div className="mt-0.5 truncate text-[10px] font-medium tracking-[.015em] text-[var(--muted)]">Digital Energy OS</div>
         </div>
       )}
     </div>

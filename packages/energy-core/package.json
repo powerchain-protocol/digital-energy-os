@@ -1,0 +1,11 @@
+{
+  "name": "@powerchain/energy-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Canonical physical-energy accounting and lifecycle primitives",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {}
+}

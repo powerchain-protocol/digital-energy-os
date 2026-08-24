@@ -47,7 +47,7 @@ export function ChatInterface() {
       setMessages(payload.data.messages);
       setInput("");
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "PowerChain AI is temporarily unavailable");
+      setError(caught instanceof Error ? caught.message : "PowerChain Copilot is temporarily unavailable");
     } finally {
       setBusy(false);
     }
@@ -59,7 +59,7 @@ export function ChatInterface() {
         <header className="flex items-center justify-between gap-4 border-b border-[var(--border)] px-4 py-3.5 sm:px-5">
           <div className="flex min-w-0 items-center gap-3">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] bg-emerald-900 text-white shadow-[0_8px_20px_rgba(6,78,59,.18)]"><Bot className="h-5 w-5" /></span>
-            <div className="min-w-0"><h2 className="truncate font-semibold">PowerChain AI</h2><p className="truncate text-xs text-[var(--muted)]">GRIDLLM · renewable intelligence</p></div>
+            <div className="min-w-0"><h2 className="truncate font-semibold">PowerChain Copilot</h2><p className="truncate text-xs text-[var(--muted)]">GRIDLLM · renewable intelligence</p></div>
           </div>
           <AiSettingsDrawer />
         </header>

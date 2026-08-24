@@ -4,7 +4,7 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: { default: "PowerChain", template: "%s · PowerChain" },
-  description: "Enterprise renewable energy operating system",
+  description: "Enterprise digital energy infrastructure operating system",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

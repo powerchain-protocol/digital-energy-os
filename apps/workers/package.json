@@ -10,7 +10,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@powerchain/application-runtime": "workspace:*"
+    "@powerchain/application-runtime": "workspace:*",
+    "@powerchain/database": "workspace:*",
+    "@powerchain/energy-controls": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.23.12"

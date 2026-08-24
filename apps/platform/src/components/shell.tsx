@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { Footer } from "./footer";
+import { GlobalCopilot } from "./copilot/global-copilot";
 
 export function Shell({ children }: { children: ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <div className="app-content">{children}</div>
         </main>
         <Footer />
+        <GlobalCopilot />
       </div>
     </div>
   );

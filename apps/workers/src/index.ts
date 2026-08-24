@@ -1,6 +1,14 @@
+import { getDigitalEnergyOutboxPublisherStatus, runDigitalEnergyOutboxPublisherOnce } from "./digital-energy-outbox.ts";
 import { ApplicationError, createApplication, json, readJson } from "@powerchain/application-runtime";
 
 export const applicationName = "workers" as const;
+
+function requireWorkerAdmin(request: Request) {
+  const configured = String(process.env.POWERCHAIN_WORKER_ADMIN_TOKEN ?? "").trim();
+  if (!configured) throw new ApplicationError("WORKER_ADMIN_DISABLED", "Manual worker execution is disabled", 503);
+  const authorization = request.headers.get("authorization") ?? "";
+  if (authorization !== `Bearer ${configured}`) throw new ApplicationError("WORKER_ADMIN_FORBIDDEN", "Worker admin authorization is required", 403);
+}
 export type JobType = "health.snapshot" | "notifications.dispatch" | "settlement.reconcile";
 export interface WorkerJob { id: string; type: JobType; payload: Record<string, unknown>; status: "queued" | "running" | "completed" | "failed"; idempotencyKey: string; attempts: number; createdAt: string; updatedAt: string; result?: Record<string, unknown>; }
 
@@ -38,9 +46,11 @@ export const application = createApplication({
     version: "1.0.0",
     description: "Idempotent asynchronous work queue and controlled processor boundary.",
     basePath: "/api/v1/jobs",
-    capabilities: ["jobs", "idempotency", "reconciliation", "notifications"],
+    capabilities: ["jobs", "idempotency", "reconciliation", "notifications", "digital-energy-outbox"],
   },
   routes: [
+    { method: "GET", path: "/api/v1/jobs/digital-energy-outbox", summary: "Return Digital Energy transactional outbox publisher status", handler: () => json(getDigitalEnergyOutboxPublisherStatus()) },
+    { method: "POST", path: "/api/v1/jobs/digital-energy-outbox/run", summary: "Run one Digital Energy outbox publisher cycle", async handler(request) { requireWorkerAdmin(request); return json(await runDigitalEnergyOutboxPublisherOnce()); } },
     { method: "GET", path: "/api/v1/jobs/stats", summary: "Return worker queue statistics", handler: () => json(workerQueue.stats()) },
     { method: "POST", path: "/api/v1/jobs", summary: "Enqueue idempotent work", async handler(request) { return json(workerQueue.enqueue(await readJson<{ type?: JobType; payload?: Record<string, unknown>; idempotencyKey?: string }>(request)), { status: 202 }); } },
     { method: "GET", path: "/api/v1/jobs/:id", summary: "Read job state", handler(_request, { params }) { return json(workerQueue.get(params.id)); } },

@@ -1,1 +1,2 @@
-import{ChatInterface}from"@/components/chat/chat-interface";import{AiWorkspacePage}from"@/components/ai/workspace-page";export default function Page(){return <AiWorkspacePage title="Energy intelligence chat" description="One controlled interface for PowerChain-hosted models, organization models and user-owned provider connections."><ChatInterface/></AiWorkspacePage>}
+import { redirect } from "next/navigation";
+export default function LegacyAiChatPage(){redirect("/copilot")}

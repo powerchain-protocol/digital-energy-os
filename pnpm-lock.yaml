@@ -137,6 +137,15 @@ importers:
 
   apps/platform:
     dependencies:
+      '@powerchain/local-energy':
+        specifier: workspace:*
+        version: link:../../packages/local-energy
+      '@powerchain/copilot':
+        specifier: workspace:*
+        version: link:../../packages/copilot
+      '@powerchain/energy-controls':
+        specifier: workspace:*
+        version: link:../../packages/energy-controls
       '@cetusprotocol/cetus-sui-clmm-sdk':
         specifier: ^5.4.0
         version: 5.4.0(@mysten/bcs@2.1.1)(@mysten/sui@2.26.2)(debug@4.4.3)(supports-color@8.1.1)
@@ -170,6 +179,21 @@ importers:
       '@powerchain/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@powerchain/asset-graph':
+        specifier: workspace:*
+        version: link:../../packages/asset-graph
+      '@powerchain/digital-energy':
+        specifier: workspace:*
+        version: link:../../packages/digital-energy
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../../packages/energy-core
+      '@powerchain/energy-rwa':
+        specifier: workspace:*
+        version: link:../../packages/energy-rwa
+      '@powerchain/energy-operations':
+        specifier: workspace:*
+        version: link:../../packages/energy-operations
       '@powerchain/integration':
         specifier: workspace:*
         version: link:../../packages/integration
@@ -315,6 +339,12 @@ importers:
 
   apps/workers:
     dependencies:
+      '@powerchain/energy-controls':
+        specifier: workspace:*
+        version: link:../../packages/energy-controls
+      '@powerchain/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@powerchain/application-runtime':
         specifier: workspace:*
         version: link:../../packages/application-runtime
@@ -352,6 +382,12 @@ importers:
 
   packages/checkout: {}
 
+  packages/copilot:
+    dependencies:
+      '@powerchain/ai-core':
+        specifier: workspace:*
+        version: link:../ai-core
+
   packages/configuration:
     dependencies:
       zod:
@@ -376,12 +412,36 @@ importers:
 
   packages/database:
     dependencies:
+      '@powerchain/local-energy':
+        specifier: workspace:*
+        version: link:../local-energy
+      '@powerchain/copilot':
+        specifier: workspace:*
+        version: link:../copilot
+      '@powerchain/energy-controls':
+        specifier: workspace:*
+        version: link:../energy-controls
       '@neondatabase/serverless':
         specifier: ^1.1.0
         version: 1.1.0
       '@powerchain/configuration':
         specifier: workspace:*
         version: link:../configuration
+      '@powerchain/asset-graph':
+        specifier: workspace:*
+        version: link:../asset-graph
+      '@powerchain/digital-energy':
+        specifier: workspace:*
+        version: link:../digital-energy
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../energy-core
+      '@powerchain/energy-rwa':
+        specifier: workspace:*
+        version: link:../energy-rwa
+      '@powerchain/energy-operations':
+        specifier: workspace:*
+        version: link:../energy-operations
       '@powerchain/shared':
         specifier: workspace:*
         version: link:../shared
@@ -409,6 +469,56 @@ importers:
         version: 6.19.3(typescript@5.9.3)
 
   packages/depin: {}
+
+  packages/energy-core: {}
+
+  packages/energy-controls:
+    dependencies:
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../energy-core
+
+  packages/local-energy:
+    dependencies:
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../energy-core
+
+  packages/energy-rwa:
+    dependencies:
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../energy-core
+
+  packages/energy-operations:
+    dependencies:
+      '@powerchain/energy-controls':
+        specifier: workspace:*
+        version: link:../energy-controls
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../energy-core
+
+  packages/asset-graph:
+    dependencies:
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../energy-core
+      '@powerchain/energy-rwa':
+        specifier: workspace:*
+        version: link:../energy-rwa
+
+  packages/digital-energy:
+    dependencies:
+      '@powerchain/asset-graph':
+        specifier: workspace:*
+        version: link:../asset-graph
+      '@powerchain/energy-core':
+        specifier: workspace:*
+        version: link:../energy-core
+      '@powerchain/energy-rwa':
+        specifier: workspace:*
+        version: link:../energy-rwa
 
   packages/engineering: {}
 

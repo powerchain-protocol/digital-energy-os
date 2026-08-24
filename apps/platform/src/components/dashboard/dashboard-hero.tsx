@@ -18,7 +18,7 @@ export function DashboardHero({ roleLabel, title, subtitle, quickActions, canTra
         <p>{subtitle}</p>
       </div>
       <div className="dashboard-actions">
-        <span className="live-chip"><i />Live network</span>
+        <span className="live-chip"><i />Digital Energy OS</span>
         {quickActions.slice(0, 2).map((label, index) => (
           <Link key={label} href={index === 0 && canTrade ? "/marketplace" : "/settings"}>
             {label}<ArrowUpRight />

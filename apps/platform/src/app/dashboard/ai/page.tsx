@@ -1,1 +1,2 @@
-import{AiWorkspacePage}from"@/components/ai/workspace-page";export default function Page(){return <AiWorkspacePage title="AI Operations Center" description="Configure GridLLM, agents, prompts, memory, LoRA adapters, provider connections and transparent PWRC-funded inference."/>}
+import { redirect } from "next/navigation";
+export default function LegacyAiDashboardPage(){redirect("/copilot/settings")}

@@ -46,7 +46,15 @@
     "react-dom": "^19.2.8",
     "recharts": "^3.10.1",
     "tailwind-merge": "^2.6.1",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "@powerchain/energy-core": "workspace:*",
+    "@powerchain/energy-rwa": "workspace:*",
+    "@powerchain/asset-graph": "workspace:*",
+    "@powerchain/digital-energy": "workspace:*",
+    "@powerchain/energy-operations": "workspace:*",
+    "@powerchain/energy-controls": "workspace:*",
+    "@powerchain/copilot": "workspace:*",
+    "@powerchain/local-energy": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

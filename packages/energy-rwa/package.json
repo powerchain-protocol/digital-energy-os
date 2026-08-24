@@ -1,0 +1,13 @@
+{
+  "name": "@powerchain/energy-rwa",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "PET-20 verified Energy RWA metadata and representation invariants",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@powerchain/energy-core": "workspace:*"
+  }
+}
