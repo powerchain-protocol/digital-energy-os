@@ -4,6 +4,12 @@ import { CheckoutError, createCheckoutService, type CreateCheckoutInput } from "
 export const applicationName = "checkout" as const;
 export const checkoutService = createCheckoutService();
 
+function idempotencyKey(request:Request){
+  const key=request.headers.get("idempotency-key")?.trim();
+  if(!key||key.length<8||key.length>160)throw new ApplicationError("IDEMPOTENCY_KEY_REQUIRED","Economic writes require Idempotency-Key (8–160 characters)",400);
+  return key;
+}
+
 function checkoutFailure(error: unknown): never {
   if (error instanceof CheckoutError) throw new ApplicationError(error.code, error.message, error.code.endsWith("NOT_FOUND") ? 404 : 409);
   throw error;
@@ -19,7 +25,8 @@ export const application = createApplication({
     capabilities: ["sessions", "pricing", "wallet-approval", "settlement"],
   },
   routes: [
-    { method: "POST", path: "/api/v1/checkout/sessions", summary: "Create a checkout session", async handler(request) { try { return json(checkoutService.create(await readJson<CreateCheckoutInput>(request)), { status: 201 }); } catch (error) { return checkoutFailure(error); } } },
+    { method: "GET", path: "/api/v1/checkout/health", summary: "Read checkout service health", handler() { return json({data:{service:"checkout",version:"1.0.0",persistence:"memory-harness",walletSigning:"external-only"}}); } },
+    { method: "POST", path: "/api/v1/checkout/sessions", summary: "Create a checkout session", async handler(request) { try { return json(checkoutService.create(await readJson<CreateCheckoutInput>(request),idempotencyKey(request)), { status: 201 }); } catch (error) { return checkoutFailure(error); } } },
     { method: "GET", path: "/api/v1/checkout/sessions/:id", summary: "Read a checkout session", handler(_request, { params }) { try { return json(checkoutService.get(params.id)); } catch (error) { return checkoutFailure(error); } } },
     { method: "POST", path: "/api/v1/checkout/sessions/:id/review", summary: "Lock the review state", handler(_request, { params }) { try { return json(checkoutService.review(params.id)); } catch (error) { return checkoutFailure(error); } } },
     { method: "POST", path: "/api/v1/checkout/sessions/:id/signature-request", summary: "Request wallet approval", async handler(request, { params }) { const body = await readJson<{ payerWallet?: string }>(request); try { return json(checkoutService.requestSignature(params.id, body.payerWallet ?? "")); } catch (error) { return checkoutFailure(error); } } },

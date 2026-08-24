@@ -1,7 +1,7 @@
-# PowerChain Checkout
+# PowerChain Checkout App
 
-Non-custodial checkout service on port `3102`. Routes cover session creation,
-review, wallet approval, signature submission, verified confirmation, and
-cancellation. Amounts use integer minor units; the service never signs.
+Standalone deterministic checkout lifecycle service, default port `3102`.
 
-Run with `pnpm --filter @powerchain/checkout-app dev`.
+The canonical persisted platform implementation is exposed under `/api/v1/checkout/*` and uses `@powerchain/database/commerce`.
+
+This standalone app is useful for domain/service testing and does not claim production persistence.

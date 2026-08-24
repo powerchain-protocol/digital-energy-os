@@ -1,7 +1,10 @@
-# PowerChain Explorer
+# PowerChain Explorer App
 
-Network-aware explorer resolver on port `3106`. It validates supported Solana
-and Sui networks, address or transaction kinds, and returns canonical external
-explorer URLs.
+Standalone Explorer service, default port `3106`.
 
-Run with `pnpm --filter @powerchain/explorer dev`.
+Uses the same canonical `@powerchain/explorer` package as the platform `/explorer` workspace.
+
+```text
+GET /api/v1/explorer/networks
+GET /api/v1/explorer/:network/:kind/:identifier
+```

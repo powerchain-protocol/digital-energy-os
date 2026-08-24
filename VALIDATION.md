@@ -261,7 +261,7 @@ Local marketplace execution remains under `/api/v1/p2p/*`.
 ✓ PowerChain Copilot focused tests
 ✓ Digital Energy canonical checker
 ✓ Digital Energy focused tests
-✓ Portable tooling smoke suite: 98 / 98
+✓ Portable tooling smoke suite: 112 / 112
 ✓ @powerchain/copilot TypeScript typecheck
 ✓ Touched TS/TSX syntax: 43 files
 ✓ Routing checker
@@ -275,13 +275,191 @@ Local marketplace execution remains under `/api/v1/p2p/*`.
 ✓ Interaction checker
 ✓ Configuration checker
 ✓ Repository structure checker
-✓ JSON parse: 97 files
-✓ YAML parse: 7 files / 8 documents
-✓ 62 versioned workspace manifests at 1.0.0
-✓ 62 unique workspaces
-✓ 9 canonical Prisma migrations
-✓ 1,172 source files resolve through the import checker
+✓ JSON parse: 106 files
+✓ YAML parse: 11 files / 12 documents
+✓ 64 versioned workspace manifests at 1.0.0
+✓ 64 unique workspaces
+✓ 10 canonical Prisma migrations
+✓ 1,226 source files resolve through the import checker
 ✓ canonical release-label audit
+```
+
+
+## Commerce, Explorer, Checkout and Tokenization verification
+
+Verified:
+
+- canonical `@powerchain/explorer` v1.0.0 workspace shared by platform and standalone Explorer;
+- canonical `@powerchain/tokenization` v1.0.0 workspace;
+- organization-scoped Marketplace, Checkout and Tokenization PostgreSQL persistence;
+- atomic marketplace inventory reservation with advisory transaction lock and `SELECT ... FOR UPDATE`;
+- reservation cancellation/checkout expiry restores unpaid marketplace inventory;
+- same idempotency key + changed payload is rejected;
+- review-first Checkout lifecycle;
+- external wallet signatures only;
+- linked marketplace orders become `PAID` only after confirmed Checkout settlement;
+- Checkout cancellation releases linked marketplace reservations;
+- PET-20 Tokenization creation checks Energy Position backing;
+- PET-20 Tokenization confirmation re-checks current backing;
+- confirmed Tokenization writes the representation to the canonical Digital Energy representation ledger;
+- canonical Solana/Sui Explorer resolution;
+- modular Commerce frontend architecture;
+- `/api/v1` Marketplace, Checkout, Explorer and Tokenization APIs;
+- synchronized OpenAPI and platform public specification;
+- zero-dependency `/swagger` reference;
+- downloadable `/postman` collection and local environment;
+- normative Marketplace, Checkout and PET-20 contract specifications;
+- strengthened Marketplace, Escrow/Checkout and Energy Token Anchor invariant primitives;
+- obsolete duplicate Marketplace service/card/lib ownership removed.
+
+### Commerce control flow
+
+```text
+Marketplace Listing
+      ↓
+Atomic Inventory Reservation
+      ↓
+Marketplace Order
+      ↓
+Checkout Session
+      ↓
+Human Review
+      ↓
+External Wallet Authorization
+      ↓
+Submitted Reference
+      ↓
+Verified Confirmation
+      ↓
+Marketplace Order = PAID
+```
+
+Checkout never performs custodial signing.
+
+### Tokenization control flow
+
+```text
+Verified Energy Position
+      ↓
+DRAFT
+      ↓
+REVIEW_REQUIRED
+      ↓
+APPROVED
+      ↓
+AWAITING_WALLET
+      ↓
+SUBMITTED
+      ↓
+CONFIRMED
+      ↓
+Canonical Digital Energy representation ledger
+```
+
+Before `CONFIRMED`, the implementation re-reads current Energy Position backing and rejects representation that would exceed available canonical Wh.
+
+### Explorer control boundary
+
+```text
+chain inclusion
+≠ meter evidence
+≠ physical delivery
+≠ financial reconciliation
+```
+
+Explorer references provide provenance and navigation only.
+
+### API tooling
+
+```text
+/openapi.yaml
+/api/v1/openapi
+/swagger
+/postman
+```
+
+Postman artifacts:
+
+```text
+docs/api/postman/PowerChain-Digital-Energy-OS-v1.0.0.postman_collection.json
+docs/api/postman/PowerChain-Local.postman_environment.json
+```
+
+
+## GitHub security and dependency-hardening verification
+
+Verified:
+
+```text
+✓ .github/dependabot.yml
+✓ .github/SECURITY.md
+✓ .github/pull_request_template.md
+✓ Security workflow
+✓ CodeQL workflow
+✓ Dependency Review workflow
+✓ least-privilege Actions permissions
+✓ persist-credentials: false
+✓ frozen-lockfile CI command
+✓ Gitleaks history scan
+✓ local secret-pattern scanner
+✓ dependency-advisory regression gate
+✓ pnpm minimumReleaseAge = 1440 minutes
+✓ secret-safe .gitignore policy
+```
+
+Reported vulnerable exact lock resolutions removed:
+
+```text
+deepmerge-ts@7.1.5
+image-size@2.0.2
+elliptic@6.6.1
+postcss@8.4.31
+sharp@0.34.5
+uuid@8.3.2
+uuid@9.0.1
+@storybook/nextjs@10.5.10
+```
+
+Expected remediated dependency resolutions verified structurally:
+
+```text
+postcss@8.5.26
+deepmerge-ts@8.0.2
+uuid@11.1.1
+```
+
+Dependency-chain remediation:
+
+```text
+@storybook/nextjs
+        ↓ removed
+
+apps/storybook
+        ↓
+@powerchain/component-catalog
+        ↓
+Next.js + React
+```
+
+This removes the unresolved `image-size` and `elliptic` paths instead of suppressing their advisories.
+
+The optional Next.js `sharp` dependency is removed and local Next image optimization is explicitly disabled:
+
+```text
+apps/platform → images.unoptimized = true
+apps/docs     → images.unoptimized = true
+```
+
+Repository secret scanning found no committed credential matching the high-risk patterns enforced by `packages/tooling/scripts/check-security.mjs`.
+
+The exposed credential supplied outside the artifact was **not** written into the repository, documentation, workflow files, release manifest, or generated archive.
+
+Security commands:
+
+```bash
+pnpm security:secrets
+pnpm security:dependencies
+pnpm security:check
 ```
 
 ## Runtime limitation
@@ -320,6 +498,7 @@ pnpm db:generate
 pnpm migrations:check
 
 pnpm local-energy:validate
+pnpm commerce:validate
 pnpm copilot:validate
 pnpm digital-energy:validate
 

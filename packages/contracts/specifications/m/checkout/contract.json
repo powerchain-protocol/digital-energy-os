@@ -1,0 +1,21 @@
+{
+  "id": "PCC-CHK-001",
+  "version": "1.0.0",
+  "title": "PowerChain Checkout Authorization Contract",
+  "status": "normative",
+  "states": [
+    "CREATED",
+    "REVIEW",
+    "PENDING_SIGNATURE",
+    "SUBMITTED",
+    "CONFIRMED",
+    "CANCELLED",
+    "EXPIRED"
+  ],
+  "invariants": [
+    "HUMAN_REVIEW_BEFORE_WALLET",
+    "EXTERNAL_WALLET_SIGNATURE",
+    "SUBMITTED_SIGNATURE_MATCHES_CONFIRMED_REFERENCE",
+    "NO_CUSTODIAL_SIGNING"
+  ]
+}

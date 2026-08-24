@@ -22,3 +22,10 @@ Cloudflare, Vercel, AWS, Docker, and Kubernetes deployment guidance is in `docs/
 - [`PRODUCTS.md`](./PRODUCTS.md) — canonical PowerChain product portfolio and product relationships.
 
 - [`LOCAL-ENERGY-OS.md`](./LOCAL-ENERGY-OS.md) — communities, P2P markets, grid flexibility, smart metering, devices, delivery and settlement.
+
+- [`COMMERCE.md`](./COMMERCE.md) — marketplace, checkout, inventory reservation and payment boundaries.
+- [`EXPLORER.md`](./EXPLORER.md) — canonical Solana/Sui explorer resolver.
+- [`TOKENIZATION.md`](./TOKENIZATION.md) — PET-20 review-first tokenization and Energy RWA backing.
+- [`api/README.md`](./api/README.md) — OpenAPI, Swagger and Postman tooling.
+- [`security/SECURITY.md`](./security/SECURITY.md) — repository, tenant, wallet, secret and supply-chain security controls.
+- [`security/DEPENDENCY-HARDENING.md`](./security/DEPENDENCY-HARDENING.md) — Dependabot remediation matrix and lockfile policy.

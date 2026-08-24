@@ -16,7 +16,6 @@
     "prebuild": "node ../../packages/tooling/scripts/check-postcss.mjs && node ../../packages/tooling/scripts/check-routing.mjs"
   },
   "dependencies": {
-    "@cetusprotocol/cetus-sui-clmm-sdk": "^5.4.0",
     "@mysten/sui": "^2.26.2",
     "@powerchain/actions": "workspace:*",
     "@powerchain/ai-core": "workspace:*",
@@ -54,7 +53,11 @@
     "@powerchain/energy-operations": "workspace:*",
     "@powerchain/energy-controls": "workspace:*",
     "@powerchain/copilot": "workspace:*",
-    "@powerchain/local-energy": "workspace:*"
+    "@powerchain/local-energy": "workspace:*",
+    "@powerchain/explorer": "workspace:*",
+    "@powerchain/tokenization": "workspace:*",
+    "@powerchain/checkout": "workspace:*",
+    "@cetusprotocol/cetus-sui-clmm-sdk": "^5.4.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

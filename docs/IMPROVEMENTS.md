@@ -375,3 +375,147 @@ The following workspaces now consume the Local Energy APIs:
 Grid & Flexibility reads/writes canonical flexibility signals.
 
 Settlement advances orders through the evidence-gated lifecycle and records only externally created wallet/payment references.
+
+
+## Commerce, Explorer, Checkout and Tokenization full-stack upgrade
+
+### Marketplace
+
+The marketplace no longer relies on static UI data as its execution source.
+
+```text
+Discovery
+→ tenant listing
+→ atomic inventory reservation
+→ marketplace order
+→ checkout linkage
+→ confirmed checkout
+→ paid order
+```
+
+Canonical persistence:
+
+```text
+marketplace_listings
+marketplace_orders
+```
+
+Concurrency protection:
+
+```text
+pg_advisory_xact_lock
+SELECT ... FOR UPDATE
+```
+
+Cancellation or checkout expiry restores unpaid reserved inventory.
+
+### Checkout
+
+The canonical checkout lifecycle is:
+
+```text
+CREATED
+→ REVIEW
+→ PENDING_SIGNATURE
+→ SUBMITTED
+→ CONFIRMED
+```
+
+Terminal alternatives:
+
+```text
+CANCELLED
+EXPIRED
+```
+
+The wallet remains external. PowerChain only records and verifies externally generated references.
+
+### Explorer
+
+Explorer resolution is centralized in:
+
+```text
+@powerchain/explorer
+```
+
+Platform and standalone Explorer use the same network-aware resolver for:
+
+```text
+Solana
+├── transaction
+├── address
+├── token
+└── program
+
+Sui
+├── transaction
+├── address
+└── object
+```
+
+### PET-20 Tokenization
+
+Canonical package:
+
+```text
+@powerchain/tokenization
+```
+
+Creation validates current Energy Position backing.
+
+Confirmation validates backing again before writing the representation to the canonical Digital Energy ledger.
+
+```text
+Active Solana Wh
++ Active Sui Wh
+<= Canonical Energy Position backing
+```
+
+### Modular application structure
+
+```text
+apps/platform/src/features/commerce/
+├── actions/
+├── context/
+├── hooks/
+├── services/
+├── config.ts
+├── constants.ts
+├── server.ts
+├── types.ts
+└── utils.ts
+```
+
+Shared domain rules are owned by packages and persistence repositories, not React components.
+
+### API tooling
+
+Canonical:
+
+```text
+/api/v1
+/openapi.yaml
+/api/v1/openapi
+/swagger
+/postman
+```
+
+OpenAPI and Postman cover Marketplace, Checkout, Explorer, Tokenization and Local Energy.
+
+### Contracts and programs
+
+New normative contract IDs:
+
+```text
+PCC-MKT-001
+PCC-CHK-001
+PCC-TOK-001
+```
+
+Anchor primitives now encode:
+
+- marketplace inventory bounds and checked amount multiplication;
+- checkout transition constraints and external-signature requirement;
+- Energy Position cross-chain representation backing invariants.
+
+These are implementation invariants and test targets, not claims that an audited mainnet deployment already exists.

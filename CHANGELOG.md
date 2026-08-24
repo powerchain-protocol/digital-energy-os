@@ -169,3 +169,45 @@ All notable changes to PowerChain are documented here. The project follows
 - Rewired the P2P compatibility APIs to the canonical Local Energy runtime.
 - Rewired the marketplace UI to tenant-scoped API data rather than imported demo constants.
 - Added fully wired Grid/Flexibility and Settlement operator workspaces.
+
+
+### Commerce, Explorer and tokenization full-stack upgrade
+
+- Added canonical `@powerchain/explorer` workspace.
+- Added canonical `@powerchain/tokenization` workspace.
+- Added organization-scoped Marketplace, Checkout and Tokenization PostgreSQL models.
+- Added migration `20260824000300_commerce_tokenization`.
+- Added atomic marketplace inventory reservation.
+- Added marketplace order → checkout linkage and automatic paid-state reconciliation after checkout confirmation.
+- Added review-first checkout sessions with explicit external wallet signature recording.
+- Added PET-20 tokenization intents with backing checks at creation and confirmation.
+- Connected tokenization confirmation to the canonical Digital Energy chain-representation ledger.
+- Added `/explorer` platform workspace and upgraded standalone Explorer to share the same resolver package.
+- Rebuilt Marketplace and Checkout UIs against `/api/v1` services.
+- Added modular commerce config, constants, context, hooks, services, actions, types and utilities.
+- Added canonical OpenAPI synchronization, `/api/v1/openapi`, `/swagger` and `/postman`.
+- Added Postman collection and local environment.
+- Added normative marketplace, checkout and PET-20 contract definitions.
+- Strengthened marketplace, escrow/checkout and energy-token Anchor invariant primitives.
+- Reorganized navigation so commerce surfaces have a single canonical home.
+
+
+### GitHub security and dependency hardening
+
+- Added `.github/dependabot.yml` for npm/pnpm, GitHub Actions and Docker.
+- Added `.github/SECURITY.md` and a security-aware pull request template.
+- Added least-privilege Security CI with frozen-lockfile installation, repository security checks, production dependency audit and Gitleaks history scanning.
+- Added CodeQL JavaScript/TypeScript analysis.
+- Added GitHub Dependency Review failing at Moderate or greater.
+- Added secret-safe `.gitignore` rules for local environments, private keys and credential files.
+- Added local `security:secrets`, `security:dependencies` and `security:check` gates.
+- Added secret-pattern scanning without printing matched secret values.
+- Added a 24-hour pnpm `minimumReleaseAge` dependency-resolution buffer.
+- Replaced the Next-specific Storybook framework with the first-party PowerChain Component Catalog to remove unresolved `image-size` and `elliptic` dependency chains.
+- Removed the optional vulnerable `sharp` Next.js image-optimizer path and explicitly disabled local Next image optimization.
+- Scoped PostCSS to `8.5.26`.
+- Scoped `deepmerge-ts` to `8.0.2` on the Prisma config dependency path.
+- Scoped vulnerable `uuid` paths to `11.1.1`.
+- Pruned obsolete unreachable dependency records from `pnpm-lock.yaml`.
+- Added security documentation and dependency-hardening documentation.
+- Upgraded the root README with centered `PowerChain | Digital Energy Infrastructure` branding, canonical `v1.0.0`, technology/security badges and professional security guidance.

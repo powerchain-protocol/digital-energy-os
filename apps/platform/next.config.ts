@@ -13,10 +13,11 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   outputFileTracingRoot: new URL("../..", import.meta.url).pathname,
-  transpilePackages: ["@powerchain/actions", "@powerchain/configuration", "@powerchain/data", "@powerchain/database", "@powerchain/integration", "@powerchain/shared", "@powerchain/types", "@powerchain/ui", "@powerchain/ai-core", "@powerchain/ai-gateway", "@powerchain/ai-ui", "@powerchain/credits", "@powerchain/contracts"],
+  transpilePackages: ["@powerchain/actions", "@powerchain/configuration", "@powerchain/data", "@powerchain/database", "@powerchain/integration", "@powerchain/shared", "@powerchain/types", "@powerchain/ui", "@powerchain/ai-core", "@powerchain/ai-gateway", "@powerchain/ai-ui", "@powerchain/credits", "@powerchain/contracts", "@powerchain/checkout", "@powerchain/explorer", "@powerchain/tokenization", "@powerchain/local-energy", "@powerchain/digital-energy", "@powerchain/energy-rwa"],
   compress: true,
   productionBrowserSourceMaps: false,
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "s2.coinmarketcap.com", pathname: "/static/img/coins/**" },
       { protocol: "https", hostname: "cryptoicons.cc", pathname: "/**" }

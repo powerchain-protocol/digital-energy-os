@@ -1,3 +1,11 @@
 # @powerchain/marketplace
 
-Framework-independent PowerChain package. It must not depend on Next.js application code unless explicitly classified as a UI package.
+Marketplace listing/order domain logic.
+
+Production persistence and concurrency-safe inventory reservation are provided by `@powerchain/database/commerce`.
+
+Canonical platform flow:
+
+```text
+Listing → Atomic reservation → Checkout link → Checkout confirmed → Order PAID
+```

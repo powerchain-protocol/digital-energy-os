@@ -1,0 +1,14 @@
+{
+  "name": "@powerchain/tokenization",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Review-first PowerChain tokenization intents for verified energy positions and cross-chain representations.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@powerchain/energy-rwa": "workspace:*",
+    "@powerchain/energy-core": "workspace:*"
+  }
+}

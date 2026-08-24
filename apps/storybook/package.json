@@ -1,23 +1,23 @@
 {
-  "name": "@powerchain/storybook",
+  "name": "@powerchain/component-catalog",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "storybook dev -p 6006",
-    "build": "storybook build",
+    "dev": "next dev -p 6006",
+    "build": "next build",
+    "start": "next start -p 6006",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@powerchain/shared": "workspace:*",
+    "next": "16.2.12",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "@powerchain/shared": "workspace:*"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "storybook": "^10.5.10",
-    "@storybook/nextjs": "^10.5.10",
-    "@storybook/addon-a11y": "^10.5.10",
+    "@types/node": "26.2.0",
     "@types/react": "^19.2.18",
-    "typescript": "^5.9.3",
-    "@storybook/react": "^10.5.10"
+    "@types/react-dom": "^19.2.4",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,0 +1,25 @@
+{
+  "id": "PCC-TOK-001",
+  "version": "1.0.0",
+  "title": "PowerChain PET-20 Tokenization Contract",
+  "status": "normative",
+  "assetClass": "VERIFIED_ENERGY_POSITION",
+  "canonicalUnit": "Wh",
+  "states": [
+    "DRAFT",
+    "REVIEW_REQUIRED",
+    "APPROVED",
+    "AWAITING_WALLET",
+    "SUBMITTED",
+    "CONFIRMED",
+    "CANCELLED",
+    "FAILED"
+  ],
+  "invariants": [
+    "PHYSICAL_ENERGY_AUTHORITATIVE",
+    "TOKENIZATION_OPTIONAL",
+    "ACTIVE_CROSS_CHAIN_REPRESENTATIONS_LE_BACKING",
+    "EXTERNAL_WALLET_SIGNATURE_REQUIRED",
+    "CONFIRMATION_RECHECKS_BACKING"
+  ]
+}

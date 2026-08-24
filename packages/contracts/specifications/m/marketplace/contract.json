@@ -1,0 +1,19 @@
+{
+  "id": "PCC-MKT-001",
+  "version": "1.0.0",
+  "title": "PowerChain Marketplace Reservation Contract",
+  "status": "normative",
+  "invariants": [
+    "INVENTORY_REMAINING_NONNEGATIVE",
+    "RESERVATION_QUANTITY_POSITIVE",
+    "ATOMIC_INVENTORY_DECREMENT",
+    "ORDER_CHECKOUT_LINK_EXPLICIT",
+    "IDEMPOTENT_ECONOMIC_WRITE"
+  ],
+  "authority": [
+    "seller",
+    "buyer",
+    "marketplace-program"
+  ],
+  "settlement": "Checkout confirmation is separate from marketplace reservation."
+}

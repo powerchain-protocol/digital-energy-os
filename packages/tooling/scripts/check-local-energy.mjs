@@ -74,7 +74,7 @@ if(!copilotContext.includes('case "LOCAL_ENERGY"'))errors.push("Copilot Local En
 if(!copilotDrawer.includes('pathname.startsWith("/local-energy")'))errors.push("Copilot Local Energy route context missing");
 
 const openapi=fs.readFileSync("docs/api/swagger.yaml","utf8");
-if(!openapi.includes("/local-energy/overview:")||!openapi.includes("tags: [Local Energy]"))errors.push("Local Energy OpenAPI missing");
+if(!openapi.includes("/local-energy/overview:")||!openapi.includes("- Local Energy"))errors.push("Local Energy OpenAPI missing");
 
 if(errors.length){
   console.error(errors.join("\n"));

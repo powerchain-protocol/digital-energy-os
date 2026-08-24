@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PowerChain Swagger / OpenAPI</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#0b1210;background:#f5f7f6}
+*{box-sizing:border-box}body{margin:0}.shell{max-width:1320px;margin:auto;padding:28px}
+.hero{border:1px solid #183d2e;border-radius:24px;background:linear-gradient(145deg,#050807,#0a2c1e);color:#fff;padding:30px}
+.hero span{font-size:11px;font-weight:800;letter-spacing:.16em;color:#83d6aa}.hero h1{font-size:42px;line-height:1;margin:12px 0}.hero p{max-width:760px;color:#b7c7bf;line-height:1.6}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.toolbar a,.toolbar button{border:1px solid #d8dedb;border-radius:10px;padding:10px 13px;background:#fff;color:#0b1210;text-decoration:none;font-weight:700;cursor:pointer}
+.search{width:100%;padding:13px 15px;border:1px solid #d8dedb;border-radius:12px;margin:18px 0;font-size:14px}
+.grid{display:grid;gap:10px}.endpoint{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:start;border:1px solid #dfe5e1;background:#fff;border-radius:14px;padding:13px}
+.method{font:800 11px ui-monospace,SFMono-Regular,monospace;border-radius:8px;padding:7px;text-align:center;background:#e7f5ed;color:#0b6b45}.path{font:700 13px ui-monospace,SFMono-Regular,monospace}.summary{margin-top:6px;font-size:12px;color:#65736c}.raw{white-space:pre-wrap;background:#07110d;color:#cce7d8;border-radius:16px;padding:18px;overflow:auto;font:12px/1.55 ui-monospace,SFMono-Regular,monospace;display:none}
+footer{padding:22px 0;color:#7a857f;font-size:12px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <section class="hero"><span>POWERCHAIN DIGITAL ENERGY OS · v1.0.0</span><h1>Swagger / OpenAPI</h1><p>Canonical API reference for /api/v1. This viewer is zero-dependency and loads the same OpenAPI document served at /openapi.yaml and /api/v1/openapi.</p></section>
+  <div class="toolbar"><a href="/openapi.yaml">Open YAML</a><a href="/api/v1/openapi">API endpoint</a><a href="/postman">Postman</a><button id="rawToggle">Toggle raw specification</button></div>
+  <input id="search" class="search" placeholder="Filter endpoint path, method, or summary"/>
+  <div id="endpoints" class="grid"></div>
+  <pre id="raw" class="raw"></pre>
+  <footer>Physical-energy authority, wallet-signature boundaries, tenant isolation and idempotency semantics are documented in the OpenAPI descriptions.</footer>
+</div>
+<script>
+const escapeHtml=s=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+fetch("/openapi.yaml").then(r=>r.text()).then(text=>{
+ document.querySelector("#raw").textContent=text;
+ const lines=text.split(/\r?\n/); const items=[]; let current=null;
+ for(let i=0;i<lines.length;i++){
+   const line=lines[i];
+   const path=line.match(/^  (\/[^:]+):\s*$/);
+   if(path){current=path[1];continue}
+   const method=line.match(/^    (get|post|patch|put|delete):\s*$/i);
+   if(method&&current){
+     let summary="";
+     for(let j=i+1;j<Math.min(lines.length,i+12);j++){const m=lines[j].match(/^\s+summary:\s*(.+)$/);if(m){summary=m[1].replace(/^['"]|['"]$/g,"");break}}
+     items.push({path:current,method:method[1].toUpperCase(),summary});
+   }
+ }
+ const root=document.querySelector("#endpoints");
+ const render=q=>{root.innerHTML="";items.filter(x=>`${x.method} ${x.path} ${x.summary}`.toLowerCase().includes(q.toLowerCase())).forEach(x=>{
+   root.insertAdjacentHTML("beforeend",`<article class="endpoint"><div class="method">${x.method}</div><div><div class="path">${escapeHtml(x.path)}</div><div class="summary">${escapeHtml(x.summary||"PowerChain API operation")}</div></div></article>`);
+ })};
+ render("");document.querySelector("#search").addEventListener("input",e=>render(e.target.value));
+});
+document.querySelector("#rawToggle").addEventListener("click",()=>{const raw=document.querySelector("#raw");raw.style.display=raw.style.display==="block"?"none":"block"});
+</script>
+</body>
+</html>

@@ -62,6 +62,7 @@ export function calculateCheckoutTotals(lines: readonly CheckoutLineInput[], ser
 
 export function createCheckoutService(options: { serviceFeeBps?: number; sessionTtlMinutes?: number } = {}) {
   const sessions = new Map<string, CheckoutSession>();
+  const idempotency = new Map<string, { fingerprint: string; sessionId: string }>();
   const serviceFeeBps = options.serviceFeeBps ?? 250;
   const sessionTtlMinutes = options.sessionTtlMinutes ?? 30;
 
@@ -77,9 +78,17 @@ export function createCheckoutService(options: { serviceFeeBps?: number; session
   }
 
   return {
-    create(input: CreateCheckoutInput) {
+    create(input: CreateCheckoutInput, idempotencyKey?: string) {
       const now = new Date();
       if (input.returnUrl && !/^https?:\/\//.test(input.returnUrl)) throw new CheckoutError("INVALID_RETURN_URL", "returnUrl must use HTTP or HTTPS");
+      const fingerprint = JSON.stringify({currency:input.currency,lines:input.lines,payerWallet:input.payerWallet??null,returnUrl:input.returnUrl??null});
+      if(idempotencyKey){
+        const existing=idempotency.get(idempotencyKey);
+        if(existing){
+          if(existing.fingerprint!==fingerprint)throw new CheckoutError("IDEMPOTENCY_CONFLICT","Idempotency key was reused with a different checkout payload");
+          return get(existing.sessionId);
+        }
+      }
       const session: CheckoutSession = {
         ...input,
         id: `chk_${crypto.randomUUID().replaceAll("-", "")}`,
@@ -91,6 +100,7 @@ export function createCheckoutService(options: { serviceFeeBps?: number; session
         expiresAt: new Date(now.getTime() + sessionTtlMinutes * 60_000).toISOString(),
       };
       sessions.set(session.id, session);
+      if(idempotencyKey)idempotency.set(idempotencyKey,{fingerprint,sessionId:session.id});
       return session;
     },
     get,

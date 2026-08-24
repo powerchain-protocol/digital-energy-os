@@ -9,7 +9,8 @@
     "./clients/*": "./src/clients/*.ts",
     "./energy-outbox-worker": "./src/repositories/energy-outbox-worker.ts",
     "./copilot": "./src/repositories/copilot.ts",
-    "./local-energy": "./src/repositories/local-energy.ts"
+    "./local-energy": "./src/repositories/local-energy.ts",
+    "./commerce": "./src/repositories/commerce.ts"
   },
   "scripts": {
     "db:generate": "prisma generate --schema prisma/schema.prisma",
@@ -32,7 +33,9 @@
     "@powerchain/energy-operations": "workspace:*",
     "@powerchain/energy-controls": "workspace:*",
     "@powerchain/copilot": "workspace:*",
-    "@powerchain/local-energy": "workspace:*"
+    "@powerchain/local-energy": "workspace:*",
+    "@powerchain/checkout": "workspace:*",
+    "@powerchain/tokenization": "workspace:*"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",

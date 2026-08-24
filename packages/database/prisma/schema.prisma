@@ -643,3 +643,101 @@ model LocalEnergyIdempotency {
   @@index([organizationId, createdAt(sort: Desc)])
   @@map("local_energy_idempotency")
 }
+
+
+enum MarketplaceListingStatus { DRAFT ACTIVE PAUSED SOLD_OUT CLOSED }
+enum MarketplaceOrderStatus { RESERVED CHECKOUT_PENDING PAID CANCELLED EXPIRED }
+enum CheckoutSessionStatus { CREATED REVIEW PENDING_SIGNATURE SUBMITTED CONFIRMED CANCELLED EXPIRED }
+enum CheckoutCurrency { EURC PWRC SOL USDC }
+enum TokenizationNetwork { SOLANA SUI }
+enum TokenizationIntentState { DRAFT REVIEW_REQUIRED APPROVED AWAITING_WALLET SUBMITTED CONFIRMED CANCELLED FAILED }
+
+model MarketplaceListingRecord {
+  id             String                   @id
+  organizationId String                   @map("organization_id")
+  sellerId       String                   @map("seller_id")
+  slug           String
+  title          String
+  description    String
+  category       String
+  source         String?
+  location       String?
+  currency       CheckoutCurrency
+  unitAmountMinor BigInt                  @map("unit_amount_minor")
+  inventory      Int
+  remaining      Int
+  status         MarketplaceListingStatus @default(DRAFT)
+  metadata       Json                     @default("{}")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+  orders         MarketplaceOrderRecord[]
+  @@unique([organizationId, slug])
+  @@index([organizationId, status, updatedAt(sort: Desc)])
+  @@index([category, status])
+  @@map("marketplace_listings")
+}
+
+model MarketplaceOrderRecord {
+  id                String                 @id
+  organizationId    String                 @map("organization_id")
+  listingId         String                 @map("listing_id")
+  buyerId           String                 @map("buyer_id")
+  quantity          Int
+  amountMinor       BigInt                 @map("amount_minor")
+  currency          CheckoutCurrency
+  status            MarketplaceOrderStatus @default(RESERVED)
+  checkoutSessionId String?                @map("checkout_session_id")
+  idempotencyKey    String                 @map("idempotency_key")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+  listing           MarketplaceListingRecord @relation(fields:[listingId],references:[id],onDelete:Restrict)
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status, updatedAt(sort: Desc)])
+  @@index([listingId, status])
+  @@map("marketplace_orders")
+}
+
+model CheckoutSessionRecord {
+  id                  String                @id
+  organizationId      String                @map("organization_id")
+  userId              String                @map("user_id")
+  currency            CheckoutCurrency
+  status              CheckoutSessionStatus @default(CREATED)
+  lines               Json
+  subtotalMinor       BigInt                @map("subtotal_minor")
+  serviceFeeMinor     BigInt                @map("service_fee_minor")
+  networkFeeMinor     BigInt?               @map("network_fee_minor")
+  totalMinor          BigInt                @map("total_minor")
+  payerWallet         String?               @map("payer_wallet")
+  returnUrl           String?               @map("return_url")
+  settlementSignature String?               @map("settlement_signature")
+  idempotencyKey      String                @map("idempotency_key")
+  expiresAt           DateTime              @map("expires_at")
+  createdAt           DateTime              @default(now()) @map("created_at")
+  updatedAt           DateTime              @updatedAt @map("updated_at")
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status, updatedAt(sort: Desc)])
+  @@map("checkout_sessions")
+}
+
+model TokenizationIntentRecord {
+  id               String                  @id
+  organizationId   String                  @map("organization_id")
+  createdBy        String                  @map("created_by")
+  energyPositionId String                  @map("energy_position_id")
+  network          TokenizationNetwork
+  amountWh         BigInt                  @map("amount_wh")
+  state            TokenizationIntentState @default(DRAFT)
+  assetClass       String                  @default("VERIFIED_ENERGY_POSITION") @map("asset_class")
+  metadataStandard String                  @default("PET-20") @map("metadata_standard")
+  reviewHash       String                  @map("review_hash")
+  walletReference  String?                 @map("wallet_reference")
+  chainReference   String?                 @map("chain_reference")
+  idempotencyKey   String                  @map("idempotency_key")
+  createdAt        DateTime                @default(now()) @map("created_at")
+  updatedAt        DateTime                @updatedAt @map("updated_at")
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, state, updatedAt(sort: Desc)])
+  @@index([energyPositionId, network, state])
+  @@map("tokenization_intents")
+}

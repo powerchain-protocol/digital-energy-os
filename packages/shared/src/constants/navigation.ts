@@ -71,7 +71,6 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
       { label: "Products Overview", href: ROUTES.products, icon: RocketIcon, roles: all, description: "PowerChain product portfolio" },
       { label: "Local Energy OS", href: ROUTES.localEnergy, icon: LightningBoltIcon, roles: all, description: "Communities, P2P market, grid flexibility, devices and local settlement" },
       { label: "Local Market", href: ROUTES.localEnergyMarketplace, icon: GlobeIcon, roles: all, description: "Grid-aware prosumer offers and shared energy assets" },
-      { label: "Marketplace", href: ROUTES.marketplace, icon: GlobeIcon, roles: all },
       { label: "Device Products", href: ROUTES.deviceProducts, icon: BackpackIcon, roles: all },
       { label: "Infrastructure", href: ROUTES.blockchain, icon: GlobeIcon, roles: operators },
       { label: "Intelligence Cloud", href: ROUTES.platform, icon: GlobeIcon, roles: all },
@@ -80,10 +79,12 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
   {
     label: "Commerce",
     items: [
+      { label: "Marketplace", href: ROUTES.marketplace, icon: GlobeIcon, roles: all, description: "Verified assets, atomic inventory reservation and linked checkout" },
+      { label: "Checkout", href: ROUTES.checkout, icon: BackpackIcon, roles: all, description: "Review-first non-custodial payment sessions" },
+      { label: "Tokenization", href: ROUTES.tokenization, icon: CubeIcon, roles: all, description: "PET-20 review-first Energy Position representations" },
       { label: "Exchange", href: ROUTES.exchange, icon: BarChartIcon, roles: all },
       { label: "Carbon Exchange", href: ROUTES.carbonExchange, icon: GlobeIcon, roles: all },
       { label: "Certification", href: ROUTES.certification, icon: ReaderIcon, roles: all },
-      { label: "Checkout", href: ROUTES.checkout, icon: BackpackIcon, roles: all },
       { label: "Crowdfunding", href: ROUTES.crowdfunding, icon: RocketIcon, roles: all },
       { label: "Projects", href: ROUTES.projects, icon: ReaderIcon, roles: all },
     ],
@@ -105,7 +106,6 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
     label: "Business",
     items: [
       { label: "Wallet", href: ROUTES.wallet, icon: BackpackIcon, roles: all },
-      { label: "Tokenization", href: ROUTES.tokenization, icon: CubeIcon, roles: all },
       { label: "PWRC Token", href: ROUTES.tokenPwrc, icon: CubeIcon, roles: all },
       { label: "Rewards & Leaderboard", href: ROUTES.leaderboard, icon: BarChartIcon, roles: all },
       { label: "Governance", href: ROUTES.governance, icon: CubeIcon, roles: all },
@@ -118,6 +118,7 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
   {
     label: "References",
     items: [
+      { label: "Network Explorer", href: ROUTES.explorer, icon: Link2Icon, roles: all, description: "Canonical Solana and Sui transaction/address/object resolver" },
       { label: "Documentation", href: ROUTES.docs, icon: ReaderIcon, roles: all },
       { label: "Architecture", href: ROUTES.architecture, icon: CubeIcon, roles: all },
       { label: "Engineering Framework", href: ROUTES.framework, icon: RocketIcon, roles: all },

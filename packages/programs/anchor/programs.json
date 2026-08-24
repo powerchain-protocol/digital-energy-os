@@ -39,7 +39,11 @@
         "devnet",
         "mainnet-beta"
       ],
-      "status": "test"
+      "status": "test",
+      "contractIds": [
+        "PCC-TOK-001"
+      ],
+      "purpose": "PET-20 Energy Position representation bounded by canonical Wh backing"
     },
     {
       "id": "marketplace",
@@ -49,7 +53,11 @@
         "devnet",
         "mainnet-beta"
       ],
-      "status": "test"
+      "status": "test",
+      "contractIds": [
+        "PCC-MKT-001"
+      ],
+      "purpose": "Atomic marketplace inventory reservation and order amount invariants"
     },
     {
       "id": "escrow",
@@ -59,7 +67,11 @@
         "devnet",
         "mainnet-beta"
       ],
-      "status": "test"
+      "status": "test",
+      "contractIds": [
+        "PCC-CHK-001"
+      ],
+      "purpose": "Review-first checkout/escrow state machine with external wallet authorization"
     },
     {
       "id": "treasury",

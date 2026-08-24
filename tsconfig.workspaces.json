@@ -99,6 +99,15 @@
       ],
       "@powerchain/database/local-energy": [
         "packages/database/src/repositories/local-energy.ts"
+      ],
+      "@powerchain/explorer": [
+        "packages/explorer/src/index.ts"
+      ],
+      "@powerchain/tokenization": [
+        "packages/tokenization/src/index.ts"
+      ],
+      "@powerchain/database/commerce": [
+        "packages/database/src/repositories/commerce.ts"
       ]
     },
     "types": [

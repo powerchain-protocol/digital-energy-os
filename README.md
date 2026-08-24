@@ -1,6 +1,37 @@
-# PowerChain 1.0.0
+<div align="center">
+
+# PowerChain | Digital Energy Infrastructure
+
+**v1.0.0**
 
 PowerChain is a Digital Energy Operating System for physical-energy operations, verified Energy RWA, local markets, metering, settlement, AI-assisted workflows, and multi-network Solana/Sui infrastructure.
+
+<p>
+  <img alt="Version" src="https://img.shields.io/badge/version-v1.0.0-0B6B45?style=flat-square" />
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-24.19%2B-1F6F43?style=flat-square&logo=nodedotjs&logoColor=white" />
+  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-11.22.0-F69220?style=flat-square&logo=pnpm&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16.2.12-111111?style=flat-square&logo=nextdotjs&logoColor=white" />
+  <img alt="OpenAPI" src="https://img.shields.io/badge/OpenAPI-3.1-6BA539?style=flat-square&logo=openapiinitiative&logoColor=white" />
+  <img alt="Solana" src="https://img.shields.io/badge/Solana-SVM-111111?style=flat-square&logo=solana&logoColor=white" />
+  <img alt="Sui" src="https://img.shields.io/badge/Sui-Move-4DA2FF?style=flat-square" />
+</p>
+
+<p>
+  <a href="https://github.com/powerchain-protocol/digital-energy-os/actions/workflows/security.yml">
+    <img alt="Security" src="https://github.com/powerchain-protocol/digital-energy-os/actions/workflows/security.yml/badge.svg" />
+  </a>
+  <a href="https://github.com/powerchain-protocol/digital-energy-os/actions/workflows/codeql.yml">
+    <img alt="CodeQL" src="https://github.com/powerchain-protocol/digital-energy-os/actions/workflows/codeql.yml/badge.svg" />
+  </a>
+  <img alt="Dependabot" src="https://img.shields.io/badge/Dependabot-enabled-0B6B45?style=flat-square&logo=dependabot&logoColor=white" />
+  <img alt="Secret scanning" src="https://img.shields.io/badge/secret%20scanning-enforced-0B6B45?style=flat-square&logo=github&logoColor=white" />
+</p>
+
+**Physical energy is authoritative. Blockchain provides representation, settlement, interoperability, provenance, and programmable coordination.**
+
+</div>
+
 
 ## Description
 
@@ -44,6 +75,7 @@ PowerChain unifies physical energy infrastructure, a canonical Energy Ledger, ve
 | Anchor/Rust programs and network configuration                    | `packages/programs/anchor`     |
 | Docker, Kubernetes and Terraform                                  | `packages/infrastructure`      |
 | Repository checks, scripts and smoke tests                        | `packages/tooling`             |
+| GitHub security automation, Dependabot, CodeQL and policy            | `.github`                      |
 | Architecture and engineering artifacts                            | `packages/engineering`         |
 | Human-readable documentation and OpenAPI                          | `docs`                         |
 
@@ -65,7 +97,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open `http://localhost:3000`. The committed `.env.local` contains safe development defaults only and is ignored by Git; provider secrets must remain local.
+Open `http://localhost:3000`. Copy `.env.example` to `.env.local` for local development. `.env.local` is ignored by Git; provider credentials and production secrets must remain in a secret manager.
 
 Run the complete application fleet when working across service boundaries:
 
@@ -141,7 +173,32 @@ See `docs/README.md` for architecture, standards, program, API, security, deploy
 
 ## Security
 
-Never commit API keys, database passwords, private keys, wallet seed phrases, or production RPC credentials. Use server-only environment variables and a deployment secret manager. PowerChain requests wallet signatures and public addresses only; it never needs recovery phrases.
+PowerChain uses repository-level supply-chain and secret controls in `.github/`:
+
+```text
+Dependabot
+Dependency Review
+CodeQL
+Gitleaks
+local secret-pattern scan
+lockfile advisory regression checks
+frozen-lockfile CI
+least-privilege GitHub Actions permissions
+```
+
+Run the local security gate before pushing:
+
+```bash
+pnpm security:check
+```
+
+Never commit API keys, OAuth/PAT tokens, database passwords, private keys, wallet seed phrases, service-account credentials, or production RPC secrets. Use server-only environment variables plus GitHub Actions/deployment secret managers.
+
+If a credential is exposed, rotate dependencies on it, revoke it at the provider, review audit logs, verify secret scanning is clean, and only then close the alert.
+
+PowerChain requests wallet signatures and public addresses only. It never requires recovery phrases and does not silently sign transactions on behalf of users.
+
+See [`.github/SECURITY.md`](.github/SECURITY.md) and [`docs/security/SECURITY.md`](docs/security/SECURITY.md).
 
 ## License
 
@@ -352,4 +409,65 @@ Canonical persistence migration:
 
 ```text
 20260824000200_local_energy_os
+```
+
+
+## Commerce, Explorer & Tokenization
+
+PowerChain v1.0.0 now exposes one integrated commerce stack:
+
+```text
+Marketplace
+→ atomic inventory reservation
+→ Checkout
+→ human review
+→ external wallet signature
+→ verified settlement
+→ marketplace reconciliation
+```
+
+Canonical product routes:
+
+```text
+/marketplace
+/checkout
+/tokenization
+/explorer
+```
+
+API tooling:
+
+```text
+/openapi.yaml
+/api/v1/openapi
+/swagger
+/postman
+```
+
+Postman artifacts:
+
+```text
+docs/api/postman/
+```
+
+PET-20 tokenization is connected to the canonical Digital Energy backing ledger:
+
+```text
+Tokenization intent
+→ review
+→ approval
+→ external wallet
+→ confirmed chain reference
+→ Digital Energy representation ledger
+```
+
+Confirmation re-checks available Energy Position backing before representation.
+
+See:
+
+```text
+docs/COMMERCE.md
+docs/EXPLORER.md
+docs/TOKENIZATION.md
+docs/api/README.md
 ```
