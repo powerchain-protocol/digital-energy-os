@@ -1,122 +1,22 @@
 "use client";
-
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Activity, ArrowRight, Filter, Leaf, Search, ShieldCheck, ShoppingCart, Sparkles, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useMarketplace } from "@/features/commerce/hooks/use-marketplace";
-import { commerceClient } from "@/features/commerce/services/client";
-import { minorToDecimal, statusLabel } from "@/features/commerce/utils";
-import { useCommerceContext } from "@/features/commerce/context/commerce-context";
-import type { MarketplaceListingView } from "@/features/commerce/types";
-
-const money=(minor:string,currency:string)=>new Intl.NumberFormat("en-FI",{style:"currency",currency:currency==="USDC"||currency==="EURC"?"EUR":"USD",maximumFractionDigits:4}).format(minorToDecimal(minor,6));
-
+import { Activity, ArrowRight, BarChart3, Filter, Leaf, Map, ShieldCheck, X, Zap } from "lucide-react";
+import { energyListings } from "@/data/marketplace";
+import { ListingCard, type EnergyListing } from "./listing-card";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { usePreferences } from "@/context/preferences-context";
 export function MarketplaceWorkspace(){
-  const router=useRouter();
-  const{setSelectedListingId,setCheckoutSessionId}=useCommerceContext();
-  const[query,setQuery]=useState("");
-  const[source,setSource]=useState("All");
-  const[selected,setSelected]=useState<MarketplaceListingView|null>(null);
-  const[quantity,setQuantity]=useState(1);
-  const[busy,setBusy]=useState(false);
-  const[notice,setNotice]=useState<string|null>(null);
-  const{listings,loading,error,dataMode,refresh}=useMarketplace(query);
-
-  const sources=useMemo(()=>["All",...Array.from(new Set(listings.map(item=>item.source).filter(Boolean) as string[]))],[listings]);
-  const filtered=useMemo(()=>listings.filter(item=>source==="All"||item.source===source),[listings,source]);
-
-  async function reserveAndCheckout(){
-    if(!selected||quantity<1||quantity>selected.remaining)return;
-    setBusy(true);setNotice(null);
-    try{
-      const orderBody=await commerceClient.createMarketplaceOrder(selected.id,quantity);
-      const order=orderBody.data;
-      const checkoutBody=await commerceClient.createCheckout(selected.currency,[{
-        id:order.id,
-        name:selected.title,
-        quantity:1,
-        unitAmountMinor:order.amountMinor,
-      }]);
-      const checkout=checkoutBody.data;
-      await fetch(`/api/v1/marketplace/orders/${encodeURIComponent(order.id)}/checkout`,{
-        method:"POST",
-        headers:{"content-type":"application/json","Idempotency-Key":`attach-${crypto.randomUUID()}`},
-        body:JSON.stringify({checkoutSessionId:checkout.id}),
-      }).then(async response=>{if(!response.ok){const body=await response.json();throw new Error(body?.error?.message??"Unable to attach checkout")}});
-      setSelectedListingId(selected.id);setCheckoutSessionId(checkout.id);
-      router.push(`/checkout?session=${encodeURIComponent(checkout.id)}&order=${encodeURIComponent(order.id)}`);
-    }catch(cause){
-      setNotice(cause instanceof Error?cause.message:"Unable to reserve marketplace inventory");
-    }finally{setBusy(false)}
-  }
-
-  return <div className="content-container space-y-6">
-    <section className="market-hero">
-      <div className="relative z-10 grid gap-6 xl:grid-cols-[1.35fr_.65fr]">
-        <div>
-          <div className="flex flex-wrap items-center gap-2"><span className="data-mode-chip live">POWERCHAIN MARKETPLACE</span><span className={`data-mode-chip ${dataMode==="LIVE"?"live":"degraded"}`}>{dataMode}</span></div>
-          <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-[-.04em] sm:text-5xl">Discover verified energy assets, reserve inventory, and move into controlled checkout.</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-emerald-50/80">Listings, inventory reservation, checkout linkage and final payment state are separated so the marketplace cannot silently convert discovery into settlement.</p>
-          <div className="mt-5 flex flex-wrap gap-2 text-xs text-emerald-50/75"><span className="rounded-full border border-white/15 px-3 py-1.5">Atomic inventory</span><span className="rounded-full border border-white/15 px-3 py-1.5">Idempotent orders</span><span className="rounded-full border border-white/15 px-3 py-1.5">External wallet approval</span></div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Kpi label="Active listings" value={String(filtered.length)}/>
-          <Kpi label="Inventory" value={String(filtered.reduce((sum,item)=>sum+item.remaining,0))}/>
-          <Kpi label="Sources" value={String(Math.max(0,sources.length-1))}/>
-          <Kpi label="Settlement" value="Review-first"/>
-        </div>
-      </div>
-    </section>
-
-    <section className="panel flex flex-col gap-3 p-4 lg:flex-row lg:items-center">
-      <label className="flex flex-1 items-center gap-2 rounded-xl border border-[var(--border)] px-3"><Search className="h-4 w-4 text-[var(--muted)]"/><input value={query} onChange={event=>setQuery(event.target.value)} className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="Search energy, assets, location, source"/></label>
-      <div className="flex flex-wrap gap-2">{sources.map(item=><button key={item} onClick={()=>setSource(item)} className={`rounded-xl px-3 py-2 text-sm font-semibold ${source===item?"bg-emerald-900 text-white":"border border-[var(--border)]"}`}>{item}</button>)}</div>
-      <Button variant="framed" onClick={()=>void refresh()}><Filter className="h-4 w-4"/>Refresh</Button>
-    </section>
-
-    {error&&<div className="digital-energy-error"><Activity/><div><strong>Marketplace unavailable</strong><span>{error}</span></div></div>}
-    {notice&&<div className="digital-energy-error"><Activity/><div><strong>Marketplace action</strong><span>{notice}</span></div></div>}
-
-    <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-      {filtered.map(item=><MarketplaceCard key={item.id} listing={item} onReview={()=>{setSelected(item);setQuantity(1)}}/>)}
-      {!loading&&!filtered.length&&<div className="col-span-full rounded-2xl border border-dashed p-12 text-center text-sm text-[var(--muted)]">No active marketplace listings match this query.</div>}
-    </section>
-
-    {selected&&<div className="fixed inset-0 z-[90] grid place-items-center bg-slate-950/60 p-4 backdrop-blur-sm" onMouseDown={event=>event.target===event.currentTarget&&setSelected(null)}>
-      <section className="w-full max-w-xl rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl">
-        <div className="flex items-start justify-between gap-4"><div><span className="eyebrow">MARKETPLACE ORDER REVIEW</span><h2 className="mt-2 text-2xl font-semibold">{selected.title}</h2><p className="mt-2 text-sm text-[var(--muted)]">{selected.description}</p></div><button onClick={()=>setSelected(null)} className="text-sm font-bold">Close</button></div>
-        <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-black/[.03] p-4 dark:bg-white/[.04]">
-          <OrderLine label="Unit price" value={`${money(selected.unitAmountMinor,selected.currency)} · ${selected.currency}`}/>
-          <OrderLine label="Available" value={String(selected.remaining)}/>
-          <OrderLine label="Status" value={statusLabel(selected.status)}/>
-          <OrderLine label="Source" value={selected.source??selected.category}/>
-        </div>
-        <label className="mt-5 block text-sm font-semibold">Quantity<input type="number" min={1} max={selected.remaining} value={quantity} onChange={event=>setQuantity(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-[var(--border)] bg-transparent p-3"/></label>
-        <div className="mt-5 rounded-xl border border-emerald-700/15 bg-emerald-500/[.06] p-4 text-sm"><ShieldCheck className="mb-2 h-5 w-5 text-emerald-700"/>Reservation is atomic. Checkout is created separately. Wallet submission remains explicit and external.</div>
-        <Button onClick={()=>void reserveAndCheckout()} disabled={busy||quantity<1||quantity>selected.remaining} className="mt-5 w-full"><ShoppingCart className="h-4 w-4"/>{busy?"Reserving…":"Reserve inventory & open checkout"}</Button>
-      </section>
-    </div>}
-  </div>;
+ const [source,setSource]=useState("All"); const [selected,setSelected]=useState<EnergyListing|null>(null); const [verifiedOnly,setVerifiedOnly]=useState(false); const {formatMoney}=usePreferences();
+ const filtered=useMemo(()=>energyListings.filter(x=>(source==="All"||x.source===source)&&(!verifiedOnly||x.verified)),[source,verifiedOnly]);
+ return <div className="content-container space-y-6">
+  <section className="market-hero"><div className="relative z-10 grid gap-6 xl:grid-cols-[1.4fr_.8fr]"><div><Badge className="border-white/20 bg-white/10 text-white">PowerChain Energy Exchange</Badge><h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Trade verified renewable energy with transparent delivery and settlement.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-emerald-50/80">Discover local generation, compare carbon intensity, reserve capacity and settle through PowerChain treasury.</p><div className="mt-6 flex flex-wrap gap-3"><Button onClick={()=>setSelected(filtered[0]??null)} className="bg-white text-emerald-950 hover:bg-emerald-50">Buy energy</Button><ButtonLink href="/exchange?create=listing" variant="framed" className="border-white/30 text-white hover:bg-white/10">Create listing</ButtonLink></div></div><div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-2"><Kpi label="Live market" value="24.68 GW"/><Kpi label="24h volume" value="1.24 MWh"/><Kpi label="Average price" value="$0.068"/><Kpi label="CO₂ avoided" value="482.6 t"/></div></div></section>
+  <section className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]"><div className="space-y-5"><div className="panel flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex flex-wrap gap-2">{["All","Solar","Wind","Hydro"].map(x=><button key={x} onClick={()=>setSource(x)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${source===x?"bg-emerald-900 text-white":"border border-[var(--border)] bg-[var(--surface)]"}`}>{x}</button>)}</div><Button onClick={()=>setVerifiedOnly((value)=>!value)} aria-pressed={verifiedOnly} variant="framed"><Filter className="h-4 w-4"/>{verifiedOnly?"Verified only":"Filters"}</Button></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-2">{filtered.map(x=><ListingCard key={x.id} listing={x} onReview={setSelected}/>)}</div></div>
+   <aside className="space-y-5"><section className="panel overflow-hidden"><div className="market-card-image relative h-56"><div className="absolute inset-0 grid place-items-center"><Map className="h-14 w-14 text-white/80"/></div><div className="absolute left-[28%] top-[34%] h-4 w-4 rounded-full border-4 border-white bg-emerald-500 shadow-lg"/><div className="absolute right-[24%] top-[52%] h-4 w-4 rounded-full border-4 border-white bg-amber-400 shadow-lg"/></div><div className="p-5"><h2 className="font-semibold">Live energy map</h2><p className="mt-1 text-sm text-[var(--muted)]">Nearby verified producers and grid delivery zones.</p><ButtonLink href="/map" variant="framed" className="mt-4 w-full">Open wayfinder <ArrowRight className="h-4 w-4"/></ButtonLink></div></section><section className="review-order"><h2 className="font-semibold">Market intelligence</h2><ul className="mt-4 space-y-3 text-sm"><Insight icon={BarChart3} text="Solar offers are 4.2% below the regional average."/><Insight icon={Activity} text="Delivery capacity is stable for the next 24 hours."/><Insight icon={Leaf} text="Current mix is 96% renewable."/></ul></section></aside>
+  </section>
+  {selected&&<div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" onMouseDown={e=>e.target===e.currentTarget&&setSelected(null)}><section role="dialog" aria-modal="true" aria-label="Review energy order" className="w-full max-w-lg rounded-[28px] border border-white/20 bg-[var(--surface)] p-6 shadow-2xl"><div className="flex items-start justify-between"><div><p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Review order</p><h2 className="mt-1 text-2xl font-semibold">{selected.name}</h2></div><button className="icon-button" onClick={()=>setSelected(null)} aria-label="Close order review"><X className="h-5 w-5"/></button></div><div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-black/[.03] p-4 dark:bg-white/[.04]"><OrderLine label="Energy" value="500 kWh"/><OrderLine label="Price" value={`${formatMoney(selected.price)}/kWh`}/><OrderLine label="Subtotal" value={formatMoney(selected.price*500)}/><OrderLine label="Network fee" value={formatMoney(selected.price*500*.012)}/></div><div className="mt-5 flex items-center gap-2 rounded-2xl border border-emerald-700/15 bg-emerald-500/[.06] p-4 text-sm"><ShieldCheck className="h-5 w-5 text-emerald-700"/>Smart-meter availability and grid delivery will be verified before signature.</div><ButtonLink href={`/checkout?listing=${encodeURIComponent(selected.slug)}&amount=500`} className="mt-5 w-full">Continue to signature</ButtonLink></section></div>}
+ </div>
 }
-
-function MarketplaceCard({listing,onReview}:{listing:MarketplaceListingView;onReview:()=>void}){
-  const verified=Boolean(listing.metadata?.verified);
-  const carbon=Number(listing.metadata?.carbonIntensity??0);
-  return <article className="market-card overflow-hidden">
-    <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-900 p-5 text-white">
-      <div className="flex items-center justify-between gap-3"><span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">{listing.source??listing.category}</span><span className="text-xs text-white/65">{listing.currency}</span></div>
-      <h2 className="mt-10 text-xl font-semibold">{listing.title}</h2>
-      <p className="mt-2 text-sm text-white/70">{listing.location??"PowerChain marketplace"}</p>
-    </div>
-    <div className="p-5">
-      <p className="line-clamp-2 text-sm text-[var(--muted)]">{listing.description}</p>
-      <div className="mt-4 grid grid-cols-2 gap-3"><Metric label="Price" value={money(listing.unitAmountMinor,listing.currency)}/><Metric label="Remaining" value={String(listing.remaining)}/></div>
-      <div className="mt-4 flex flex-wrap gap-2 text-xs">{verified&&<span className="inline-flex items-center gap-1 text-emerald-700"><ShieldCheck className="h-4 w-4"/>Verified</span>}{carbon>0&&<span className="inline-flex items-center gap-1 text-emerald-700"><Leaf className="h-4 w-4"/>{carbon} gCO₂/kWh</span>}</div>
-      <Button onClick={onReview} className="mt-5 w-full"><Zap className="h-4 w-4"/>Review order</Button>
-    </div>
-  </article>;
-}
-function Kpi({label,value}:{label:string;value:string}){return <div className="rounded-2xl border border-white/15 bg-white/[.08] p-4 backdrop-blur"><span className="text-[11px] uppercase tracking-wider text-white/60">{label}</span><strong className="mt-2 block text-xl">{value}</strong></div>}
-function Metric({label,value}:{label:string;value:string}){return <div className="rounded-xl bg-black/[.025] p-3 dark:bg-white/[.04]"><span className="text-[11px] text-[var(--muted)]">{label}</span><strong className="mt-1 block text-sm">{value}</strong></div>}
-function OrderLine({label,value}:{label:string;value:string}){return <div><span className="text-xs text-[var(--muted)]">{label}</span><strong className="mt-1 block text-sm">{value}</strong></div>}
+function Kpi({label,value}:{label:string;value:string}){return <div className="rounded-2xl border border-white/15 bg-white/[.08] p-4 backdrop-blur"><p className="text-[11px] uppercase tracking-wider text-emerald-100/70">{label}</p><strong className="mt-2 block text-xl font-semibold">{value}</strong></div>}
+function Insight({icon:Icon,text}:{icon:typeof Activity;text:string}){return <li className="flex gap-3"><Icon className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700"/><span>{text}</span></li>}
+function OrderLine({label,value}:{label:string;value:string}){return <div><p className="text-xs text-[var(--muted)]">{label}</p><strong className="mt-1 block font-semibold">{value}</strong></div>}

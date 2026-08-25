@@ -16,6 +16,7 @@
     "prebuild": "node ../../packages/tooling/scripts/check-postcss.mjs && node ../../packages/tooling/scripts/check-routing.mjs"
   },
   "dependencies": {
+    "@cetusprotocol/cetus-sui-clmm-sdk": "^5.4.0",
     "@mysten/sui": "^2.26.2",
     "@powerchain/actions": "workspace:*",
     "@powerchain/ai-core": "workspace:*",
@@ -46,18 +47,19 @@
     "recharts": "^3.10.1",
     "tailwind-merge": "^2.6.1",
     "zod": "^3.25.76",
-    "@powerchain/energy-core": "workspace:*",
-    "@powerchain/energy-rwa": "workspace:*",
-    "@powerchain/asset-graph": "workspace:*",
-    "@powerchain/digital-energy": "workspace:*",
-    "@powerchain/energy-operations": "workspace:*",
-    "@powerchain/energy-controls": "workspace:*",
-    "@powerchain/copilot": "workspace:*",
+    "@powerchain/device-control": "workspace:*",
+    "@powerchain/token-framework": "workspace:*",
+    "@powerchain/control-plane": "workspace:*",
+    "@powerchain/execution-simulator": "workspace:*",
+    "@powerchain/energy-network": "workspace:*",
     "@powerchain/local-energy": "workspace:*",
-    "@powerchain/explorer": "workspace:*",
-    "@powerchain/tokenization": "workspace:*",
-    "@powerchain/checkout": "workspace:*",
-    "@cetusprotocol/cetus-sui-clmm-sdk": "^5.4.0"
+    "@powerchain/ems": "workspace:*",
+    "@powerchain/rewards": "workspace:*",
+    "@powerchain/treasury": "workspace:*",
+    "@powerchain/vault": "workspace:*",
+    "@powerchain/erp": "workspace:*",
+    "@powerchain/cmr": "workspace:*",
+    "@powerchain/revenue-engine": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

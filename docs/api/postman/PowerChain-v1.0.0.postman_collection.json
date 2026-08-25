@@ -1,0 +1,546 @@
+{
+  "info": {
+    "_postman_id": "powerchain-v1-0-0",
+    "name": "PowerChain Digital Energy OS API v1.0.0",
+    "description": "Canonical PowerChain v1.0.0 developer collection. Authenticated endpoints use the PowerChain session cookie. Financial/device/token mutations remain policy/approval controlled.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "EMS Overview",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/ems",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ems"
+          ]
+        }
+      }
+    },
+    {
+      "name": "ERP Overview",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/erp",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "erp"
+          ]
+        }
+      }
+    },
+    {
+      "name": "CMR Overview",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/cmr",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "cmr"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rewards Overview",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/rewards",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "rewards"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Treasury Overview",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/treasury",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "treasury"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Vault Overview",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vault",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vault"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Energy Network Search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/energy-network/search?q=solar&type=PROSUMER",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "energy-network",
+            "search?q=solar&type=PROSUMER"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Local Energy Listings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/local-energy/listings?mode=RENT",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "local-energy",
+            "listings?mode=RENT"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Reserve Local Energy",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/local-energy/reservations",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "local-energy",
+            "reservations"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"listingId\": \"<listing-id>\",\n  \"quantityWh\": \"1000\",\n  \"expectedVersion\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Copilot Credit Rates",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/copilot/credits/rates",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "copilot",
+            "credits",
+            "rates"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Copilot Credit Quote EUR",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/copilot/credits/quote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "copilot",
+            "credits",
+            "quote"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pricingClass\": \"BASE\",\n  \"currency\": \"EUR\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Copilot Credit Quote SOL",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/copilot/credits/quote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "copilot",
+            "credits",
+            "quote"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pricingClass\": \"REAL_DATA\",\n  \"currency\": \"SOL\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Jupiter Token Search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/solana/tokens/search?q=USDC",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solana",
+            "tokens",
+            "search?q=USDC"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Jupiter Price",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/integrations/jupiter/price?ids=So11111111111111111111111111111111111111112",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "integrations",
+            "jupiter",
+            "price?ids=So11111111111111111111111111111111111111112"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Solana Program IDs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/solana/programs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solana",
+            "programs"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Token Framework",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/tokens/framework",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tokens",
+            "framework"
+          ]
+        }
+      }
+    },
+    {
+      "name": "CCT Issuance Intent",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/tokens/cct/issuance-intents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tokens",
+            "cct",
+            "issuance-intents"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recipient\": \"<solana-address>\",\n  \"amountRaw\": \"1000000000\",\n  \"evidenceIds\": [\n    \"evd_example\"\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Asset Graph",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/asset-graph",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "asset-graph"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Energy Agent Manifest",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/control-plane/agents/energy",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "control-plane",
+            "agents",
+            "energy"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Evaluate Control Plane Intent",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/control-plane/intents/evaluate",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "control-plane",
+            "intents",
+            "evaluate"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"PREPARE_TRANSACTION\",\n  \"payload\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Revenue Preview",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/revenue/preview",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "revenue",
+            "preview"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"source\": \"GRID_EXPORT\",\n  \"energyWh\": \"1000000\",\n  \"rateMinorPerKwh\": \"9\",\n  \"currency\": \"EUR\",\n  \"scale\": 2,\n  \"shares\": {\n    \"treasuryBps\": 3000,\n    \"investorBps\": 5000,\n    \"reserveBps\": 2000\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Jupiter Swap Quote",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/solana/swap/quote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solana",
+            "swap",
+            "quote"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"inputMint\": \"So11111111111111111111111111111111111111112\",\n  \"outputMint\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"amount\": \"100000000\",\n  \"slippageBps\": 50\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3000"
+    }
+  ]
+}

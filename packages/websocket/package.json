@@ -3,7 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "exports": "./src/index.ts",
-  "dependencies": { "ws": "8.21.3" },
-  "devDependencies": { "@types/ws": "8.18.1" }
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth/index.ts",
+    "./channels": "./src/channels/index.ts",
+    "./client": "./src/client/index.ts",
+    "./gateway": "./src/gateway/index.ts"
+  },
+  "dependencies": {
+    "ws": "8.21.3"
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.1"
+  }
 }

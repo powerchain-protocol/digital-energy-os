@@ -1,1 +1,1 @@
-export const domain = "subscriptions" as const;
+export type SubscriptionCommand={action:"subscribe"|"unsubscribe";channel:string;after?:number};

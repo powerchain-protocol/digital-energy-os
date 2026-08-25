@@ -1,0 +1,5 @@
+export const VAULT_VERSION="1.0.0" as const;
+export type VaultRecordClass="EVIDENCE"|"CREDENTIAL_REFERENCE"|"POLICY_SNAPSHOT"|"AUDIT_EXPORT"|"DOCUMENT";
+export interface VaultRecord{id:string;organizationId:string;classification:VaultRecordClass;contentHash:string;storageReference:string;retentionPolicy:string;createdAt:string;metadata:Record<string,unknown>}
+export interface CredentialReference{id:string;organizationId:string;provider:string;secretManagerReference:string;purpose:string;expiresAt?:string}
+export function assertNoRawSecret(value:Record<string,unknown>){for(const key of Object.keys(value)){if(/private.?key|secret|mnemonic|seed/i.test(key))throw new Error("VAULT_RAW_SECRET_PROHIBITED")}}

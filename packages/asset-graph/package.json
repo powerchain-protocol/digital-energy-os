@@ -3,12 +3,5 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Canonical PowerChain energy relationship graph",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "dependencies": {
-    "@powerchain/energy-core": "workspace:*",
-    "@powerchain/energy-rwa": "workspace:*"
-  }
+  "exports": "./src/index.ts"
 }

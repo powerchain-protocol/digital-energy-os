@@ -5,8 +5,8 @@ import { NAVIGATION_GROUPS } from "@/constants/navigation";
 
 const fallback = {
   title: "PowerChain Dashboard",
-  eyebrow: "Digital Energy OS",
-  description: "Operate physical energy, verified Energy RWA, local markets and multi-network infrastructure.",
+  eyebrow: "Renewable Energy OS",
+  description: "Operate renewable assets, markets and digital energy infrastructure.",
 };
 
 export function usePageMeta() {

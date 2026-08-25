@@ -11,8 +11,6 @@ type AppContextValue = {
   toggleSidebar: () => void;
   commandOpen: boolean;
   setCommandOpen: (value: boolean) => void;
-  copilotOpen: boolean;
-  setCopilotOpen: (value: boolean) => void;
   activeOrganizationId: string;
   setActiveOrganizationId: (value: string) => void;
 };
@@ -23,7 +21,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
-  const [copilotOpen, setCopilotOpen] = useState(false);
   const [activeOrganizationId, setActiveOrganizationId] = useState("org_powerchain_demo");
 
   useEffect(() => {
@@ -44,14 +41,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         event.preventDefault();
         setCommandOpen((value) => !value);
       }
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "i") {
-        event.preventDefault();
-        setCopilotOpen((value) => !value);
-      }
-      if (event.key === "Escape") {
-        setMobileSidebarOpen(false);
-        setCopilotOpen(false);
-      }
+      if (event.key === "Escape") setMobileSidebarOpen(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -65,12 +55,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleSidebar,
       commandOpen,
       setCommandOpen,
-      copilotOpen,
-      setCopilotOpen,
       activeOrganizationId,
       setActiveOrganizationId,
     }),
-    [mobileSidebarOpen, sidebarCollapsed, toggleSidebar, commandOpen, copilotOpen, activeOrganizationId],
+    [mobileSidebarOpen, sidebarCollapsed, toggleSidebar, commandOpen, activeOrganizationId],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

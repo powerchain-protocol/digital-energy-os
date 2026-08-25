@@ -35,6 +35,7 @@ model EnergyAsset {
   longitude      Decimal?     @db.Decimal(9, 6)
   metadata       Json         @default("{}")
   telemetry      Telemetry[]
+  connectedDevices ConnectedDevice[]
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   @@index([organizationId, status])
@@ -94,6 +95,8 @@ model User {
   displayName String       @map("display_name")
   memberships Membership[]
   chats       AIChat[]
+  savedCopilotPrompts CopilotSavedPrompt[]
+  copilotFeedback CopilotMessageFeedback[]
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
   @@map("users")
@@ -181,563 +184,360 @@ model P2PEnergyOrder {
 }
 
 
-enum DigitalEnergyProofState { PENDING VERIFIED REJECTED INVALIDATED }
-enum DigitalEnergyBatchState { OPEN FINALIZED INVALIDATED }
-enum DigitalEnergyPositionState { AVAILABLE RESERVED COMMITTED DELIVERING DELIVERED SETTLING SETTLED RETIRED RELEASED TRANSFERRED DISPUTED RECONCILED }
-enum DigitalEnergyReservationState { ACTIVE RELEASED CONSUMED }
-enum DigitalEnergyRepresentationNetwork { SOLANA SUI }
-enum DigitalEnergyRepresentationState { ACTIVE LOCKED MIGRATING BURNING RETIRED }
-enum DigitalEnergyRetirementReason { CONSUMED SETTLED CERTIFIED INVALIDATED CANCELLED MIGRATED }
-
-model DigitalEnergyProof {
-  id                  String                  @id
-  organizationId      String                  @map("organization_id")
-  siteId              String                  @map("site_id")
-  meterId             String                  @map("meter_id")
-  meteringPointId     String?                 @map("metering_point_id")
-  source              String
-  measuredWh          BigInt                  @map("measured_wh")
-  verifiedWh          BigInt                  @map("verified_wh")
-  intervalStart       DateTime                @map("interval_start")
-  intervalEnd         DateTime                @map("interval_end")
-  qualityScorePpm     BigInt                  @map("quality_score_ppm")
-  evidenceRoot        String                  @map("evidence_root")
-  verifier            String
-  verificationVersion String                  @map("verification_version")
-  state               DigitalEnergyProofState
-  createdAt           DateTime                @default(now()) @map("created_at")
-  batchProofs         DigitalEnergyBatchProof[]
-  @@index([organizationId, intervalStart(sort: Desc)])
-  @@map("digital_energy_proofs")
+model ConnectedDevice {
+  id                 String   @id @default(uuid()) @db.Uuid
+  organizationId     String   @db.Uuid @map("organization_id")
+  assetId            String?  @db.Uuid @map("asset_id")
+  deviceId           String   @map("device_id")
+  kind               String
+  manufacturer       String
+  model              String
+  firmware           String?
+  serialNumber       String?  @map("serial_number")
+  status             String   @default("UNCONFIGURED")
+  network            String
+  healthScore        Int      @default(0) @map("health_score")
+  currentOutputW     BigInt?  @map("current_output_w")
+  cumulativeEnergyWh BigInt?  @map("cumulative_energy_wh")
+  lastSeenAt         DateTime? @map("last_seen_at")
+  version            Int      @default(1)
+  metadata           Json     @default("{}")
+  asset              EnergyAsset? @relation(fields:[assetId],references:[id],onDelete:SetNull)
+  telemetry          DeviceTelemetry[]
+  commands           DeviceCommand[]
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  @@unique([organizationId,deviceId])
+  @@index([organizationId,status])
+  @@index([assetId])
+  @@map("connected_devices")
 }
 
-model DigitalEnergyBatch {
-  id             String                  @id
-  organizationId String                  @map("organization_id")
-  siteId         String                  @map("site_id")
-  gridAreaId     String?                 @map("grid_area_id")
-  source         String
-  intervalStart  DateTime                @map("interval_start")
-  intervalEnd    DateTime                @map("interval_end")
-  measuredWh     BigInt                  @map("measured_wh")
-  verifiedWh     BigInt                  @map("verified_wh")
-  invalidatedWh  BigInt                  @default(0) @map("invalidated_wh")
-  retiredWh      BigInt                  @default(0) @map("retired_wh")
-  state          DigitalEnergyBatchState
-  evidenceRoot   String                  @map("evidence_root")
-  createdAt      DateTime                @default(now()) @map("created_at")
-  updatedAt      DateTime                @updatedAt @map("updated_at")
-  proofs         DigitalEnergyBatchProof[]
-  positions      DigitalEnergyPosition[]
-  @@index([organizationId, intervalStart(sort: Desc)])
-  @@map("digital_energy_batches")
+model DeviceTelemetry {
+  id          BigInt          @id @default(autoincrement())
+  deviceId    String          @db.Uuid @map("device_id")
+  device      ConnectedDevice @relation(fields:[deviceId],references:[id],onDelete:Cascade)
+  metric      String
+  value       Decimal         @db.Decimal(24,6)
+  unit        String
+  quality     String          @default("GOOD")
+  recordedAt  DateTime        @map("recorded_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  @@index([deviceId,metric,recordedAt(sort:Desc)])
+  @@map("device_telemetry")
 }
 
-model DigitalEnergyBatchProof {
-  batchId String @map("batch_id")
-  proofId String @map("proof_id")
-  batch   DigitalEnergyBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
-  proof   DigitalEnergyProof @relation(fields:[proofId],references:[id],onDelete:Restrict)
-  @@id([batchId, proofId])
-  @@map("digital_energy_batch_proofs")
+model DeviceCommand {
+  id                    String          @id @default(uuid()) @db.Uuid
+  organizationId        String          @db.Uuid @map("organization_id")
+  deviceId              String          @db.Uuid @map("device_id")
+  commandType           String          @map("command_type")
+  expectedDeviceVersion Int             @map("expected_device_version")
+  state                 String          @default("REVIEW_REQUIRED")
+  reason                String
+  requestedBy           String          @map("requested_by")
+  idempotencyKey        String          @map("idempotency_key")
+  approvedBy            String?         @map("approved_by")
+  requestId             String          @map("request_id")
+  traceId               String          @map("trace_id")
+  correlationId         String          @map("correlation_id")
+  externalReference     String?         @map("external_reference")
+  device                ConnectedDevice @relation(fields:[deviceId],references:[id],onDelete:Cascade)
+  createdAt             DateTime        @default(now()) @map("created_at")
+  updatedAt             DateTime        @updatedAt @map("updated_at")
+  @@unique([organizationId,idempotencyKey])
+  @@index([organizationId,state,createdAt(sort:Desc)])
+  @@map("device_commands")
 }
 
-model DigitalEnergyPosition {
-  id             String                     @id
-  organizationId String                     @map("organization_id")
-  energyBatchId  String                     @map("energy_batch_id")
-  ownerId        String                     @map("owner_id")
-  companyId      String?                    @map("company_id")
-  source         String
-  amountWh       BigInt                     @map("amount_wh")
-  state          DigitalEnergyPositionState @default(AVAILABLE)
-  gridAreaId     String?                    @map("grid_area_id")
-  intervalStart  DateTime                   @map("interval_start")
-  intervalEnd    DateTime                   @map("interval_end")
-  evidenceRoot   String                     @map("evidence_root")
-  createdAt      DateTime                   @default(now()) @map("created_at")
-  updatedAt      DateTime                   @updatedAt @map("updated_at")
-  batch          DigitalEnergyBatch         @relation(fields:[energyBatchId],references:[id],onDelete:Restrict)
-  reservations   DigitalEnergyReservation[]
-  representations DigitalEnergyRepresentation[]
-  retirements    DigitalEnergyRetirement[]
-  deliveries     DigitalEnergyDelivery[]
-  @@index([organizationId, state])
-  @@index([energyBatchId])
-  @@map("digital_energy_positions")
+model CopilotSavedPrompt {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid @map("user_id")
+  promptId  String   @map("prompt_id")
+  user      User     @relation(fields:[userId],references:[id],onDelete:Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  @@unique([userId,promptId])
+  @@map("copilot_saved_prompts")
 }
 
-model DigitalEnergyReservation {
-  id               String                        @id
-  organizationId   String                        @map("organization_id")
-  energyPositionId String                        @map("energy_position_id")
-  amountWh         BigInt                        @map("amount_wh")
-  purpose          String
-  state            DigitalEnergyReservationState @default(ACTIVE)
-  createdAt        DateTime                      @default(now()) @map("created_at")
-  updatedAt        DateTime                      @updatedAt @map("updated_at")
-  position         DigitalEnergyPosition         @relation(fields:[energyPositionId],references:[id],onDelete:Cascade)
-  @@index([organizationId, state])
-  @@index([energyPositionId])
-  @@map("digital_energy_reservations")
+model CopilotMessageFeedback {
+  id        String    @id @default(uuid()) @db.Uuid
+  messageId String    @db.Uuid @map("message_id")
+  userId    String    @db.Uuid @map("user_id")
+  value     String
+  reason    String?
+  user      User      @relation(fields:[userId],references:[id],onDelete:Cascade)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  @@unique([messageId,userId])
+  @@index([userId,createdAt(sort:Desc)])
+  @@map("copilot_message_feedback")
 }
 
-model DigitalEnergyRepresentation {
-  id               String                              @id
-  organizationId   String                              @map("organization_id")
-  energyPositionId String                              @map("energy_position_id")
-  network          DigitalEnergyRepresentationNetwork
-  reference        String
-  amountWh         BigInt                              @map("amount_wh")
-  state            DigitalEnergyRepresentationState    @default(ACTIVE)
-  metadataStandard String                              @default("1.0.0") @map("metadata_standard")
-  createdAt        DateTime                            @default(now()) @map("created_at")
-  updatedAt        DateTime                            @updatedAt @map("updated_at")
-  position         DigitalEnergyPosition               @relation(fields:[energyPositionId],references:[id],onDelete:Cascade)
-  @@unique([network, reference])
-  @@index([organizationId, state])
-  @@index([energyPositionId])
-  @@map("digital_energy_representations")
+model AcpProviderDirectory {
+  id                  String   @id
+  organizationId      String?  @map("organization_id")
+  publicId            String   @unique @map("public_id")
+  name                String
+  participantType     String   @map("participant_type")
+  walletAddress       String   @map("wallet_address")
+  identityHash        String   @map("identity_hash")
+  apiEndpoint         String   @map("api_endpoint")
+  eventEndpoint       String?  @map("event_endpoint")
+  credentialReference String?  @map("credential_reference")
+  status              String   @default("active")
+  capabilities        String[] @default([])
+  offerings           Json     @default("[]")
+  chains              Int[]    @default([])
+  categories          String[] @default([])
+  regions             String[] @default([])
+  successfulJobs      Int      @default(0) @map("successful_jobs")
+  successRate         Decimal? @db.Decimal(6,3) @map("success_rate")
+  metadata            Json     @default("{}")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  @@index([status,participantType,name])
+  @@map("acp_provider_directory")
 }
 
-model DigitalEnergyRetirement {
-  id               String                         @id
-  organizationId   String                         @map("organization_id")
-  energyPositionId String                         @map("energy_position_id")
-  amountWh         BigInt                         @map("amount_wh")
-  reason           DigitalEnergyRetirementReason
-  settlementId     String?                        @map("settlement_id")
-  tradeId          String?                        @map("trade_id")
-  receiptReference String?                        @map("receipt_reference")
-  retiredAt        DateTime                       @default(now()) @map("retired_at")
-  position         DigitalEnergyPosition          @relation(fields:[energyPositionId],references:[id],onDelete:Restrict)
-  @@index([organizationId, retiredAt(sort: Desc)])
-  @@index([energyPositionId])
-  @@map("digital_energy_retirements")
+model EnergyNetworkParticipant {
+  id              String   @id
+  organizationId  String?  @map("organization_id")
+  publicId        String   @unique @map("public_id")
+  name            String
+  participantType String   @map("participant_type")
+  country         String
+  region          String?
+  latitude        Decimal? @db.Decimal(9,6)
+  longitude       Decimal? @db.Decimal(9,6)
+  capabilities    String[] @default([])
+  energySources   String[] @default([]) @map("energy_sources")
+  markets         String[] @default([])
+  verified        Boolean  @default(false)
+  publicProfile   Boolean  @default(false) @map("public_profile")
+  metadata        Json     @default("{}")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  @@index([publicProfile,participantType,country,region])
+  @@map("energy_network_participants")
 }
 
-model DigitalEnergyIdempotency {
-  id             String   @id @default(uuid()) @db.Uuid
+model CopilotCreditAccount {
+  id              String   @id
+  organizationId  String   @db.Uuid @map("organization_id")
+  userId          String   @db.Uuid @map("user_id")
+  balancePwrcRaw  Decimal  @default(0) @db.Decimal(78,0) @map("balance_pwrc_raw")
+  reservedPwrcRaw Decimal  @default(0) @db.Decimal(78,0) @map("reserved_pwrc_raw")
+  version         Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  @@unique([organizationId,userId])
+  @@map("copilot_credit_accounts")
+}
+
+model CopilotCreditLedgerEntry {
+  id                String   @id
+  organizationId    String   @db.Uuid @map("organization_id")
+  accountId         String   @map("account_id")
+  entryType         String   @map("entry_type")
+  pwrcRaw           Decimal  @db.Decimal(78,0) @map("pwrc_raw")
+  direction         String
+  requestId         String?  @map("request_id")
+  quoteId           String?  @map("quote_id")
+  reservationId     String?  @map("reservation_id")
+  externalReference String?  @map("external_reference")
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now()) @map("created_at")
+  @@index([accountId,createdAt(sort:Desc)])
+  @@map("copilot_credit_ledger_entries")
+}
+
+model CopilotCreditReservation {
+  id              String   @id
+  organizationId  String   @db.Uuid @map("organization_id")
+  accountId       String   @map("account_id")
+  requestId       String   @map("request_id")
+  quoteId         String   @map("quote_id")
+  pricingClass    String   @map("pricing_class")
+  usdCharge       Decimal  @db.Decimal(12,6) @map("usd_charge")
+  pwrcUsdPrice    Decimal  @db.Decimal(24,12) @map("pwrc_usd_price")
+  reservedPwrcRaw Decimal  @db.Decimal(78,0) @map("reserved_pwrc_raw")
+  settledPwrcRaw  Decimal  @default(0) @db.Decimal(78,0) @map("settled_pwrc_raw")
+  state           String   @default("reserved")
+  expiresAt       DateTime @map("expires_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  settledAt       DateTime? @map("settled_at")
+  @@unique([organizationId,requestId])
+  @@index([state,expiresAt])
+  @@map("copilot_credit_reservations")
+}
+
+model VaultRecord {
+  id              String   @id
+  organizationId  String   @map("organization_id")
+  classification  String
+  contentHash     String   @map("content_hash")
+  storageReference String  @map("storage_reference")
+  retentionPolicy String   @map("retention_policy")
+  metadata        Json     @default("{}")
+  createdAt       DateTime @default(now()) @map("created_at")
+  @@unique([organizationId,contentHash,storageReference])
+  @@map("vault_records")
+}
+
+model RewardAllocation {
+  id             String   @id
   organizationId String   @map("organization_id")
-  scope          String
-  key            String
-  response       Json
-  expiresAt      DateTime @map("expires_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  @@unique([organizationId, scope, key])
-  @@index([expiresAt])
-  @@map("digital_energy_idempotency")
+  participantId  String   @map("participant_id")
+  epoch           String
+  reason          String
+  pwrcRaw         Decimal  @db.Decimal(78,0) @map("pwrc_raw")
+  evidenceIds     String[] @default([]) @map("evidence_ids")
+  state           String   @default("PENDING")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  @@unique([organizationId,participantId,epoch,reason])
+  @@map("reward_allocations")
 }
 
-model DigitalEnergyAuditEvent {
-  id             String   @id @default(uuid()) @db.Uuid
+model ErpDocument {
+  id                String   @id
+  organizationId    String   @map("organization_id")
+  documentType      String   @map("document_type")
+  externalReference String?  @map("external_reference")
+  counterpartyId    String?  @map("counterparty_id")
+  currency          String
+  amountMinor       Decimal  @db.Decimal(78,0) @map("amount_minor")
+  status             String
+  sourceSystem       String   @map("source_system")
+  metadata           Json     @default("{}")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  @@index([organizationId,status,createdAt(sort:Desc)])
+  @@map("erp_documents")
+}
+
+model CmrRelationship {
+  id               String   @id
+  organizationId   String   @map("organization_id")
+  participantId    String   @map("participant_id")
+  relationshipType String   @map("relationship_type")
+  status            String
+  ownerId           String?  @map("owner_id")
+  tags              String[] @default([])
+  consents          String[] @default([])
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  @@unique([organizationId,participantId,relationshipType])
+  @@map("cmr_relationships")
+}
+
+model CmrInteraction {
+  id             String   @id
   organizationId String   @map("organization_id")
+  relationshipId String   @map("relationship_id")
+  channel        String
+  summary        String
+  occurredAt     DateTime @map("occurred_at")
   actorId        String   @map("actor_id")
-  action         String
-  resource       String
-  resourceId     String?  @map("resource_id")
-  requestId      String   @map("request_id")
-  correlationId  String   @map("correlation_id")
-  dataMode       String   @map("data_mode")
-  metadata       Json?
   createdAt      DateTime @default(now()) @map("created_at")
-  @@index([organizationId, createdAt(sort: Desc)])
-  @@index([action])
-  @@map("digital_energy_audit_events")
+  @@index([organizationId,relationshipId,occurredAt(sort:Desc)])
+  @@map("cmr_interactions")
 }
-
-enum DigitalEnergyTwinAssetType { SOLAR_ARRAY WIND_TURBINE BATTERY EVSE SMART_METER GRID_NODE PLANT }
-enum DigitalEnergyTwinState { OPERATIONAL DEGRADED STALE OFFLINE MAINTENANCE }
-enum DigitalEnergyTelemetryFreshness { FRESH AGING STALE UNAVAILABLE }
-enum DigitalEnergyDeliveryState { COMMITTED DELIVERING DELIVERED DISPUTED RECONCILED CANCELLED }
-enum DigitalEnergyReconciliationState { MATCHED WITHIN_TOLERANCE REVIEW_REQUIRED RECONCILED }
-enum DigitalEnergySettlementAsset { USDC EURC FIAT_EUR }
-enum DigitalEnergySettlementNetwork { SOLANA OFFCHAIN }
-enum DigitalEnergySettlementState { READY SUBMITTED CONFIRMED RECONCILED FAILED CANCELLED }
-enum DigitalEnergyApprovalDecision { APPROVED REJECTED }
-enum DigitalEnergyOutboxState { PENDING PROCESSING PUBLISHED FAILED }
-
-model DigitalEnergyTwinAsset {
-  id                 String                         @id
-  organizationId     String                         @map("organization_id")
-  siteId             String                         @map("site_id")
-  assetType          DigitalEnergyTwinAssetType     @map("asset_type")
-  label              String
-  gridAreaId         String?                        @map("grid_area_id")
-  observedAt         DateTime                       @map("observed_at")
-  telemetryAgeSeconds Int                           @map("telemetry_age_seconds")
-  freshness          DigitalEnergyTelemetryFreshness
-  state              DigitalEnergyTwinState
-  powerW             BigInt?                        @map("power_w")
-  availabilityPpm    BigInt?                        @map("availability_ppm")
-  stateOfChargePpm   BigInt?                        @map("state_of_charge_ppm")
-  exportLimitW       BigInt?                        @map("export_limit_w")
-  evidenceRoot       String?                        @map("evidence_root")
-  createdAt          DateTime                       @default(now()) @map("created_at")
-  updatedAt          DateTime                       @updatedAt @map("updated_at")
-  @@index([organizationId, state])
-  @@index([organizationId, siteId])
-  @@map("digital_energy_twin_assets")
-}
-
-model DigitalEnergyDelivery {
-  id               String                     @id
-  organizationId   String                     @map("organization_id")
-  energyPositionId String                     @map("energy_position_id")
-  reservationId    String?                    @map("reservation_id")
-  committedWh      BigInt                     @map("committed_wh")
-  deliveredWh      BigInt                     @default(0) @map("delivered_wh")
-  state            DigitalEnergyDeliveryState @default(COMMITTED)
-  intervalStart    DateTime                   @map("interval_start")
-  intervalEnd      DateTime                   @map("interval_end")
-  meterEvidenceRoot String?                   @map("meter_evidence_root")
-  createdAt        DateTime                   @default(now()) @map("created_at")
-  updatedAt        DateTime                   @updatedAt @map("updated_at")
-  position         DigitalEnergyPosition      @relation(fields:[energyPositionId],references:[id],onDelete:Restrict)
-  reconciliations  DigitalEnergyReconciliation[]
-  settlements      DigitalEnergySettlement[]
-  @@index([organizationId, state])
-  @@index([energyPositionId])
-  @@map("digital_energy_deliveries")
-}
-
-model DigitalEnergyReconciliation {
-  id             String                           @id
-  organizationId String                           @map("organization_id")
-  deliveryId     String                           @map("delivery_id")
-  expectedWh     BigInt                           @map("expected_wh")
-  deliveredWh    BigInt                           @map("delivered_wh")
-  varianceWh     BigInt                           @map("variance_wh")
-  toleranceWh    BigInt                           @map("tolerance_wh")
-  state          DigitalEnergyReconciliationState
-  reconciledAt   DateTime?                        @map("reconciled_at")
-  createdAt      DateTime                         @default(now()) @map("created_at")
-  delivery       DigitalEnergyDelivery            @relation(fields:[deliveryId],references:[id],onDelete:Cascade)
-  settlements    DigitalEnergySettlement[]
-  @@index([organizationId, state])
-  @@index([deliveryId])
-  @@map("digital_energy_reconciliations")
-}
-
-model DigitalEnergySettlement {
-  id               String                         @id
-  organizationId   String                         @map("organization_id")
-  deliveryId       String                         @map("delivery_id")
-  reconciliationId String                         @map("reconciliation_id")
-  asset            DigitalEnergySettlementAsset
-  network          DigitalEnergySettlementNetwork
-  amountMinor      BigInt                         @map("amount_minor")
-  state            DigitalEnergySettlementState   @default(READY)
-  reference        String?
-  reviewHash       String                         @map("review_hash")
-  createdBy        String                         @map("created_by")
-  approvalsRequired Int                           @default(2) @map("approvals_required")
-  createdAt        DateTime                       @default(now()) @map("created_at")
-  updatedAt        DateTime                       @updatedAt @map("updated_at")
-  delivery         DigitalEnergyDelivery          @relation(fields:[deliveryId],references:[id],onDelete:Restrict)
-  reconciliation   DigitalEnergyReconciliation    @relation(fields:[reconciliationId],references:[id],onDelete:Restrict)
-  approvals        DigitalEnergySettlementApproval[]
-  @@index([organizationId, state])
-  @@index([deliveryId])
-  @@index([reconciliationId])
-  @@map("digital_energy_settlements")
-}
-
-model DigitalEnergySettlementApproval {
-  id             String                        @id
-  organizationId String                        @map("organization_id")
-  settlementId   String                        @map("settlement_id")
-  actorId        String                        @map("actor_id")
-  decision       DigitalEnergyApprovalDecision
-  reviewHash     String                        @map("review_hash")
-  note           String?
-  createdAt      DateTime                      @default(now()) @map("created_at")
-  settlement     DigitalEnergySettlement       @relation(fields:[settlementId],references:[id],onDelete:Cascade)
-  @@unique([settlementId, actorId])
-  @@index([organizationId, decision])
-  @@index([settlementId])
-  @@map("digital_energy_settlement_approvals")
-}
-
-model DigitalEnergyOutboxEvent {
-  id                  String                   @id
-  organizationId      String                   @map("organization_id")
-  topic               String
-  aggregateType       String                   @map("aggregate_type")
-  aggregateId         String                   @map("aggregate_id")
-  payload             Json
-  state               DigitalEnergyOutboxState @default(PENDING)
-  attempts            Int                      @default(0)
-  lastError           String?                  @map("last_error")
-  nextAttemptAt       DateTime                 @default(now()) @map("next_attempt_at")
-  processingStartedAt DateTime?                @map("processing_started_at")
-  createdAt           DateTime                 @default(now()) @map("created_at")
-  publishedAt         DateTime?                @map("published_at")
-  @@index([organizationId, state, nextAttemptAt, createdAt])
-  @@index([state, nextAttemptAt])
-  @@index([aggregateType, aggregateId])
-  @@map("digital_energy_outbox_events")
-}
-
-
-
-enum CopilotActionState {
-  DRAFT
-  REVIEW_REQUIRED
-  APPROVED
-  AWAITING_WALLET
-  SIGNED_EXTERNALLY
-  RECORDED
-  REJECTED
-}
-
-enum CopilotActionRisk {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
-model CopilotActionRecord {
-  id                       String             @id
-  organizationId           String             @map("organization_id")
-  createdByUserId          String             @map("created_by_user_id")
-  createdByAgent           String             @map("created_by_agent")
-  title                    String
-  description              String
-  state                    CopilotActionState
-  risk                     CopilotActionRisk
-  requiredPermission       String             @map("required_permission")
-  requiresWalletSignature  Boolean            @default(false) @map("requires_wallet_signature")
-  contexts                 Json
-  humanApprovedAt          DateTime?          @map("human_approved_at")
-  humanApprovedBy          String?            @map("human_approved_by")
-  rejectedBy               String?            @map("rejected_by")
-  walletSignatureReference String?            @map("wallet_signature_reference")
-  createdAt                DateTime           @default(now()) @map("created_at")
-  updatedAt                DateTime           @updatedAt @map("updated_at")
-
-  @@index([organizationId, state, updatedAt])
-  @@index([createdByUserId, updatedAt])
-  @@map("copilot_actions")
-}
-
-
-enum LocalEnergyListingMode { BUY SELL RENT }
-enum LocalEnergySource { SOLAR WIND HYDRO BATTERY MIXED }
-enum LocalEnergyListingState { ACTIVE PAUSED COMPLETED CANCELLED }
-enum LocalEnergyOrderState { REVIEW_REQUIRED RESERVED DELIVERING DELIVERED RECONCILED SETTLEMENT_READY SETTLED CANCELLED DISPUTED }
-enum LocalEnergySettlementAsset { USDC EURC FIAT_EUR PWRC }
-enum LocalEnergyFlexDirection { INCREASE_EXPORT REDUCE_EXPORT INCREASE_IMPORT REDUCE_IMPORT }
-enum LocalEnergyFlexState { OPEN RESERVED DELIVERING COMPLETED CANCELLED }
 
 model LocalEnergyListing {
-  id                   String                    @id
-  organizationId       String                    @map("organization_id")
-  sellerOrganizationId String                    @map("seller_organization_id")
-  sellerName           String                    @map("seller_name")
-  title                String
-  mode                 LocalEnergyListingMode
-  source               LocalEnergySource
-  gridAreaId           String                    @map("grid_area_id")
-  location             String
-  latitude             Decimal?                  @db.Decimal(9,6)
-  longitude            Decimal?                  @db.Decimal(9,6)
-  quantityWh           BigInt                    @map("quantity_wh")
-  availableWh          BigInt                    @map("available_wh")
-  minimumWh            BigInt                    @map("minimum_wh")
-  exportLimitWh        BigInt?                   @map("export_limit_wh")
-  priceMicrosPerKwh    BigInt                    @map("price_micros_per_kwh")
-  currency             String                    @default("EUR")
-  settlementAsset      LocalEnergySettlementAsset @map("settlement_asset")
-  renewablePercent     Int                       @map("renewable_percent")
-  verified             Boolean                   @default(false)
-  meterVerified        Boolean                   @default(false) @map("meter_verified")
-  deliveryStart        DateTime                  @map("delivery_start")
-  deliveryEnd          DateTime                  @map("delivery_end")
-  state                LocalEnergyListingState   @default(ACTIVE)
-  metadata             Json                      @default("{}")
-  createdAt            DateTime                  @default(now()) @map("created_at")
-  updatedAt            DateTime                  @updatedAt @map("updated_at")
-  orders               LocalEnergyOrder[]
-  @@index([organizationId, state, deliveryStart])
-  @@index([organizationId, gridAreaId, state])
+  id               String   @id
+  organizationId   String   @db.Uuid @map("organization_id")
+  participantId    String   @map("participant_id")
+  mode             String
+  source           String
+  assetId          String?  @map("asset_id")
+  quantityWh       BigInt   @map("quantity_wh")
+  availableWh      BigInt   @map("available_wh")
+  priceMinorPerKwh BigInt   @map("price_minor_per_kwh")
+  currency         String
+  deliveryStart    DateTime @map("delivery_start")
+  deliveryEnd      DateTime @map("delivery_end")
+  state            String   @default("ACTIVE")
+  version          Int      @default(1)
+  metadata         Json     @default("{}")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  reservations     LocalEnergyReservation[]
+  @@index([mode,state,deliveryStart])
+  @@index([organizationId,updatedAt(sort:Desc)])
   @@map("local_energy_listings")
 }
 
-model LocalEnergyOrder {
-  id                   String                   @id
-  organizationId       String                   @map("organization_id")
-  listingId            String                   @map("listing_id")
-  buyerId              String                   @map("buyer_id")
-  quantityWh           BigInt                   @map("quantity_wh")
-  expectedWh           BigInt                   @map("expected_wh")
-  deliveredWh          BigInt                   @default(0) @map("delivered_wh")
-  varianceWh           BigInt                   @default(0) @map("variance_wh")
-  subtotalMicros       BigInt                   @map("subtotal_micros")
-  networkFeeMicros     BigInt                   @map("network_fee_micros")
-  reserveMicros        BigInt                   @map("reserve_micros")
-  totalMicros          BigInt                   @map("total_micros")
-  currency             String                   @default("EUR")
-  settlementAsset      LocalEnergySettlementAsset @map("settlement_asset")
-  state                LocalEnergyOrderState    @default(REVIEW_REQUIRED)
-  idempotencyKey       String                   @map("idempotency_key")
-  reservationReference String?                  @map("reservation_reference")
-  meterEvidenceRoot    String?                  @map("meter_evidence_root")
-  settlementReference  String?                  @map("settlement_reference")
-  toleranceWh          BigInt                   @default(0) @map("tolerance_wh")
-  createdAt            DateTime                 @default(now()) @map("created_at")
-  updatedAt            DateTime                 @updatedAt @map("updated_at")
-  listing              LocalEnergyListing       @relation(fields:[listingId],references:[id],onDelete:Restrict)
-  @@unique([organizationId, idempotencyKey])
-  @@index([organizationId, state, updatedAt(sort: Desc)])
-  @@index([listingId, state])
-  @@index([buyerId, state])
-  @@map("local_energy_orders")
+model LocalEnergyReservation {
+  id                          String   @id
+  organizationId              String   @db.Uuid @map("organization_id")
+  listingId                   String   @map("listing_id")
+  counterpartyParticipantId   String   @map("counterparty_participant_id")
+  quantityWh                  BigInt   @map("quantity_wh")
+  listingVersion              Int      @map("listing_version")
+  state                       String   @default("REVIEW_REQUIRED")
+  idempotencyKey              String   @map("idempotency_key")
+  deliveryEvidenceId          String?  @map("delivery_evidence_id")
+  reconciliationReference     String?  @map("reconciliation_reference")
+  externalSettlementReference String? @map("external_settlement_reference")
+  createdAt                   DateTime @default(now()) @map("created_at")
+  updatedAt                   DateTime @updatedAt @map("updated_at")
+  listing                     LocalEnergyListing @relation(fields:[listingId],references:[id],onDelete:Restrict)
+  @@unique([organizationId,idempotencyKey])
+  @@index([listingId,state,createdAt(sort:Desc)])
+  @@index([organizationId,state,updatedAt(sort:Desc)])
+  @@map("local_energy_reservations")
 }
 
-model LocalEnergyFlexibilitySignal {
-  id             String                   @id
-  organizationId String                   @map("organization_id")
-  gridAreaId     String                   @map("grid_area_id")
-  direction      LocalEnergyFlexDirection
-  requestedWh    BigInt                   @map("requested_wh")
-  availableWh    BigInt                   @map("available_wh")
-  state          LocalEnergyFlexState     @default(OPEN)
-  idempotencyKey String                   @map("idempotency_key")
-  startsAt       DateTime                 @map("starts_at")
-  endsAt         DateTime                 @map("ends_at")
-  createdAt      DateTime                 @default(now()) @map("created_at")
-  updatedAt      DateTime                 @updatedAt @map("updated_at")
-  @@unique([organizationId, idempotencyKey])
-  @@index([organizationId, gridAreaId, state, startsAt])
-  @@map("local_energy_flexibility_signals")
-}
-
-model LocalEnergyAuditEvent {
-  id             String   @id @default(uuid()) @db.Uuid
-  organizationId String   @map("organization_id")
-  actorId        String   @map("actor_id")
-  action         String
-  resource       String
-  resourceId     String?  @map("resource_id")
-  requestId      String   @map("request_id")
-  correlationId  String   @map("correlation_id")
-  dataMode       String   @map("data_mode")
-  metadata       Json?
+model TreasuryAccount {
+  id             String   @id
+  organizationId String   @db.Uuid @map("organization_id")
+  code           String
+  name           String
+  accountType    String   @map("account_type")
+  asset          String
+  balanceRaw     Decimal  @default(0) @db.Decimal(78,0) @map("balance_raw")
+  status         String   @default("ACTIVE")
+  version        Int      @default(1)
   createdAt      DateTime @default(now()) @map("created_at")
-  @@index([organizationId, createdAt(sort: Desc)])
-  @@index([action])
-  @@map("local_energy_audit_events")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  postings       TreasuryPosting[]
+  @@unique([organizationId,code,asset])
+  @@index([organizationId,accountType,status])
+  @@map("treasury_accounts")
 }
 
-
-model LocalEnergyIdempotency {
-  id             String   @id @default(uuid()) @db.Uuid
-  organizationId String   @map("organization_id")
-  scope          String
-  key            String
-  resourceId     String?  @map("resource_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  @@unique([organizationId, scope, key])
-  @@index([organizationId, createdAt(sort: Desc)])
-  @@map("local_energy_idempotency")
+model TreasuryJournal {
+  id                 String   @id
+  organizationId     String   @db.Uuid @map("organization_id")
+  businessReference  String   @map("business_reference")
+  journalType        String   @map("journal_type")
+  sourceJournalId    String?  @map("source_journal_id")
+  reason             String?
+  requestId          String   @map("request_id")
+  traceId            String   @map("trace_id")
+  correlationId      String   @map("correlation_id")
+  policyHash         String?  @map("policy_hash")
+  postedAt           DateTime @default(now()) @map("posted_at")
+  postings           TreasuryPosting[]
+  @@unique([organizationId,businessReference])
+  @@index([organizationId,postedAt(sort:Desc)])
+  @@map("treasury_journals")
 }
 
-
-enum MarketplaceListingStatus { DRAFT ACTIVE PAUSED SOLD_OUT CLOSED }
-enum MarketplaceOrderStatus { RESERVED CHECKOUT_PENDING PAID CANCELLED EXPIRED }
-enum CheckoutSessionStatus { CREATED REVIEW PENDING_SIGNATURE SUBMITTED CONFIRMED CANCELLED EXPIRED }
-enum CheckoutCurrency { EURC PWRC SOL USDC }
-enum TokenizationNetwork { SOLANA SUI }
-enum TokenizationIntentState { DRAFT REVIEW_REQUIRED APPROVED AWAITING_WALLET SUBMITTED CONFIRMED CANCELLED FAILED }
-
-model MarketplaceListingRecord {
-  id             String                   @id
-  organizationId String                   @map("organization_id")
-  sellerId       String                   @map("seller_id")
-  slug           String
-  title          String
-  description    String
-  category       String
-  source         String?
-  location       String?
-  currency       CheckoutCurrency
-  unitAmountMinor BigInt                  @map("unit_amount_minor")
-  inventory      Int
-  remaining      Int
-  status         MarketplaceListingStatus @default(DRAFT)
-  metadata       Json                     @default("{}")
-  createdAt      DateTime                 @default(now()) @map("created_at")
-  updatedAt      DateTime                 @updatedAt @map("updated_at")
-  orders         MarketplaceOrderRecord[]
-  @@unique([organizationId, slug])
-  @@index([organizationId, status, updatedAt(sort: Desc)])
-  @@index([category, status])
-  @@map("marketplace_listings")
-}
-
-model MarketplaceOrderRecord {
-  id                String                 @id
-  organizationId    String                 @map("organization_id")
-  listingId         String                 @map("listing_id")
-  buyerId           String                 @map("buyer_id")
-  quantity          Int
-  amountMinor       BigInt                 @map("amount_minor")
-  currency          CheckoutCurrency
-  status            MarketplaceOrderStatus @default(RESERVED)
-  checkoutSessionId String?                @map("checkout_session_id")
-  idempotencyKey    String                 @map("idempotency_key")
-  createdAt         DateTime               @default(now()) @map("created_at")
-  updatedAt         DateTime               @updatedAt @map("updated_at")
-  listing           MarketplaceListingRecord @relation(fields:[listingId],references:[id],onDelete:Restrict)
-  @@unique([organizationId, idempotencyKey])
-  @@index([organizationId, status, updatedAt(sort: Desc)])
-  @@index([listingId, status])
-  @@map("marketplace_orders")
-}
-
-model CheckoutSessionRecord {
-  id                  String                @id
-  organizationId      String                @map("organization_id")
-  userId              String                @map("user_id")
-  currency            CheckoutCurrency
-  status              CheckoutSessionStatus @default(CREATED)
-  lines               Json
-  subtotalMinor       BigInt                @map("subtotal_minor")
-  serviceFeeMinor     BigInt                @map("service_fee_minor")
-  networkFeeMinor     BigInt?               @map("network_fee_minor")
-  totalMinor          BigInt                @map("total_minor")
-  payerWallet         String?               @map("payer_wallet")
-  returnUrl           String?               @map("return_url")
-  settlementSignature String?               @map("settlement_signature")
-  idempotencyKey      String                @map("idempotency_key")
-  expiresAt           DateTime              @map("expires_at")
-  createdAt           DateTime              @default(now()) @map("created_at")
-  updatedAt           DateTime              @updatedAt @map("updated_at")
-  @@unique([organizationId, idempotencyKey])
-  @@index([organizationId, status, updatedAt(sort: Desc)])
-  @@map("checkout_sessions")
-}
-
-model TokenizationIntentRecord {
-  id               String                  @id
-  organizationId   String                  @map("organization_id")
-  createdBy        String                  @map("created_by")
-  energyPositionId String                  @map("energy_position_id")
-  network          TokenizationNetwork
-  amountWh         BigInt                  @map("amount_wh")
-  state            TokenizationIntentState @default(DRAFT)
-  assetClass       String                  @default("VERIFIED_ENERGY_POSITION") @map("asset_class")
-  metadataStandard String                  @default("PET-20") @map("metadata_standard")
-  reviewHash       String                  @map("review_hash")
-  walletReference  String?                 @map("wallet_reference")
-  chainReference   String?                 @map("chain_reference")
-  idempotencyKey   String                  @map("idempotency_key")
-  createdAt        DateTime                @default(now()) @map("created_at")
-  updatedAt        DateTime                @updatedAt @map("updated_at")
-  @@unique([organizationId, idempotencyKey])
-  @@index([organizationId, state, updatedAt(sort: Desc)])
-  @@index([energyPositionId, network, state])
-  @@map("tokenization_intents")
+model TreasuryPosting {
+  id             String          @id
+  organizationId String          @db.Uuid @map("organization_id")
+  journalId      String          @map("journal_id")
+  accountId      String          @map("account_id")
+  asset          String
+  amountRaw      Decimal         @db.Decimal(78,0) @map("amount_raw")
+  direction      String
+  createdAt      DateTime        @default(now()) @map("created_at")
+  journal        TreasuryJournal @relation(fields:[journalId],references:[id],onDelete:Restrict)
+  account        TreasuryAccount @relation(fields:[accountId],references:[id],onDelete:Restrict)
+  @@index([organizationId,journalId])
+  @@index([organizationId,accountId,createdAt(sort:Desc)])
+  @@map("treasury_postings")
 }

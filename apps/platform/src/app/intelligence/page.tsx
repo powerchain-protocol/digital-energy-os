@@ -1,2 +1,2 @@
-import { redirect } from "next/navigation";
-export default function LegacyIntelligencePage(){redirect("/copilot")}
+import{Shell}from"@/components/shell";import{GridLlmDashboard}from"@/components/intelligence/gridllm-dashboard";
+export default function IntelligencePage(){return <Shell><div className="content-container space-y-6"><header><p className="text-xs font-bold uppercase tracking-[.18em] text-emerald-700">GRIDLLM AI Engine</p><h1 className="mt-1 text-3xl font-black tracking-tight">AI Energy Intelligence Layer</h1><p className="mt-2 max-w-3xl muted">Forecast production and demand, optimize batteries, predict maintenance, price energy and recommend grid-safe trading actions.</p></header><GridLlmDashboard/></div></Shell>}

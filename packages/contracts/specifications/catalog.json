@@ -30,30 +30,6 @@
       "name": "PWRC Solana Bridge Contract",
       "path": "contracts/m/pwrc-solana/contract.json",
       "status": "draft"
-    },
-    {
-      "id": "PCC-MKT-001",
-      "name": "PowerChain Marketplace Reservation Contract",
-      "domain": "marketplace",
-      "classification": "execution",
-      "path": "contracts/m/marketplace/contract.json",
-      "status": "normative"
-    },
-    {
-      "id": "PCC-CHK-001",
-      "name": "PowerChain Checkout Authorization Contract",
-      "domain": "checkout",
-      "classification": "execution",
-      "path": "contracts/m/checkout/contract.json",
-      "status": "normative"
-    },
-    {
-      "id": "PCC-TOK-001",
-      "name": "PowerChain PET-20 Tokenization Contract",
-      "domain": "energy-tokenization",
-      "classification": "execution",
-      "path": "contracts/m/energy-tokenization/contract.json",
-      "status": "normative"
     }
   ]
 }

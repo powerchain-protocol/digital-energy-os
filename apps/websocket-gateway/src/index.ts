@@ -1,16 +1,16 @@
-import { createApplication, json } from "@powerchain/application-runtime";
+import { ApplicationError,createApplication,json } from "@powerchain/application-runtime";
+import { channelDefinitions,channelNames } from "@powerchain/websocket/channels";
+import { verifyRealtimeTicket,type RealtimeTicket } from "@powerchain/websocket/auth";
+import { realtimeEvents } from "@powerchain/database/realtime";
 
-export const applicationName = "websocket-gateway" as const;
-export const realtimeChannels = ["platform.status", "energy.telemetry", "market.quotes", "settlement.status", "notifications"] as const;
+export const applicationName="websocket-gateway" as const;
+export const realtimeChannels=channelNames;
+function secret(){const value=process.env.POWERCHAIN_REALTIME_TICKET_SECRET?.trim()||process.env.POWERCHAIN_INTERNAL_SERVICE_SECRET?.trim();if(!value)throw new ApplicationError("REALTIME_AUTH_UNCONFIGURED","Realtime ticket secret is not configured",503);return value}
+function ticket(request:Request){const url=new URL(request.url);const token=url.searchParams.get("ticket")??request.headers.get("authorization")?.replace(/^Bearer\s+/i,"");if(!token)throw new ApplicationError("REALTIME_TICKET_REQUIRED","Realtime ticket is required",401);try{return verifyRealtimeTicket(token,secret())}catch(error){throw new ApplicationError("REALTIME_TICKET_INVALID",error instanceof Error?error.message:"Realtime ticket is invalid",401)}}
+function requestedChannels(request:Request,ticketValue:RealtimeTicket){const raw=new URL(request.url).searchParams.get("channels");const channels=(raw?raw.split(","):ticketValue.channels).map(value=>value.trim()).filter(Boolean);if(!channels.length)throw new ApplicationError("REALTIME_CHANNEL_REQUIRED","At least one realtime channel is required");for(const channel of channels)if(!ticketValue.channels.includes(channel as any))throw new ApplicationError("REALTIME_CHANNEL_FORBIDDEN",`Realtime channel ${channel} is not included in this ticket`,403);return channels}
 
-export const application = createApplication({
-  manifest: {
-    id: applicationName,
-    name: "PowerChain WebSocket Gateway",
-    version: "1.0.0",
-    description: "Authenticated realtime subscriptions and operational event delivery.",
-    basePath: "/ws",
-    capabilities: ["subscriptions", "events", "telemetry", "reconnect"],
-  },
-  routes: [{ method: "GET", path: "/api/v1/realtime/channels", summary: "List public realtime channel names", handler: () => json({ data: realtimeChannels, websocketPath: "/ws" }) }],
-});
+export const application=createApplication({manifest:{id:applicationName,name:"PowerChain WebSocket Gateway",version:"1.0.0",description:"Authenticated realtime subscriptions with durable replay and SSE/polling fallbacks.",basePath:"/ws",capabilities:["websocket","sse","polling","replay","heartbeat","backpressure","tenant-isolation"]},readiness:async()=>{try{await realtimeEvents.latestSequence();secret();return true}catch{return false}},routes:[
+  {method:"GET",path:"/api/v1/realtime/channels",summary:"List authorized realtime channels",handler(request){const auth=ticket(request);return json({data:channelDefinitions.filter(item=>auth.channels.includes(item.channel)),websocketPath:"/ws",fallbackOrder:["websocket","sse","polling"]})}},
+  {method:"GET",path:"/api/v1/realtime/events",summary:"Replay durable realtime events for polling fallback",async handler(request){const auth=ticket(request);const channels=requestedChannels(request,auth);const url=new URL(request.url);const after=Math.max(0,Number(url.searchParams.get("after")??0)||0);const data=await realtimeEvents.replay({organizationId:auth.organizationId,channels,after,limit:Math.max(1,Math.min(Number(url.searchParams.get("limit")??200)||200,500))});return json({data,cursor:data.length?data[data.length-1]!.sequence:after,transport:"polling"},{headers:{"cache-control":"no-store"}})}},
+  {method:"GET",path:"/api/v1/realtime/stream",summary:"Stream durable realtime events using Server-Sent Events fallback",handler(request){const auth=ticket(request);const channels=requestedChannels(request,auth);const url=new URL(request.url);let cursor=Math.max(0,Number(url.searchParams.get("cursor")??0)||0);const encoder=new TextEncoder();let timer:ReturnType<typeof setInterval>|undefined;let closed=false;const stream=new ReadableStream<Uint8Array>({async start(controller){const send=async()=>{if(closed)return;try{const events=await realtimeEvents.replay({organizationId:auth.organizationId,channels,after:cursor,limit:200});for(const event of events){cursor=Math.max(cursor,event.sequence);controller.enqueue(encoder.encode(`id: ${event.sequence}\nevent: message\ndata: ${JSON.stringify({...event,sentAt:event.createdAt})}\n\n`))}controller.enqueue(encoder.encode(`event: heartbeat\ndata: ${JSON.stringify({cursor,at:new Date().toISOString(),transport:"sse"})}\n\n`))}catch(error){controller.enqueue(encoder.encode(`event: degraded\ndata: ${JSON.stringify({cursor,error:error instanceof Error?error.message:"replay_unavailable",fallback:"polling"})}\n\n`))}};await send();timer=setInterval(()=>void send(),1500);request.signal.addEventListener("abort",()=>{closed=true;if(timer)clearInterval(timer);try{controller.close()}catch{}},{once:true})},cancel(){closed=true;if(timer)clearInterval(timer)}});return new Response(stream,{headers:{"content-type":"text/event-stream","cache-control":"no-cache, no-transform","connection":"keep-alive","x-accel-buffering":"no"}})}},
+]});

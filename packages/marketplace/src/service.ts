@@ -46,7 +46,6 @@ function amount(value: string) {
 export function createMarketplaceService() {
   const listings = new Map<string, MarketplaceListing>();
   const orders = new Map<string, MarketplaceOrder>();
-  const idempotency = new Map<string, { fingerprint: string; resourceId: string; kind: "listing" | "order" }>();
 
   function getListing(id: string) {
     const listing = listings.get(id);
@@ -66,22 +65,13 @@ export function createMarketplaceService() {
       return [...listings.values()].filter((listing) => listing.status === "active" && (!normalized || `${listing.title} ${listing.description}`.toLowerCase().includes(normalized)));
     },
     getListing,
-    createListing(input: Omit<MarketplaceListing, "id" | "remaining" | "status" | "createdAt" | "updatedAt">, idempotencyKey?: string) {
+    createListing(input: Omit<MarketplaceListing, "id" | "remaining" | "status" | "createdAt" | "updatedAt">) {
       amount(input.unitAmountMinor);
       if (!input.sellerId.trim() || !input.title.trim()) throw new MarketplaceError("INVALID_LISTING", "sellerId and title are required");
       if (!Number.isSafeInteger(input.inventory) || input.inventory < 1) throw new MarketplaceError("INVALID_INVENTORY", "inventory must be a positive safe integer");
-      const fingerprint=JSON.stringify(input);
-      if(idempotencyKey){
-        const existing=idempotency.get(idempotencyKey);
-        if(existing){
-          if(existing.kind!=="listing"||existing.fingerprint!==fingerprint)throw new MarketplaceError("IDEMPOTENCY_CONFLICT","Idempotency key was reused with a different marketplace listing payload");
-          return getListing(existing.resourceId);
-        }
-      }
       const now = new Date().toISOString();
       const listing: MarketplaceListing = { ...input, id: `lst_${crypto.randomUUID().replaceAll("-", "")}`, remaining: input.inventory, status: "draft", createdAt: now, updatedAt: now };
       listings.set(listing.id, listing);
-      if(idempotencyKey)idempotency.set(idempotencyKey,{fingerprint,resourceId:listing.id,kind:"listing"});
       return listing;
     },
     activate(id: string) {
@@ -91,25 +81,16 @@ export function createMarketplaceService() {
       listings.set(id, updated);
       return updated;
     },
-    reserve(listingId: string, buyerId: string, quantity: number, idempotencyKey?: string) {
+    reserve(listingId: string, buyerId: string, quantity: number) {
       const listing = getListing(listingId);
       if (listing.status !== "active") throw new MarketplaceError("LISTING_UNAVAILABLE", "Listing is not active");
       if (!buyerId.trim()) throw new MarketplaceError("INVALID_BUYER", "buyerId is required");
       if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > listing.remaining) throw new MarketplaceError("INVALID_QUANTITY", "Requested quantity is not available");
-      const fingerprint=JSON.stringify({listingId,buyerId,quantity});
-      if(idempotencyKey){
-        const existing=idempotency.get(idempotencyKey);
-        if(existing){
-          if(existing.kind!=="order"||existing.fingerprint!==fingerprint)throw new MarketplaceError("IDEMPOTENCY_CONFLICT","Idempotency key was reused with a different marketplace order payload");
-          return getOrder(existing.resourceId);
-        }
-      }
       const now = new Date().toISOString();
       const nextRemaining = listing.remaining - quantity;
       listings.set(listing.id, { ...listing, remaining: nextRemaining, status: nextRemaining === 0 ? "sold_out" : listing.status, updatedAt: now });
       const order: MarketplaceOrder = { id: `ord_${crypto.randomUUID().replaceAll("-", "")}`, listingId, buyerId, quantity, amountMinor: (amount(listing.unitAmountMinor) * BigInt(quantity)).toString(), currency: listing.currency, status: "reserved", createdAt: now, updatedAt: now };
       orders.set(order.id, order);
-      if(idempotencyKey)idempotency.set(idempotencyKey,{fingerprint,resourceId:order.id,kind:"order"});
       return order;
     },
     attachCheckout(orderId: string, checkoutSessionId: string) {

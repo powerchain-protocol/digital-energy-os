@@ -19,18 +19,3 @@ Thank you for improving PowerChain.
 - Never commit credentials, private keys, seed phrases, generated builds, or local environment files.
 
 By contributing, you agree that your work may be distributed under the repository's license.
-
-## Digital Energy canonical rules
-
-Contributions touching energy accounting, Energy RWA, settlement, dashboards, or chain representations must preserve these invariants:
-
-- Physical energy is authoritative.
-- Internal energy accounting uses integer Wh.
-- kWh/MWh are denominations, not independent crypto assets.
-- Energy RWA cannot exceed verified physical backing.
-- Active Solana + Sui representation Wh cannot exceed the canonical Energy Position.
-- PWRC is native to Solana; wPWRC is its 1:1 bridge-backed Sui representation.
-- PWRC/wPWRC are not units of electricity.
-- Blockchain payment confirmation is not proof of physical delivery.
-- A configured live database must never silently fall back to an in-memory write path.
-- Offline economic actions require fresh review before execution.

@@ -1,0 +1,12 @@
+{
+  "name": "@powerchain/approvals",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@powerchain/acp-contracts": "workspace:*",
+    "@powerchain/acp-domain": "workspace:*",
+    "@powerchain/database": "workspace:*"
+  }
+}

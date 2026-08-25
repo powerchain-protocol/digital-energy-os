@@ -1,4 +1,4 @@
-# PowerChain Copilot Skills
+# PowerChain AI Skills
 
 PowerChain skills are bounded, auditable capabilities exposed to AI agents.
 

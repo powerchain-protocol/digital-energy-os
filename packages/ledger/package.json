@@ -1,0 +1,11 @@
+{
+  "name": "@powerchain/ledger",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@powerchain/acp-contracts": "workspace:*",
+    "@powerchain/database": "workspace:*"
+  }
+}

@@ -1,146 +1,19 @@
 import "server-only";
-import type { QueryResultRow } from "pg";
 import { getPostgresPool } from "../clients/postgres";
-import type {
-  CopilotActionDraft,
-  CopilotActionState,
-  CopilotAgentId,
-  CopilotContextRef,
-} from "@powerchain/copilot";
+export type FeedbackValue="helpful"|"unhelpful";
+function configured(){return Boolean(process.env.DATABASE_URL?.trim())}
+const memorySaved=new Map<string,Set<string>>();const memoryFeedback=new Map<string,{value:FeedbackValue;reason?:string}>();
+const memoryChats=new Map<string,{id:string;userId:string;title:string;modelId:string;createdAt:string;updatedAt:string;messages:Array<{id:string;role:"user"|"assistant"|"system";content:string;createdAt:string;metadata:Record<string,unknown>}>}>();
+export class CopilotRepository{
 
-interface CopilotActionRow extends QueryResultRow {
-  id:string;
-  organization_id:string;
-  created_by_user_id:string;
-  created_by_agent:CopilotAgentId;
-  title:string;
-  description:string;
-  state:CopilotActionState;
-  risk:CopilotActionDraft["risk"];
-  required_permission:CopilotActionDraft["requiredPermission"];
-  requires_wallet_signature:boolean;
-  contexts:CopilotContextRef[];
-  human_approved_at:Date|null;
-  human_approved_by:string|null;
-  rejected_by:string|null;
-  wallet_signature_reference:string|null;
-  created_at:Date;
-  updated_at:Date;
-}
+async listConversations(userId:string){if(!configured())return[...memoryChats.values()].filter(chat=>chat.userId===userId).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)).map(chat=>({...chat,messageCount:chat.messages.length}));const r=await getPostgresPool().query(`select c.id,c.title,c.model_id,c.created_at,c.updated_at,count(m.id)::int message_count from ai_chats c left join ai_messages m on m.chat_id=c.id where c.user_id=$1 group by c.id order by c.updated_at desc limit 100`,[userId]);return r.rows.map(row=>({id:String(row.id),title:String(row.title),modelId:String(row.model_id),createdAt:new Date(row.created_at).toISOString(),updatedAt:new Date(row.updated_at).toISOString(),messageCount:Number(row.message_count)}))}
+async createConversation(userId:string,modelId="powerchain-copilot"){const now=new Date().toISOString();if(!configured()){const chat={id:crypto.randomUUID(),userId,title:"New Copilot conversation",modelId,createdAt:now,updatedAt:now,messages:[]};memoryChats.set(chat.id,chat);return chat}const r=await getPostgresPool().query(`insert into ai_chats(user_id,title,model_id) values($1,'New Copilot conversation',$2) returning id,title,model_id,created_at,updated_at`,[userId,modelId]);const row=r.rows[0];return{id:String(row.id),userId,title:String(row.title),modelId:String(row.model_id),createdAt:new Date(row.created_at).toISOString(),updatedAt:new Date(row.updated_at).toISOString(),messages:[]}}
+async conversation(userId:string,conversationId:string){if(!configured()){const chat=memoryChats.get(conversationId);return chat?.userId===userId?chat:null}const c=await getPostgresPool().query(`select id,title,model_id,created_at,updated_at from ai_chats where id=$1 and user_id=$2`,[conversationId,userId]);if(!c.rowCount)return null;const messages=await getPostgresPool().query(`select id,role,content,metadata,created_at from ai_messages where chat_id=$1 and user_id=$2 order by created_at`,[conversationId,userId]);const row=c.rows[0];return{id:String(row.id),userId,title:String(row.title),modelId:String(row.model_id),createdAt:new Date(row.created_at).toISOString(),updatedAt:new Date(row.updated_at).toISOString(),messages:messages.rows.map(message=>({id:String(message.id),role:String(message.role).toLowerCase(),content:String(message.content),createdAt:new Date(message.created_at).toISOString(),metadata:(message.metadata as Record<string,unknown>)??{}}))}}
+async addMessage(input:{userId:string;conversationId:string;role:"user"|"assistant"|"system";content:string;metadata?:Record<string,unknown>}){const now=new Date().toISOString();if(!configured()){const chat=memoryChats.get(input.conversationId);if(!chat||chat.userId!==input.userId)throw Object.assign(new Error("Conversation not found"),{code:"COPILOT_CONVERSATION_NOT_FOUND"});const message={id:crypto.randomUUID(),role:input.role,content:input.content,createdAt:now,metadata:input.metadata??{}};chat.messages.push(message);chat.updatedAt=now;if(chat.messages.length===1)chat.title=input.content.slice(0,72)||chat.title;return message}const role=input.role.toUpperCase();const r=await getPostgresPool().query(`insert into ai_messages(chat_id,user_id,role,content,metadata) values($1,$2,$3::"ChatRole",$4,$5::jsonb) returning id,created_at`,[input.conversationId,input.userId,role,input.content,JSON.stringify(input.metadata??{})]);if(!r.rowCount)throw Object.assign(new Error("Conversation not found"),{code:"COPILOT_CONVERSATION_NOT_FOUND"});await getPostgresPool().query(`update ai_chats set updated_at=now(),title=case when (select count(*) from ai_messages where chat_id=$1)=1 then left($3,72) else title end where id=$1 and user_id=$2`,[input.conversationId,input.userId,input.content]);return{id:String(r.rows[0].id),role:input.role,content:input.content,createdAt:new Date(r.rows[0].created_at).toISOString(),metadata:input.metadata??{}}}
 
-function record(row:CopilotActionRow):CopilotActionDraft{
-  return{
-    id:row.id,
-    title:row.title,
-    description:row.description,
-    state:row.state,
-    createdBy:row.created_by_agent,
-    contexts:Array.isArray(row.contexts)?row.contexts:[],
-    risk:row.risk,
-    requiredPermission:row.required_permission,
-    requiresWalletSignature:Boolean(row.requires_wallet_signature),
-    ...(row.human_approved_at?{humanApprovedAt:new Date(row.human_approved_at).toISOString()}:{}),
-    ...(row.human_approved_by?{humanApprovedBy:row.human_approved_by}:{}),
-    ...(row.rejected_by?{rejectedBy:row.rejected_by}:{}),
-    ...(row.wallet_signature_reference?{walletSignatureReference:row.wallet_signature_reference}:{}),
-    createdAt:new Date(row.created_at).toISOString(),
-    updatedAt:new Date(row.updated_at).toISOString(),
-  };
-}
-
-export class PostgresCopilotRepository{
-  async save(input:{organizationId:string;userId:string;action:CopilotActionDraft}){
-    const a=input.action;
-    const result=await getPostgresPool().query<CopilotActionRow>(`
-      insert into copilot_actions
-      (id,organization_id,created_by_user_id,created_by_agent,title,description,state,risk,required_permission,requires_wallet_signature,contexts,human_approved_at,human_approved_by,rejected_by,wallet_signature_reference,created_at,updated_at)
-      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13,$14,$15,$16,$17)
-      on conflict (id) do update set
-        state=excluded.state,
-        risk=excluded.risk,
-        required_permission=excluded.required_permission,
-        requires_wallet_signature=excluded.requires_wallet_signature,
-        contexts=excluded.contexts,
-        human_approved_at=excluded.human_approved_at,
-        human_approved_by=excluded.human_approved_by,
-        rejected_by=excluded.rejected_by,
-        wallet_signature_reference=excluded.wallet_signature_reference,
-        updated_at=excluded.updated_at
-      where copilot_actions.organization_id=excluded.organization_id
-      returning *
-    `,[
-      a.id,input.organizationId,input.userId,a.createdBy,a.title,a.description,a.state,a.risk,a.requiredPermission,
-      a.requiresWalletSignature,
-      JSON.stringify(a.contexts),
-      a.humanApprovedAt?new Date(a.humanApprovedAt):null,
-      a.humanApprovedBy??null,
-      a.rejectedBy??null,
-      a.walletSignatureReference??null,
-      new Date(a.createdAt),
-      new Date(a.updatedAt),
-    ]);
-    if(!result.rows[0])throw Object.assign(new Error("Copilot action belongs to another organization"),{code:"COPILOT_ACTION_ORGANIZATION_MISMATCH"});
-    return record(result.rows[0]);
-  }
-
-
-  async transition(input:{
-    organizationId:string;
-    id:string;
-    expectedState:CopilotActionState;
-    action:CopilotActionDraft;
-  }){
-    const a=input.action;
-    const result=await getPostgresPool().query<CopilotActionRow>(`
-      update copilot_actions
-      set state=$3,
-          risk=$4,
-          required_permission=$5,
-          requires_wallet_signature=$6,
-          contexts=$7::jsonb,
-          human_approved_at=$8,
-          human_approved_by=$9,
-          rejected_by=$10,
-          wallet_signature_reference=$11,
-          updated_at=$12
-      where organization_id=$1 and id=$2 and state=$13
-      returning *
-    `,[
-      input.organizationId,
-      input.id,
-      a.state,
-      a.risk,
-      a.requiredPermission,
-      a.requiresWalletSignature,
-      JSON.stringify(a.contexts),
-      a.humanApprovedAt?new Date(a.humanApprovedAt):null,
-      a.humanApprovedBy??null,
-      a.rejectedBy??null,
-      a.walletSignatureReference??null,
-      new Date(a.updatedAt),
-      input.expectedState,
-    ]);
-    if(result.rows[0])return record(result.rows[0]);
-    const current=await this.get(input.organizationId,input.id);
-    if(!current)throw Object.assign(new Error("Copilot action not found"),{code:"COPILOT_ACTION_NOT_FOUND"});
-    if(current.state!==a.state)throw Object.assign(new Error(`Copilot action decision conflict: current state is ${current.state}`),{code:"COPILOT_ACTION_DECISION_CONFLICT"});
-    return current;
-  }
-
-  async list(organizationId:string,limit=100){
-    const result=await getPostgresPool().query<CopilotActionRow>(`
-      select * from copilot_actions
-      where organization_id=$1
-      order by updated_at desc
-      limit $2
-    `,[organizationId,Math.max(1,Math.min(limit,500))]);
-    return result.rows.map(record);
-  }
-
-  async get(organizationId:string,id:string){
-    const result=await getPostgresPool().query<CopilotActionRow>(`
-      select * from copilot_actions where organization_id=$1 and id=$2
-    `,[organizationId,id]);
-    return result.rows[0]?record(result.rows[0]):null;
-  }
+ async savedPrompts(userId:string){if(!configured())return[...(memorySaved.get(userId)??new Set())];const r=await getPostgresPool().query(`select prompt_id from copilot_saved_prompts where user_id=$1 order by created_at desc`,[userId]);return r.rows.map(row=>String(row.prompt_id))}
+ async savePrompt(userId:string,promptId:string){if(!configured()){const set=memorySaved.get(userId)??new Set<string>();set.add(promptId);memorySaved.set(userId,set);return{promptId}}await getPostgresPool().query(`insert into copilot_saved_prompts(user_id,prompt_id) values($1,$2) on conflict(user_id,prompt_id) do nothing`,[userId,promptId]);return{promptId}}
+ async removePrompt(userId:string,promptId:string){if(!configured()){memorySaved.get(userId)?.delete(promptId);return}await getPostgresPool().query(`delete from copilot_saved_prompts where user_id=$1 and prompt_id=$2`,[userId,promptId])}
+ async feedback(input:{userId:string;messageId:string;value:FeedbackValue;reason?:string}){if(!configured()){memoryFeedback.set(`${input.userId}:${input.messageId}`,{value:input.value,...(input.reason?{reason:input.reason}:{})});return{messageId:input.messageId,value:input.value}}const owns=await getPostgresPool().query(`select 1 from ai_messages where id=$1 and user_id=$2 and role='ASSISTANT'`,[input.messageId,input.userId]);if(!owns.rowCount)throw Object.assign(new Error("Assistant message not found"),{code:"COPILOT_MESSAGE_NOT_FOUND"});await getPostgresPool().query(`insert into copilot_message_feedback(message_id,user_id,value,reason) values($1,$2,$3,$4) on conflict(message_id,user_id) do update set value=excluded.value,reason=excluded.reason,updated_at=now()`,[input.messageId,input.userId,input.value,input.reason??null]);return{messageId:input.messageId,value:input.value}}
+ async deleteConversation(userId:string,conversationId:string){if(!configured()){const chat=memoryChats.get(conversationId);if(chat?.userId!==userId)return false;return memoryChats.delete(conversationId)};const result=await getPostgresPool().query(`delete from ai_chats where id=$1 and user_id=$2`,[conversationId,userId]);return Boolean(result.rowCount)}
 }

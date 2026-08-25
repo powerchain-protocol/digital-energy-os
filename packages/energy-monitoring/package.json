@@ -1,0 +1,11 @@
+{
+  "name": "@powerchain/energy-monitoring",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@powerchain/device-control": "workspace:*",
+    "@powerchain/asset-graph": "workspace:*"
+  }
+}

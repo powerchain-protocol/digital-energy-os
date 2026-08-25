@@ -6,3 +6,5 @@ export * as permissions from "./permissions/index";
 export * as sessions from "./sessions/index";
 export * as recovery from "./recovery/index";
 export * as connectors from "./connectors/index";
+
+export * as acp from "./acp/index";

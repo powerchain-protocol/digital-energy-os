@@ -88,26 +88,56 @@
       "@powerchain/integration/*": [
         "packages/integration/src/*/index.ts"
       ],
-      "@powerchain/database/energy-outbox-worker": [
-        "packages/database/src/repositories/energy-outbox-worker.ts"
+      "@powerchain/control-plane": [
+        "packages/control-plane/src/index.ts"
       ],
-      "@powerchain/database/copilot": [
-        "packages/database/src/repositories/copilot.ts"
+      "@powerchain/asset-graph": [
+        "packages/asset-graph/src/index.ts"
+      ],
+      "@powerchain/device-control": [
+        "packages/device-control/src/index.ts"
+      ],
+      "@powerchain/revenue-engine": [
+        "packages/revenue-engine/src/index.ts"
+      ],
+      "@powerchain/token-framework": [
+        "packages/token-framework/src/index.ts"
+      ],
+      "@powerchain/credits": [
+        "packages/credits/src/index.ts"
+      ],
+      "@powerchain/energy-monitoring": [
+        "packages/energy-monitoring/src/index.ts"
+      ],
+      "@powerchain/energy-network": [
+        "packages/energy-network/src/index.ts"
       ],
       "@powerchain/local-energy": [
         "packages/local-energy/src/index.ts"
       ],
-      "@powerchain/database/local-energy": [
-        "packages/database/src/repositories/local-energy.ts"
+      "@powerchain/ems": [
+        "packages/ems/src/index.ts"
       ],
-      "@powerchain/explorer": [
-        "packages/explorer/src/index.ts"
+      "@powerchain/erp": [
+        "packages/erp/src/index.ts"
       ],
-      "@powerchain/tokenization": [
-        "packages/tokenization/src/index.ts"
+      "@powerchain/cmr": [
+        "packages/cmr/src/index.ts"
       ],
-      "@powerchain/database/commerce": [
-        "packages/database/src/repositories/commerce.ts"
+      "@powerchain/rewards": [
+        "packages/rewards/src/index.ts"
+      ],
+      "@powerchain/treasury": [
+        "packages/treasury/src/index.ts"
+      ],
+      "@powerchain/vault": [
+        "packages/vault/src/index.ts"
+      ],
+      "@powerchain/credits/*": [
+        "packages/credits/src/*"
+      ],
+      "@powerchain/database/asset-graph": [
+        "packages/database/src/repositories/asset-graph.ts"
       ]
     },
     "types": [

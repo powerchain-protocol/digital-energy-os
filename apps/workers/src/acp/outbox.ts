@@ -1,0 +1,7 @@
+import { acpRepositories } from "@powerchain/database/acp";
+import { realtimeEvents } from "@powerchain/database/realtime";
+import { acpReconciliation } from "@powerchain/acp-sdk/reconciliation";
+import { dispatchExecution } from "./execution";
+
+function channelFor(topic:string){if(topic.includes("approval"))return"acp.approvals";if(topic.includes("evidence"))return"acp.evidence";if(topic.includes("reconciliation")||topic.includes("execution.unknown"))return"acp.reconciliation";if(topic.includes("daily_close")||topic.includes("incident"))return"acp.operations";return"acp.jobs"}
+export async function runAcpOutboxCycle(workerId:string,limit=50){const rows=await acpRepositories.outbox.claimBatch(workerId,limit,90);let published=0,retried=0;for(const row of rows){try{const topic=String(row.topic);const payload=row.payload as any;if(topic==="powerchain.acp.execution.requested.v1")await dispatchExecution(payload);else if(topic==="powerchain.acp.reconciliation.requested.v1")await acpReconciliation.reconcileJob(String(row.organization_id),String(payload.jobId));await realtimeEvents.append({organizationId:String(row.organization_id),channel:channelFor(topic),event:topic,data:payload,requestId:String(row.request_id),traceId:String(row.trace_id),correlationId:String(row.correlation_id)});await acpRepositories.outbox.published(String(row.id));published++}catch(error){await acpRepositories.outbox.retry(String(row.id),Number(row.attempts??1),error instanceof Error?error.message:String(error));retried++}}return{claimed:rows.length,published,retried}}

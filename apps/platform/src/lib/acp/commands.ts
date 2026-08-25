@@ -1,0 +1,3 @@
+import type { AcpCommand,AcpCommandType } from "@powerchain/acp-contracts";
+import type { ApiContext } from "@/lib/api/with-api";
+export function commandFromContext(context:ApiContext<any>,type:AcpCommandType,payload:Record<string,unknown>,idempotencyKey?:string):AcpCommand{return{id:`cmd_${crypto.randomUUID().replaceAll("-","")}`,type,organizationId:context.organizationId!,actor:{type:"user",id:context.user!.id},payload,idempotencyKey:idempotencyKey??context.idempotencyKey??`read-${context.requestId}`,requestId:context.requestId,traceId:context.traceId,correlationId:context.correlationId,createdAt:new Date().toISOString()}}

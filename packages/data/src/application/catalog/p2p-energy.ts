@@ -21,6 +21,6 @@ export const localEnergyListings: LocalEnergyListing[] = [
 ];
 
 export const demoP2POrders: P2POrder[] = [
-  {id:"ord_local_1042",listingId:"p2p-sol-001",buyerId:"demo-user",quantityKwh:42,currency:"EUR",settlementAsset:"USDC",status:"delivering",pricing:{subtotal:4.704,networkFee:0.059,escrowReserve:0.095,total:4.858},meterReadingId:"meter_hel_1042",signature:"5Yw...P9d",createdAt:"2026-07-31T08:10:00.000Z",expiresAt:"2026-07-31T16:00:00.000Z"},
+  {id:"ord_local_1042",listingId:"p2p-sol-001",buyerId:"demo-user",quantityKwh:42,currency:"EUR",settlementAsset:"USDC",status:"metering",pricing:{subtotal:4.704,networkFee:0.059,escrowReserve:0.095,total:4.858},meterReadingId:"meter_hel_1042",signature:"5Yw...P9d",createdAt:"2026-07-31T08:10:00.000Z",expiresAt:"2026-07-31T16:00:00.000Z"},
   {id:"ord_local_1031",listingId:"p2p-wind-002",buyerId:"demo-user",quantityKwh:85,currency:"EUR",settlementAsset:"PWRC",status:"settled",pricing:{subtotal:8.33,networkFee:0.104,escrowReserve:0.167,total:8.601},meterReadingId:"meter_esp_1031",signature:"3Pk...K2m",createdAt:"2026-07-30T16:40:00.000Z",expiresAt:"2026-07-30T23:00:00.000Z"}
 ];

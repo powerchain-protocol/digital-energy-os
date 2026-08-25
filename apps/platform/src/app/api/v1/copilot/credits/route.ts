@@ -1,0 +1,5 @@
+import { CopilotCreditRepository } from "@powerchain/database/copilot-credits";
+import { COPILOT_BASE_MESSAGE_USD,COPILOT_REAL_DATA_MESSAGE_USD,PWRC_REFERENCE_USD,PWRC_DECIMALS,unitsToDecimal } from "@powerchain/credits";
+import { withApi,apiJson } from "@/lib/api/with-api";
+const repository=new CopilotCreditRepository();
+export async function GET(request:Request){return withApi(request,{auth:"required"},async context=>{const result=await repository.ledger(context.organizationId!,context.user!.id,50);return apiJson({account:{...result.account,balancePwrc:unitsToDecimal(BigInt(result.account.balancePwrcRaw),PWRC_DECIMALS),reservedPwrc:unitsToDecimal(BigInt(result.account.reservedPwrcRaw),PWRC_DECIMALS),availablePwrc:unitsToDecimal(BigInt(result.account.availablePwrcRaw),PWRC_DECIMALS)},entries:result.entries,pricing:{baseMessageUsd:COPILOT_BASE_MESSAGE_USD,realDataMessageUsd:COPILOT_REAL_DATA_MESSAGE_USD,pwrcReferenceUsd:PWRC_REFERENCE_USD,pwrcDecimals:PWRC_DECIMALS,model:"PWRC-backed internal immutable credit ledger",onchainPerMessage:false}},context,{headers:{"cache-control":"no-store"}})})}

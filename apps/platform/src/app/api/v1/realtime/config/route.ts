@@ -1,0 +1,2 @@
+import { withApi,apiJson } from "@/lib/api/with-api";
+export async function GET(request:Request){return withApi(request,{auth:"optional"},context=>apiJson({gateway:process.env.POWERCHAIN_REALTIME_PUBLIC_URL?.trim()??"http://127.0.0.1:3107",ticketEndpoint:"/api/v1/realtime/ticket",websocketPath:"/ws",ssePath:"/api/v1/realtime/stream",pollingPath:"/api/v1/realtime/events",fallbackOrder:["websocket","sse","polling"]},context,{headers:{"cache-control":"no-store"}}))}

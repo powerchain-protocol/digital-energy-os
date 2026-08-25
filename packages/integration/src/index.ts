@@ -12,3 +12,9 @@ export * as web3 from "./web3";
 export * as payments from "./payments";
 export * from "./payments";
 export * from "./registry";
+
+export * from "./helius-iot";
+
+export * from "./wayfinder";
+
+export * from "./jupiter";

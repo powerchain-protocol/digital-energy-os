@@ -1,8 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-
-export async function GET(){
-  const path=join(process.cwd(),"public","openapi.yaml");
-  const body=await readFile(path,"utf8");
-  return new Response(body,{headers:{"content-type":"application/yaml; charset=utf-8","cache-control":"public, max-age=300"}});
-}
+import { NextResponse } from "next/server";
+import { PLATFORM_VERSION } from "@/config/release";
+export async function GET(){return NextResponse.json({openapi:"3.1.0",info:{title:"PowerChain API",version:PLATFORM_VERSION},servers:[{url:"/api/v1"}],paths:{"/organizations":{get:{summary:"List organizations",responses:{"200":{description:"OK"}}}},"/assets":{get:{summary:"List renewable assets",responses:{"200":{description:"OK"}}}},"/telemetry":{get:{summary:"Stream telemetry over SSE",responses:{"200":{description:"SSE stream"}}}},"/metrics":{get:{summary:"Prometheus metrics",responses:{"200":{description:"Metrics"}}}}}});}

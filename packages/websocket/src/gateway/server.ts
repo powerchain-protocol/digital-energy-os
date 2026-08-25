@@ -1,42 +1,15 @@
-import { WebSocket, WebSocketServer, type ServerOptions } from "ws";
+import { WebSocket,WebSocketServer,type ServerOptions } from "ws";
+import { channelDefinition,type PowerChainChannel } from "../channels/index";
+import { verifyRealtimeTicket,type RealtimeTicket } from "../auth/index";
 
-export interface PowerChainMessage<T = unknown> {
-  channel: string;
-  event: string;
-  data: T;
-  sentAt: string;
-}
-
-export function createPowerChainWebSocketServer(options: ServerOptions) {
-  const server = new WebSocketServer(options);
-  const subscriptions = new Map<WebSocket, Set<string>>();
-
-  server.on("connection", (socket) => {
-    subscriptions.set(socket, new Set());
-    socket.on("message", (raw) => {
-      try {
-        const message = JSON.parse(raw.toString()) as { action?: string; channel?: string };
-        if (!message.channel) return;
-        const channels = subscriptions.get(socket);
-        if (message.action === "subscribe") channels?.add(message.channel);
-        if (message.action === "unsubscribe") channels?.delete(message.channel);
-      } catch {
-        socket.send(JSON.stringify({ event: "error", data: { code: "INVALID_MESSAGE" } }));
-      }
-    });
-    socket.on("close", () => subscriptions.delete(socket));
-  });
-
-  function publish<T>(message: Omit<PowerChainMessage<T>, "sentAt">) {
-    const payload = JSON.stringify({ ...message, sentAt: new Date().toISOString() });
-    for (const [socket, channels] of subscriptions) {
-      if (socket.readyState === WebSocket.OPEN && channels.has(message.channel)) socket.send(payload);
-    }
-  }
-
-  return {
-    server,
-    publish,
-    close: () => new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())),
-  };
+export interface PowerChainMessage<T=unknown>{sequence?:number;organizationId?:string;channel:PowerChainChannel|string;event:string;data:T;sentAt:string;requestId?:string;traceId?:string;correlationId?:string}
+interface ClientState{ticket:RealtimeTicket;subscriptions:Set<string>;lastSeen:number;lastSequence:number;messagesInWindow:number;windowStarted:number}
+export interface PowerChainWebSocketServerOptions extends ServerOptions{ticketSecret:string;heartbeatMs?:number;maxSubscriptions?:number;replay?:(input:{ticket:RealtimeTicket;channels:string[];after:number;limit:number})=>Promise<Array<Omit<PowerChainMessage,"sentAt">&{sentAt?:string}>>}
+function ticketFromRequest(request:import("node:http").IncomingMessage){const url=new URL(request.url??"/","http://localhost");return url.searchParams.get("ticket")??request.headers["sec-websocket-protocol"]?.toString().split(",").map(v=>v.trim()).find(v=>v.startsWith("powerchain-ticket."))?.slice("powerchain-ticket.".length)??null}
+export function createPowerChainWebSocketServer(options:PowerChainWebSocketServerOptions){const server=new WebSocketServer(options);const clients=new Map<WebSocket,ClientState>();const heartbeatMs=Math.max(10_000,options.heartbeatMs??25_000),maxSubscriptions=Math.max(1,options.maxSubscriptions??24);
+  server.on("connection",(socket,request)=>{let ticket:RealtimeTicket;try{const token=ticketFromRequest(request);if(!token)throw new Error("REALTIME_TICKET_REQUIRED");ticket=verifyRealtimeTicket(token,options.ticketSecret)}catch{socket.close(4401,"Unauthorized realtime connection");return}const url=new URL(request.url??"/","http://localhost");const after=Math.max(0,Number(url.searchParams.get("cursor")??0)||0);const state:ClientState={ticket,subscriptions:new Set(),lastSeen:Date.now(),lastSequence:after,messagesInWindow:0,windowStarted:Date.now()};clients.set(socket,state);socket.send(JSON.stringify({event:"connected",data:{subject:ticket.subject,organizationId:ticket.organizationId,expiresAt:ticket.expiresAt,cursor:after,transport:"websocket"},sentAt:new Date().toISOString()}));socket.on("pong",()=>{state.lastSeen=Date.now()});socket.on("message",raw=>void handleMessage(socket,state,raw.toString()));socket.on("close",()=>clients.delete(socket));socket.on("error",()=>clients.delete(socket))});
+  async function handleMessage(socket:WebSocket,state:ClientState,raw:string){const now=Date.now();if(now-state.windowStarted>10_000){state.windowStarted=now;state.messagesInWindow=0}state.messagesInWindow++;if(state.messagesInWindow>100){socket.close(4429,"Realtime client rate limit exceeded");return}let message:any;try{message=JSON.parse(raw)}catch{socket.send(JSON.stringify({event:"error",data:{code:"INVALID_MESSAGE"},sentAt:new Date().toISOString()}));return}if(message.action==="ping"){socket.send(JSON.stringify({event:"pong",data:{at:new Date().toISOString()},sentAt:new Date().toISOString()}));return}const channel=String(message.channel??"");if(!channelDefinition(channel)){socket.send(JSON.stringify({event:"error",data:{code:"UNKNOWN_CHANNEL",channel},sentAt:new Date().toISOString()}));return}if(!state.ticket.channels.includes(channel as PowerChainChannel)){socket.send(JSON.stringify({event:"error",data:{code:"CHANNEL_FORBIDDEN",channel},sentAt:new Date().toISOString()}));return}if(message.action==="unsubscribe"){state.subscriptions.delete(channel);socket.send(JSON.stringify({event:"unsubscribed",channel,data:{channel},sentAt:new Date().toISOString()}));return}if(message.action!=="subscribe"){socket.send(JSON.stringify({event:"error",data:{code:"UNKNOWN_ACTION"},sentAt:new Date().toISOString()}));return}if(state.subscriptions.size>=maxSubscriptions&&!state.subscriptions.has(channel)){socket.send(JSON.stringify({event:"error",data:{code:"SUBSCRIPTION_LIMIT"},sentAt:new Date().toISOString()}));return}state.subscriptions.add(channel);const after=Math.max(state.lastSequence,Number(message.after??0)||0);if(options.replay){try{const events=await options.replay({ticket:state.ticket,channels:[channel],after,limit:200});for(const event of events){socket.send(JSON.stringify({...event,sentAt:event.sentAt??new Date().toISOString(),replay:true}));state.lastSequence=Math.max(state.lastSequence,Number(event.sequence??0))}}catch{socket.send(JSON.stringify({event:"replay_unavailable",channel,data:{fallback:"sse_or_polling"},sentAt:new Date().toISOString()}))}}socket.send(JSON.stringify({event:"subscribed",channel,data:{channel,cursor:state.lastSequence},sentAt:new Date().toISOString()}))}
+  function publish<T>(message:Omit<PowerChainMessage<T>,"sentAt">&{sentAt?:string}){const payload={...message,sentAt:message.sentAt??new Date().toISOString()};const encoded=JSON.stringify(payload);for(const[socket,state]of clients){if(socket.readyState!==WebSocket.OPEN||!state.subscriptions.has(message.channel))continue;const definition=channelDefinition(message.channel);if(definition?.visibility==="organization"&&message.organizationId!==state.ticket.organizationId)continue;if(message.sequence&&message.sequence<=state.lastSequence)continue;if(socket.bufferedAmount>1_000_000){socket.send(JSON.stringify({event:"backpressure",data:{cursor:state.lastSequence,fallback:"reconnect_with_cursor"},sentAt:new Date().toISOString()}));continue}socket.send(encoded);if(message.sequence)state.lastSequence=message.sequence}}
+  const heartbeat=setInterval(()=>{const now=Date.now();for(const[socket,state]of clients){if(now-state.lastSeen>heartbeatMs*2){socket.terminate();clients.delete(socket);continue}if(socket.readyState===WebSocket.OPEN)socket.ping()}},heartbeatMs);heartbeat.unref?.();
+  return{server,publish,connectionCount:()=>clients.size,close:()=>new Promise<void>((resolve,reject)=>{clearInterval(heartbeat);for(const socket of clients.keys())socket.close(1001,"Gateway shutdown");server.close(error=>error?reject(error):resolve())})};
 }

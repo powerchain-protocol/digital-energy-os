@@ -11,8 +11,12 @@
   },
   "dependencies": {
     "@powerchain/application-runtime": "workspace:*",
+    "@powerchain/acp-contracts": "workspace:*",
+    "@powerchain/acp-domain": "workspace:*",
+    "@powerchain/acp-sdk": "workspace:*",
     "@powerchain/database": "workspace:*",
-    "@powerchain/energy-controls": "workspace:*"
+    "@powerchain/evidence": "workspace:*",
+    "@powerchain/ledger": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.23.12"

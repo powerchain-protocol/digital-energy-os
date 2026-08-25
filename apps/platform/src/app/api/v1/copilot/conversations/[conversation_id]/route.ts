@@ -1,0 +1,5 @@
+import { CopilotRepository } from "@powerchain/database/copilot";
+import { withApi,apiJson,ApiError } from "@/lib/api/with-api";
+const repository=new CopilotRepository();
+export async function GET(request:Request,{params}:{params:Promise<{conversation_id:string}>}){return withApi(request,{auth:"required"},async context=>{const{conversation_id}=await params;const conversation=await repository.conversation(context.user!.id,conversation_id);if(!conversation)throw new ApiError("COPILOT_CONVERSATION_NOT_FOUND","Conversation not found",404);return apiJson(conversation,context,{headers:{"cache-control":"no-store"}})})}
+export async function DELETE(request:Request,{params}:{params:Promise<{conversation_id:string}>}){return withApi(request,{auth:"required",mutation:true},async context=>{const{conversation_id}=await params;const removed=await repository.deleteConversation(context.user!.id,conversation_id);if(!removed)throw new ApiError("COPILOT_CONVERSATION_NOT_FOUND","Conversation not found",404);return apiJson({conversationId:conversation_id,deleted:true},context)})}

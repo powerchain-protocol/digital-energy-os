@@ -1,59 +1,19 @@
-import { getDigitalEnergyOutboxPublisherStatus, runDigitalEnergyOutboxPublisherOnce } from "./digital-energy-outbox.ts";
-import { ApplicationError, createApplication, json, readJson } from "@powerchain/application-runtime";
+import { ApplicationError,createApplication,json,readJson } from "@powerchain/application-runtime";
+import { getPostgresPool } from "@powerchain/database/clients/postgres";
+import { acpWorkerHealth } from "./acp/health";
+import { runAcpReconciliationCycle } from "./acp/reconciliation";
+import { runAcpDailyClose } from "./acp/daily-close";
+import { runAcpOutboxCycle } from "./acp/outbox";
+import { runAcpEventProcessingCycle } from "./acp/event-processing";
 
-export const applicationName = "workers" as const;
-
-function requireWorkerAdmin(request: Request) {
-  const configured = String(process.env.POWERCHAIN_WORKER_ADMIN_TOKEN ?? "").trim();
-  if (!configured) throw new ApplicationError("WORKER_ADMIN_DISABLED", "Manual worker execution is disabled", 503);
-  const authorization = request.headers.get("authorization") ?? "";
-  if (authorization !== `Bearer ${configured}`) throw new ApplicationError("WORKER_ADMIN_FORBIDDEN", "Worker admin authorization is required", 403);
-}
-export type JobType = "health.snapshot" | "notifications.dispatch" | "settlement.reconcile";
-export interface WorkerJob { id: string; type: JobType; payload: Record<string, unknown>; status: "queued" | "running" | "completed" | "failed"; idempotencyKey: string; attempts: number; createdAt: string; updatedAt: string; result?: Record<string, unknown>; }
-
-export function createWorkerQueue() {
-  const jobs = new Map<string, WorkerJob>();
-  const idempotency = new Map<string, string>();
-  const supported = new Set<JobType>(["health.snapshot", "notifications.dispatch", "settlement.reconcile"]);
-  const get = (id: string) => { const job = jobs.get(id); if (!job) throw new ApplicationError("JOB_NOT_FOUND", "Job was not found", 404); return job; };
-  return {
-    enqueue(input: { type?: JobType; payload?: Record<string, unknown>; idempotencyKey?: string }) {
-      if (!input.type || !supported.has(input.type)) throw new ApplicationError("JOB_TYPE_NOT_SUPPORTED", "Job type is not supported");
-      if (!input.idempotencyKey?.trim()) throw new ApplicationError("IDEMPOTENCY_KEY_REQUIRED", "idempotencyKey is required");
-      const existingId = idempotency.get(input.idempotencyKey);
-      if (existingId) return jobs.get(existingId)!;
-      const now = new Date().toISOString();
-      const job: WorkerJob = { id: `job_${crypto.randomUUID().replaceAll("-", "")}`, type: input.type, payload: input.payload ?? {}, status: "queued", idempotencyKey: input.idempotencyKey, attempts: 0, createdAt: now, updatedAt: now };
-      jobs.set(job.id, job); idempotency.set(job.idempotencyKey, job.id); return job;
-    },
-    get,
-    run(id: string) {
-      const current = get(id);
-      if (current.status !== "queued" && current.status !== "failed") throw new ApplicationError("INVALID_JOB_STATE", `Cannot run a ${current.status} job`, 409);
-      const running: WorkerJob = { ...current, status: "running", attempts: current.attempts + 1, updatedAt: new Date().toISOString() }; jobs.set(id, running);
-      const completed: WorkerJob = { ...running, status: "completed", updatedAt: new Date().toISOString(), result: { accepted: true, processor: running.type, correlationId: running.id } }; jobs.set(id, completed); return completed;
-    },
-    stats() { const values = [...jobs.values()]; return { total: values.length, queued: values.filter((job) => job.status === "queued").length, running: values.filter((job) => job.status === "running").length, failed: values.filter((job) => job.status === "failed").length, completed: values.filter((job) => job.status === "completed").length }; },
-  };
-}
-
-export const workerQueue = createWorkerQueue();
-export const application = createApplication({
-  manifest: {
-    id: applicationName,
-    name: "PowerChain Workers",
-    version: "1.0.0",
-    description: "Idempotent asynchronous work queue and controlled processor boundary.",
-    basePath: "/api/v1/jobs",
-    capabilities: ["jobs", "idempotency", "reconciliation", "notifications", "digital-energy-outbox"],
-  },
-  routes: [
-    { method: "GET", path: "/api/v1/jobs/digital-energy-outbox", summary: "Return Digital Energy transactional outbox publisher status", handler: () => json(getDigitalEnergyOutboxPublisherStatus()) },
-    { method: "POST", path: "/api/v1/jobs/digital-energy-outbox/run", summary: "Run one Digital Energy outbox publisher cycle", async handler(request) { requireWorkerAdmin(request); return json(await runDigitalEnergyOutboxPublisherOnce()); } },
-    { method: "GET", path: "/api/v1/jobs/stats", summary: "Return worker queue statistics", handler: () => json(workerQueue.stats()) },
-    { method: "POST", path: "/api/v1/jobs", summary: "Enqueue idempotent work", async handler(request) { return json(workerQueue.enqueue(await readJson<{ type?: JobType; payload?: Record<string, unknown>; idempotencyKey?: string }>(request)), { status: 202 }); } },
-    { method: "GET", path: "/api/v1/jobs/:id", summary: "Read job state", handler(_request, { params }) { return json(workerQueue.get(params.id)); } },
-    { method: "POST", path: "/api/v1/jobs/:id/run", summary: "Run a queued job", handler(_request, { params }) { return json(workerQueue.run(params.id)); } },
-  ],
-});
+export const applicationName="workers" as const;
+function authorize(request:Request){const expected=process.env.POWERCHAIN_WORKER_ADMIN_TOKEN?.trim();if(!expected&&process.env.NODE_ENV!=="production")return;const supplied=request.headers.get("authorization")?.replace(/^Bearer\s+/i,"");if(!expected||supplied!==expected)throw new ApplicationError("UNAUTHORIZED","Worker administrative token is required",401)}
+async function stats(){const result=await getPostgresPool().query<{pending_outbox:string;pending_inbox:string;unknown_executions:string;open_incidents:string}>(`select (select count(*) from acp_outbox where state='pending')::text pending_outbox,(select count(*) from acp_event_inbox where processed_at is null)::text pending_inbox,(select count(*) from acp_execution_attempts where status='unknown')::text unknown_executions,(select count(*) from acp_incidents where status<>'resolved')::text open_incidents`);const row=result.rows[0]!;return{persistent:true,acp:{pendingOutbox:Number(row.pending_outbox),pendingInbox:Number(row.pending_inbox),unknownExecutions:Number(row.unknown_executions),openIncidents:Number(row.open_incidents)},health:await acpWorkerHealth()}}
+export const application=createApplication({manifest:{id:applicationName,name:"PowerChain Workers",version:"1.0.0",description:"Durable ACP, reconciliation, settlement and outbox worker boundary.",basePath:"/api/v1/jobs",capabilities:["durable-inbox","transactional-outbox","reconciliation","daily-close","leases"]},readiness:async()=>{try{await getPostgresPool().query("select 1");return true}catch{return false}},routes:[
+  {method:"GET",path:"/api/v1/jobs/stats",summary:"Return durable worker state",handler:async()=>json(await stats())},
+  {method:"GET",path:"/api/v1/jobs/health",summary:"Return ACP worker health",handler:async()=>json(await acpWorkerHealth())},
+  {method:"POST",path:"/api/v1/jobs/acp/reconcile",summary:"Run an authorized ACP reconciliation cycle",async handler(request){authorize(request);return json(await runAcpReconciliationCycle())}},
+  {method:"POST",path:"/api/v1/jobs/acp/outbox",summary:"Run an authorized ACP outbox cycle",async handler(request){authorize(request);return json(await runAcpOutboxCycle(`manual-${crypto.randomUUID().slice(0,8)}`))}},
+  {method:"POST",path:"/api/v1/jobs/acp/events",summary:"Run an authorized ACP event processing cycle",async handler(request){authorize(request);return json(await runAcpEventProcessingCycle(`manual-${crypto.randomUUID().slice(0,8)}`))}},
+  {method:"POST",path:"/api/v1/jobs/acp/daily-close",summary:"Run an authorized ACP Daily Close",async handler(request){authorize(request);const body=await readJson<{period?:string}>(request);return json(await runAcpDailyClose(body.period))}},
+]});

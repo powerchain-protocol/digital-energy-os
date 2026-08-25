@@ -1,5 +1,5 @@
 {
-  "name": "@powerchain/explorer-app",
+  "name": "@powerchain/explorer",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@powerchain/application-runtime": "workspace:*",
-    "@powerchain/explorer": "workspace:*"
+    "@powerchain/application-runtime": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.23.12"

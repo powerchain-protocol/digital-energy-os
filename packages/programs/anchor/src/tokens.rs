@@ -1,6 +1,7 @@
 //! PowerChain token program domain constants and validation helpers.
 pub const PWRC_SYMBOL: &str = "PWRC";
-pub const CRT_SYMBOL: &str = "CRT";
+pub const CCT_SYMBOL: &str = "CCT";
+pub const CRT_SYMBOL: &str = CCT_SYMBOL; // legacy source compatibility
 pub const TOKEN_DECIMALS: u8 = 9;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

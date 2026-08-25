@@ -1,13 +1,3 @@
-import { z } from "zod";
-import { commerceError, commerceResponse, createCheckout, getCommerceContext, requireCommerceAccess, requireCommerceIdempotency } from "@/features/commerce/server";
-const schema=z.object({asset:z.enum(["SOL","USDC","EURC","PWRC"]),amount:z.number().positive(),recipient:z.string().optional(),wallet:z.string().optional()});
-export async function POST(request:Request){
-  const context=await getCommerceContext(request);
-  try{
-    requireCommerceAccess(context,true);const idempotencyKey=requireCommerceIdempotency(request);
-    const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)throw Object.assign(new Error("Invalid payment"),{code:"CHECKOUT_INPUT_INVALID"});
-    const minor=BigInt(Math.round(parsed.data.amount*1_000_000)).toString();
-    const data=await createCheckout(context,{currency:parsed.data.asset,lines:[{id:"payment",name:"PowerChain checkout",quantity:1,unitAmountMinor:minor}],idempotencyKey});
-    return commerceResponse(data,context,{status:201});
-  }catch(error){return commerceError(error,context)}
-}
+import { z } from "zod"; import { amountSchema, publicKeySchema } from "@/types/validate"; import { fetchWalletSnapshot } from "@/services/wallet/solana-wallet";
+const schema=z.object({wallet:publicKeySchema,asset:z.enum(["SOL","USDC","PWRC"]),amount:amountSchema,recipient:z.string().optional()});
+export async function POST(request:Request){const parsed=schema.safeParse(await request.json());if(!parsed.success)return Response.json({ok:false,error:parsed.error.issues[0]?.message??"Invalid payment"},{status:400});const wallet=await fetchWalletSnapshot(parsed.data.wallet);const available=parsed.data.asset==="SOL"?wallet.sol:(wallet.assets.find(asset=>asset.symbol===parsed.data.asset)?.amount??0);if(available<=0)return Response.json({ok:false,error:`No ${parsed.data.asset} balance is available for this purchase.`},{status:402});if(parsed.data.amount>available)return Response.json({ok:false,error:"Insufficient wallet balance"},{status:402});return Response.json({ok:true,data:{id:`pay_${crypto.randomUUID()}`,status:"requires_signature",...parsed.data,available,createdAt:new Date().toISOString()}},{status:201})}

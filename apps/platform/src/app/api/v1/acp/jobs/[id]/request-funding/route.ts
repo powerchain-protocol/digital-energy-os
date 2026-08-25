@@ -1,0 +1,2 @@
+import { acpKernel } from "@powerchain/acp-sdk/kernel";import { withApi,apiJson } from "@/lib/api/with-api";import { commandFromContext } from "@/lib/acp/commands";
+export async function POST(request:Request,{params}:{params:Promise<{id:string}>}){const{id}=await params;return withApi<Record<string,unknown>>(request,{auth:"required",json:true,mutation:true,idempotency:true},async context=>apiJson(await acpKernel.dispatch(commandFromContext(context,"acp.job.request_funding",{...context.body,jobId:id},context.idempotencyKey)),context,{status:202}))}

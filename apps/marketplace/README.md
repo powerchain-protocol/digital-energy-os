@@ -1,7 +1,7 @@
-# PowerChain Marketplace App
+# PowerChain Marketplace
 
-Standalone marketplace domain service, default port `3103`.
+Marketplace lifecycle service on port `3103`. It owns draft and active
+listings, inventory reservations, order state, checkout attachment, and paid
+confirmation without duplicating checkout settlement logic.
 
-The canonical persisted platform implementation is exposed under `/api/v1/marketplace/*` with atomic inventory reservation and checkout linking.
-
-This standalone app remains a deterministic service harness rather than the production persistence owner.
+Run with `pnpm --filter @powerchain/marketplace-app dev`.

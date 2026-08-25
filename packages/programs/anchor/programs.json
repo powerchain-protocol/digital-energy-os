@@ -39,11 +39,7 @@
         "devnet",
         "mainnet-beta"
       ],
-      "status": "test",
-      "contractIds": [
-        "PCC-TOK-001"
-      ],
-      "purpose": "PET-20 Energy Position representation bounded by canonical Wh backing"
+      "status": "test"
     },
     {
       "id": "marketplace",
@@ -53,11 +49,7 @@
         "devnet",
         "mainnet-beta"
       ],
-      "status": "test",
-      "contractIds": [
-        "PCC-MKT-001"
-      ],
-      "purpose": "Atomic marketplace inventory reservation and order amount invariants"
+      "status": "test"
     },
     {
       "id": "escrow",
@@ -67,11 +59,7 @@
         "devnet",
         "mainnet-beta"
       ],
-      "status": "test",
-      "contractIds": [
-        "PCC-CHK-001"
-      ],
-      "purpose": "Review-first checkout/escrow state machine with external wallet authorization"
+      "status": "test"
     },
     {
       "id": "treasury",
@@ -102,6 +90,18 @@
       ],
       "purpose": "Lock/mint and burn/release PWRC between PowerChain and Solana while enforcing supply invariants",
       "status": "scaffold"
+    },
+    {
+      "id": "carbon-credit-token",
+      "name": "PowerChain Carbon Credit Token",
+      "domain": "carbon",
+      "networkTargets": [
+        "devnet",
+        "mainnet-beta"
+      ],
+      "standard": "Token-2022 + Metaplex metadata",
+      "purpose": "Evidence-gated CCT issuance and retirement controls",
+      "status": "deployment-config-required"
     }
   ]
 }
