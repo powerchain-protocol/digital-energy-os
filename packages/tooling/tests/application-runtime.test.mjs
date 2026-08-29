@@ -42,7 +42,7 @@ test("marketplace reservation links inventory, order and checkout state", () => 
 });
 
 test("all service apps expose deployable runtime entry points", async () => {
-  const apps = ["ai-gateway", "api", "checkout", "explorer", "integration-gateway", "marketplace", "web", "websocket-gateway", "workers"];
+  const apps = ["ai-gateway", "api", "checkout", "ems", "explorer", "integration-gateway", "marketplace", "web", "websocket-gateway", "workers"];
   const fs = await import("node:fs");
   for (const app of apps) {
     assert.ok(fs.existsSync(`apps/${app}/src/server.ts`), app);

@@ -2,10 +2,16 @@ openapi: 3.1.0
 info:
   title: PowerChain API
   version: 1.0.0
-  description: Versioned APIs for the PowerChain Renewable Energy Operating System, including identity, AI, Proof of Energy, tokenization, cross-chain
-    PWRC, marketplace settlement, smart meters, carbon, telemetry and platform configuration.
+  description: 'Versioned APIs for the PowerChain Renewable Energy Operating System, including identity, AI, Proof
+    of Energy, tokenization, cross-chain PWRC, marketplace settlement, smart meters, carbon, telemetry and platform
+    configuration.
+
+
+    All Solana/PowerChain read routes are same-origin Next.js server proxies. Helius keys, custom RPC URLs, Pyth
+    feed configuration, CoinGecko keys, and CoinMarketCap keys remain server-side.'
 servers:
-- url: /api/v1
+- url: /
+  description: PowerChain platform origin
 security:
 - sessionCookie: []
 tags:
@@ -17,12 +23,123 @@ tags:
 - name: Marketplace
 - name: Settlement
 - name: Platform
+- name: Local Energy
+- name: EMS
+- name: Energy Network
+- name: Business Operations
 - name: Control Plane
-- name: Integrations
-- name: Treasury
-- name: Operations
+- name: Token Framework
+- name: Solana
+- name: Developer Platform
+- name: Compatibility
+- name: Tokenized Chat
 paths:
-  /auth/signin:
+  /api/assets/{mint}:
+    get:
+      tags:
+      - Compatibility
+      summary: Compatibility Solana asset endpoint
+      description: Compatibility alias for /api/v1/solana/assets/{mint}. Delegates to the exact same server implementation.
+      parameters:
+      - &id001
+        in: path
+        name: mint
+        required: true
+        schema:
+          type: string
+        description: Solana mint public key
+      responses:
+        '200':
+          description: OK
+      security: []
+  /api/postman:
+    get:
+      tags:
+      - Developer Platform
+      summary: Download the canonical Postman collection
+      responses:
+        '200':
+          description: OK
+      security: []
+  /api/solana/overview:
+    get:
+      tags:
+      - Compatibility
+      summary: Compatibility Solana overview endpoint
+      description: Compatibility alias for /api/v1/solana/overview. Delegates to the exact same server implementation.
+      responses:
+        '200':
+          description: OK
+      security: []
+  /api/swagger/:
+    get:
+      tags:
+      - Developer Platform
+      summary: Open Swagger UI
+      responses:
+        '200':
+          description: OK
+      security: []
+  /api/token/market:
+    get:
+      tags:
+      - Compatibility
+      summary: Compatibility token market endpoint
+      description: Compatibility alias for /api/v1/solana/market. Unlike the canonical v1 endpoint, this alias may
+        default to configured PWRC_MINT/POWERCHAIN_PWRC_MINT when mint is omitted. It delegates to the same market
+        resolver.
+      parameters:
+      - in: query
+        name: mint
+        required: false
+        schema:
+          type: string
+        description: Optional mint. Defaults to configured PWRC mint only on this compatibility alias.
+      responses:
+        '200':
+          description: OK
+      security: []
+  /api/v1/ai/agents:
+    get:
+      tags:
+      - AI
+      summary: List PowerChain renewable-energy agents and skills
+      responses:
+        '200':
+          description: Agent catalog
+  /api/v1/ai/models:
+    get:
+      tags:
+      - AI
+      summary: List GRIDLLM, LoRA and retrieval models
+      responses:
+        '200':
+          description: AI model catalog
+  /api/v1/ai/settings:
+    get:
+      tags:
+      - AI
+      summary: Read public PowerChain AI configuration
+      responses:
+        '200':
+          description: AI configuration
+  /api/v1/asset-graph:
+    get:
+      tags:
+      - Control Plane
+      summary: Read tenant-scoped Asset Graph nodes and relationships
+      responses:
+        '200':
+          description: Asset Graph snapshot
+  /api/v1/attestations:
+    post:
+      tags:
+      - Energy
+      summary: Create a DePIN oracle attestation
+      responses:
+        '201':
+          description: Attestation created
+  /api/v1/auth/signin:
     post:
       tags:
       - Identity
@@ -32,7 +149,7 @@ paths:
           description: Session created
         '400':
           description: Invalid request
-  /auth/signup:
+  /api/v1/auth/signup:
     post:
       tags:
       - Identity
@@ -40,127 +157,11 @@ paths:
       responses:
         '201':
           description: Account created
-  /sessions:
-    get:
-      tags:
-      - Identity
-      summary: Read the current authenticated session
-      responses:
-        '200':
-          description: Session state
-  /ai/models:
-    get:
-      tags:
-      - AI
-      summary: List GRIDLLM, LoRA and retrieval models
-      responses:
-        '200':
-          description: AI model catalog
-  /ai/agents:
-    get:
-      tags:
-      - AI
-      summary: List PowerChain renewable-energy agents and skills
-      responses:
-        '200':
-          description: Agent catalog
-  /ai/settings:
-    get:
-      tags:
-      - AI
-      summary: Read public PowerChain AI configuration
-      responses:
-        '200':
-          description: AI configuration
-  /chat:
-    post:
-      tags:
-      - AI
-      summary: Submit a PowerChain-scoped AI message
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-              - message
-              properties:
-                chatId:
-                  type:
-                  - string
-                  - 'null'
-                message:
-                  type: string
-                  minLength: 1
-                  maxLength: 2000
-      responses:
-        '200':
-          description: Assistant response
-        '400':
-          description: Prompt is invalid or outside PowerChain scope
-      description: Uses the authenticated session/tenant identity; caller-controlled user identity is not accepted.
-  /measurements:
-    post:
-      tags:
-      - Energy
-      summary: Submit a signed smart-meter measurement
-      responses:
-        '201':
-          description: Measurement accepted
-  /measurements/batch:
-    post:
-      tags:
-      - Energy
-      summary: Submit a batch of smart-meter measurements
-      responses:
-        '201':
-          description: Measurements accepted
-  /attestations:
-    post:
-      tags:
-      - Energy
-      summary: Create a DePIN oracle attestation
-      responses:
-        '201':
-          description: Attestation created
-  /proof-of-energy/verify:
-    post:
-      tags:
-      - Energy
-      summary: Verify an energy measurement and oracle consensus
-      responses:
-        '200':
-          description: Verification result
-  /tokens/energy/mint:
-    post:
-      tags:
-      - Tokens
-      summary: Mint a verified kWh or MWh token
-      responses:
-        '201':
-          description: Energy token prepared or minted
-  /tokens/energy/burn:
-    post:
-      tags:
-      - Tokens
-      summary: Burn an energy token
-      responses:
-        '200':
-          description: Burn recorded
-  /tokens/energy/retire:
-    post:
-      tags:
-      - Tokens
-      summary: Retire an energy token and preserve provenance
-      responses:
-        '200':
-          description: Retirement recorded
-  /bridge/pwrc/quote:
+  /api/v1/bridge/pwrc/quote:
     get:
       tags:
       - Bridge
-      summary: "Quote a PowerChain \u2194 Solana PWRC transfer"
+      summary: Quote a PowerChain ↔ Solana PWRC transfer
       parameters:
       - in: query
         name: direction
@@ -181,7 +182,7 @@ paths:
           description: Bridge quote
         '400':
           description: Invalid direction or amount
-  /bridge/pwrc/transfer:
+  /api/v1/bridge/pwrc/transfer:
     post:
       tags:
       - Bridge
@@ -192,55 +193,7 @@ paths:
           description: Transfer prepared
         '400':
           description: Validation error
-  /marketplace/orders:
-    post:
-      tags:
-      - Marketplace
-      summary: Create a marketplace order
-      responses:
-        '201':
-          description: Order created
-  /settlements:
-    post:
-      tags:
-      - Settlement
-      summary: Create a signature-required settlement
-      responses:
-        '201':
-          description: Settlement created
-  /transactions:
-    post:
-      tags:
-      - Settlement
-      summary: Prepare a validated Solana, Sui or EVM transaction
-      responses:
-        '201':
-          description: Transaction prepared
-        '400':
-          description: Validation error
-  /status:
-    get:
-      tags:
-      - Platform
-      summary: Read platform and integration status
-      responses:
-        '200':
-          description: Platform status
-  /config/networks:
-    get:
-      tags:
-      - Platform
-      summary: List supported Solana and Sui networks without secrets
-      responses:
-        '200':
-          description: Network catalog
-  /certification/programs:
-    get:
-      summary: List certification programs
-      responses:
-        '200':
-          description: Certification programs
-  /certification/certificates:
+  /api/v1/certification/certificates:
     get:
       summary: List tokenized certificates
       responses:
@@ -251,7 +204,151 @@ paths:
       responses:
         '202':
           description: Issuance accepted
-  /energy/prices:
+  /api/v1/certification/programs:
+    get:
+      summary: List certification programs
+      responses:
+        '200':
+          description: Certification programs
+  /api/v1/chat:
+    get:
+      tags:
+      - Tokenized Chat
+      summary: List authenticated encrypted Copilot conversations
+      responses:
+        '200':
+          description: Conversation list
+        '401':
+          description: Authentication required
+    post:
+      tags:
+      - Tokenized Chat
+      summary: Create or continue a PWRC-metered Copilot conversation
+      description: Persists an immutable quote, atomically reserves 10,000 PWRC, stores chat content encrypted at
+        rest, and creates a deterministic non-transferable proof only after the assistant response is delivered
+        and settled.
+      parameters:
+      - in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          type: string
+        description: Unique financial/chat operation key. Replays cannot create a second settled debit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - message
+              properties:
+                chatId:
+                  type:
+                  - string
+                  - 'null'
+                modelId:
+                  type: string
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+      responses:
+        '201':
+          description: Response delivered and PWRC settlement completed
+        '402':
+          description: Insufficient PWRC Copilot credits
+        '409':
+          description: Idempotency or settlement conflict
+        '503':
+          description: Database/encryption/signing configuration unavailable
+  /api/v1/cmr/relationships:
+    get:
+      tags:
+      - Business Operations
+      summary: List customer and market relationships
+      responses:
+        '200':
+          description: CMR relationships
+  /api/v1/config/networks:
+    get:
+      tags:
+      - Platform
+      summary: List supported Solana and Sui networks without secrets
+      responses:
+        '200':
+          description: Network catalog
+  /api/v1/config/public:
+    get:
+      tags:
+      - Platform
+      summary: Read browser-safe public PowerChain configuration
+      description: Never returns API keys, private RPC credentials, signing material, or wallet secrets.
+      responses:
+        '200':
+          description: OK
+  /api/v1/control-plane/evaluate:
+    post:
+      tags:
+      - Control Plane
+      summary: Evaluate an action intent against the canonical PowerChain control boundary
+      responses:
+        '200':
+          description: Policy/approval decision
+  /api/v1/device-control/intents:
+    post:
+      tags:
+      - Control Plane
+      summary: Create a device command intent without dispatching it
+      parameters:
+      - in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Device action prepared for review
+  /api/v1/ems/summary:
+    get:
+      tags:
+      - EMS
+      summary: Read organization Energy Management System summary
+      responses:
+        '200':
+          description: EMS state and module metrics
+  /api/v1/energy-network/search:
+    get:
+      tags:
+      - Energy Network
+      summary: Search tenant-safe energy participants and infrastructure
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: type
+        schema:
+          type: string
+          enum:
+          - consumer
+          - prosumer
+          - retailer
+          - renewable_generator
+          - grid_operator
+          - utility
+          - community
+          - aggregator
+          - energy_company
+          - service_provider
+          - partner
+      responses:
+        '200':
+          description: Participant search state and records
+        '401':
+          description: Authentication required
+  /api/v1/energy/prices:
     get:
       summary: Fetch sourced regional energy prices and tariffs
       parameters:
@@ -262,292 +359,491 @@ paths:
       responses:
         '200':
           description: Explicit provider-state price records
-  /payments:
+  /api/v1/erp/documents:
+    get:
+      tags:
+      - Business Operations
+      summary: List organization ERP documents
+      responses:
+        '200':
+          description: ERP documents or explicit empty/unconfigured state
+  /api/v1/health:
+    get:
+      tags:
+      - Platform
+      summary: Liveness health check
+      responses:
+        '200':
+          description: Platform process is alive
+  /api/v1/local-energy/listings:
+    get:
+      tags:
+      - Local Energy
+      summary: List canonical integer-Wh Local Energy listings
+      parameters:
+      - in: query
+        name: mode
+        schema:
+          type: string
+          enum:
+          - BUY
+          - SELL
+          - RENT
+      responses:
+        '200':
+          description: Listings or explicit unconfigured/empty state
+    post:
+      tags:
+      - Local Energy
+      summary: Create a BUY, SELL or RENT Local Energy listing
+      parameters:
+      - in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Listing created
+        '400':
+          description: Idempotency or request error
+        '422':
+          description: Domain validation failed
+  /api/v1/local-energy/reservations:
+    post:
+      tags:
+      - Local Energy
+      summary: Create a compare-and-set Wh reservation
+      description: Creates REVIEW_REQUIRED only. Reservation does not prove delivery, reconciliation or financial
+        settlement.
+      parameters:
+      - in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          type: string
+      responses:
+        '202':
+          description: Reservation accepted for review
+        '409':
+          description: Concurrent listing version/availability conflict
+  /api/v1/marketplace/orders:
+    post:
+      tags:
+      - Marketplace
+      summary: Create a marketplace order
+      responses:
+        '201':
+          description: Order created
+  /api/v1/me:
+    get:
+      tags:
+      - Identity
+      summary: Read the authenticated user and session
+      responses:
+        '200':
+          description: Authenticated principal
+        '401':
+          description: Authentication required
+  /api/v1/measurements:
+    post:
+      tags:
+      - Energy
+      summary: Submit a signed smart-meter measurement
+      responses:
+        '201':
+          description: Measurement accepted
+  /api/v1/measurements/batch:
+    post:
+      tags:
+      - Energy
+      summary: Submit a batch of smart-meter measurements
+      responses:
+        '201':
+          description: Measurements accepted
+  /api/v1/openapi.json:
+    get:
+      tags:
+      - Developer Platform
+      summary: Download OpenAPI 3.1 as JSON
+      responses:
+        '200':
+          description: OK
+      security: []
+  /api/v1/openapi.yaml:
+    get:
+      tags:
+      - Developer Platform
+      summary: Download OpenAPI 3.1 as YAML
+      responses:
+        '200':
+          description: OK
+      security: []
+  /api/v1/payments:
     post:
       summary: Create a decimal-safe payment authorization
       responses:
         '201':
           description: Payment authorization created
-  /ems:
+  /api/v1/powerchain/overview:
     get:
+      tags:
+      - Platform
+      summary: Read PowerChain Digital Energy OS overview
+      responses:
+        '200':
+          description: OK
+  /api/v1/powerchain/programs:
+    get:
+      tags:
+      - Platform
+      summary: Read PowerChain program deployment state
+      responses:
+        '200':
+          description: OK
+      description: PowerChain program registry with on-chain executable-account verification, including Launchpad,
+        launch-policy, Token-2022 vesting, token factory, escrow, energy, treasury, bridge and CCT bindings when
+        configured.
+  /api/v1/programs:
+    get:
+      tags:
+      - Platform
+      summary: List canonical PowerChain programs
+      responses:
+        '200':
+          description: OK
+  /api/v1/projects:
+    get:
+      tags:
+      - Platform
+      summary: List PowerChain projects
+      responses:
+        '200':
+          description: Project registry
+  /api/v1/projects/{slug}:
+    get:
+      tags:
+      - Platform
+      summary: Read a PowerChain project by slug or public ID
+      parameters:
+      - in: path
+        name: slug
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Project
+        '404':
+          description: Project not found
+  /api/v1/proof-of-energy/verify:
+    post:
       tags:
       - Energy
-      summary: Read tenant EMS operator state
+      summary: Verify an energy measurement and oracle consensus
       responses:
         '200':
-          description: EMS state
-  /erp:
+          description: Verification result
+  /api/v1/ready:
     get:
       tags:
       - Platform
-      summary: Read ERP operator state
+      summary: Production readiness check
+      description: Returns HTTP 503 when a required production dependency is unavailable.
       responses:
         '200':
-          description: ERP state
-  /cmr:
+          description: Platform is ready
+        '503':
+          description: Required dependency is not ready
+  /api/v1/revenue/quote:
+    post:
+      tags:
+      - EMS
+      summary: Calculate exact renewable revenue from integer Wh
+      responses:
+        '200':
+          description: Revenue quote
+  /api/v1/rewards/allocations:
     get:
       tags:
-      - Platform
-      summary: Read CMR operator state
+      - Business Operations
+      summary: List evidence-backed PWRC reward allocations
       responses:
         '200':
-          description: CMR state
-  /rewards:
+          description: Reward allocations
+  /api/v1/sessions:
     get:
       tags:
-      - Platform
-      summary: Read evidence-backed reward state
+      - Identity
+      summary: Read the current authenticated session
       responses:
         '200':
-          description: Reward state
-  /treasury:
-    get:
+          description: Session state
+  /api/v1/settlements:
+    post:
       tags:
       - Settlement
-      summary: Read treasury operator state
+      summary: Create a signature-required settlement
+      responses:
+        '201':
+          description: Settlement created
+  /api/v1/solana/assets/{mint}:
+    get:
+      tags:
+      - Solana
+      summary: Inspect a Solana mint and sourced asset metadata
+      parameters:
+      - *id001
       responses:
         '200':
-          description: Treasury state
-  /vault:
+          description: Mint inspection and asset state
+        '400':
+          description: Invalid mint
+      description: Combines Solana RPC with optional Helius DAS. Reports SPL Token vs Token-2022 ownership, parsed
+        mint type, supply, decimals, mint/freeze authorities, parsed Token-2022 extensions when exposed by RPC,
+        and supplemental Helius metadata.
+  /api/v1/solana/market:
+    get:
+      tags:
+      - Solana
+      summary: Resolve sourced Solana token market state for an explicit mint
+      description: The canonical v1 endpoint always requires mint. Server-side resolution order is Pyth (when the
+        mint has an explicit feed mapping), CoinGecko, CoinMarketCap, then optional Birdeye compatibility fallback.
+        No provider credential is exposed.
+      parameters:
+      - in: query
+        name: mint
+        required: true
+        schema:
+          type: string
+        description: Required Solana token mint public key.
+      responses:
+        '200':
+          description: Sourced market state
+        '400':
+          description: Mint is missing or invalid
+  /api/v1/solana/overview:
+    get:
+      tags:
+      - Solana
+      summary: Read Solana RPC/cluster health and runtime state
+      responses:
+        '200':
+          description: Cluster health/runtime state
+      description: Same-origin Next.js server proxy over the canonical Solana service. Reads RPC health, Solana
+        core version, slot, block height, epoch info, latest blockhash and genesis hash. Provider URLs and credentials
+        are never returned.
+  /api/v1/solana/programs:
+    get:
+      tags:
+      - Solana
+      summary: Verify Solana and PowerChain/Launchpad program deployments
+      responses:
+        '200':
+          description: Program registry and deployment verification
+      description: Returns standard Solana program IDs and verifies configured PowerChain/Launchpad program addresses
+        with getAccountInfo. DEPLOYED requires an existing executable account; merely configuring an address is
+        not treated as deployment.
+  /api/v1/status:
     get:
       tags:
       - Platform
-      summary: Read evidence vault state
+      summary: Read platform and integration status
       responses:
         '200':
-          description: Vault state
-  /local-energy/listings:
+          description: Platform status
+  /api/v1/token-framework/cct:
     get:
       tags:
-      - Energy
-      summary: List integer-Wh Local Energy BUY/SELL/RENT listings
+      - Token Framework
+      summary: Read canonical CCT Token-2022 configuration
       responses:
         '200':
-          description: Listings
+          description: CCT definition and deployment readiness
     post:
       tags:
-      - Energy
-      summary: Create a Local Energy listing
+      - Token Framework
+      summary: Prepare evidence-backed CCT issuance intent
+      responses:
+        '202':
+          description: CCT issuance intent prepared; execution not performed
+  /api/v1/token/allocations:
+    get:
+      tags:
+      - Tokens
+      summary: Read configured PWRC allocation policy
+      description: Allocation percentages are configuration-backed. The API returns UNCONFIGURED instead of inventing
+        a distribution when the canonical policy is absent.
+      responses:
+        '200':
+          description: OK
+  /api/v1/tokens/energy/burn:
+    post:
+      tags:
+      - Tokens
+      summary: Burn an energy token
+      responses:
+        '200':
+          description: Burn recorded
+  /api/v1/tokens/energy/mint:
+    post:
+      tags:
+      - Tokens
+      summary: Mint a verified kWh or MWh token
       responses:
         '201':
-          description: Listing created
-  /local-energy/reservations:
+          description: Energy token prepared or minted
+  /api/v1/tokens/energy/retire:
     post:
       tags:
-      - Energy
-      summary: Reserve Local Energy Wh using idempotency and listing-version CAS
+      - Tokens
+      summary: Retire an energy token and preserve provenance
+      responses:
+        '200':
+          description: Retirement recorded
+  /api/v1/transactions:
+    post:
+      tags:
+      - Settlement
+      summary: Prepare a validated Solana, Sui or EVM transaction
       responses:
         '201':
-          description: Review-required reservation
-      description: Atomically reserve integer Wh using Idempotency-Key and expected listing version. The accepted reservation is REVIEW_REQUIRED,
-        not delivered or settled.
-    get:
-      tags:
-      - Energy
-      summary: List authenticated Local Energy reservations
-      responses:
-        '200':
-          description: Success
+          description: Transaction prepared
         '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: Reservation state is independent from delivery, reconciliation and financial settlement.
-  /copilot/credits/rates:
+          description: Validation error
+  /api/v1/treasury/summary:
     get:
       tags:
-      - AI
-      summary: Read sourced SOL/USD and EUR/USD display rates
+      - Business Operations
+      summary: Read organization treasury accounts and allocation intents
       responses:
         '200':
-          description: Credit market rates
-  /copilot/credits/quote:
-    post:
-      tags:
-      - AI
-      summary: Quote a Copilot message in USD/EUR/SOL/PWRC
-      responses:
-        '200':
-          description: Credit quote
-  /solana/tokens/search:
+          description: Treasury summary
+  /api/v1/vault/records:
     get:
       tags:
-      - Tokens
-      summary: Search Jupiter Token API v2
+      - Business Operations
+      summary: List tenant-scoped evidence and vault records
       responses:
         '200':
-          description: Token search result
-  /solana/swap/quote:
-    post:
-      tags:
-      - Tokens
-      summary: Request a Jupiter swap quote without signing
-      responses:
+          description: Vault records
+  /api/v1/chat/conversations/{conversationId}/credits:
+    get:
+      tags: &id002
+      - Tokenized Chat
+      summary: Read deterministic credit and proof summary for a conversation
+      parameters: &id003
+      - in: path
+        name: conversationId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses: &id004
         '200':
-          description: Quote result
-  /tokens/framework:
+          description: Message units, spent base units/PWRC, tokenized response count and proof references
+        '404':
+          description: Conversation not found
+  /api/v1/chat/conversations/{conversationId}/messages/{messageId}/proof:
     get:
       tags:
-      - Tokens
-      summary: Read PowerChain token standards and Solana program IDs
-      responses:
+      - Tokenized Chat
+      summary: Read and verify the tokenized proof for a settled assistant response
+      parameters: &id005
+      - in: path
+        name: conversationId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: path
+        name: messageId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses: &id006
         '200':
-          description: Token framework
-      description: Returns canonical SPL, Token-2022, Metaplex, Pyth, Jupiter and Helium integration metadata plus CCT configuration state.
-  /tokens/cct/issuance-intents:
-    post:
-      tags:
-      - Tokens
-      summary: Prepare an evidence-backed CCT issuance intent for review
-      responses:
-        '202':
-          description: Review-required issuance intent
-      description: Creates an approval-controlled Token-2022 CCT issuance intent backed by verified evidence. This endpoint does not sign or mint.
-  /energy-network/search:
+          description: Proof hashes, receipt metadata and verification checks; no plaintext encryption material
+        '404':
+          description: Settled proof not found
+  /api/v1/credits/chat/{conversationId}:
+    get:
+      tags: *id002
+      summary: Compatibility credit summary for a Copilot conversation
+      parameters: *id003
+      responses: *id004
+  /api/v1/chat/credits:
     get:
       tags:
-      - Energy
-      summary: Search PowerChain Energy Network participants
+      - Tokenized Chat
+      summary: Read authenticated PWRC chat credit account and canonical message-unit pricing
       responses:
         '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: Search consumers, prosumers, retailers, renewable generators, utilities, grid operators, communities and partners with tenant/public-profile
-        boundaries.
-  /web3/programs:
+          description: Available/reserved/spent credits and fixed v1.0.0 chat unit
+  /api/v1/capilot/conversations/{conversationId}/credits:
     get:
       tags:
-      - Tokens
-      summary: List canonical Solana, Metaplex, Pyth, Jupiter and Helium program identifiers
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: Reference metadata only; program IDs do not grant wallet authority.
-  /integrations/jupiter/tokens:
+      - Compatibility
+      summary: Compatibility alias for tokenized chat credit summary (capilot)
+      parameters: *id003
+      responses: *id004
+  /api/v1/capilot/conversations/{conversationId}/messages/{messageId}/proof:
     get:
       tags:
-      - Tokens
-      summary: Search Jupiter Tokens V2
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: Read-only token discovery through the PowerChain integration boundary.
-  /integrations/jupiter/price:
+      - Compatibility
+      summary: Compatibility alias for tokenized message proof (capilot)
+      parameters: *id005
+      responses: *id006
+  /api/v1/capilot/credits/chat/{conversationId}:
     get:
       tags:
-      - Tokens
-      summary: Read Jupiter Price V3 values
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: Sourced price display data; not settlement authority.
-  /asset-graph:
+      - Compatibility
+      summary: Compatibility alias for conversation credit summary (capilot)
+      parameters: *id003
+      responses: *id004
+  /api/v1/capilot-mobile/conversations/{conversationId}/credits:
     get:
       tags:
-      - Platform
-      summary: Read the organization-scoped Asset Graph
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: Graph nodes and relationships are assembled only from tenant-scoped persisted PowerChain records.
-  /control-plane/agents/energy:
+      - Compatibility
+      summary: Compatibility alias for tokenized chat credit summary (capilot-mobile)
+      parameters: *id003
+      responses: *id004
+  /api/v1/capilot-mobile/conversations/{conversationId}/messages/{messageId}/proof:
     get:
       tags:
-      - AI
-      summary: Read Energy Agent manifest and autonomy limits
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: The Energy Agent cannot sign wallets or directly execute treasury/token actions.
-  /control-plane/intents/evaluate:
-    post:
-      tags:
-      - AI
-      summary: Evaluate an Action Intent through the Control Plane
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-        '202':
-          description: Accepted / prepared
-      description: Evaluation produces a policy/approval decision only; it performs no external execution.
-  /revenue/preview:
-    post:
-      tags:
-      - Energy
-      summary: Preview deterministic renewable revenue and allocation
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-        '202':
-          description: Accepted / prepared
-      description: Preview-only integer/precise arithmetic. No treasury or settlement mutation is performed.
-  /copilot/credits:
+      - Compatibility
+      summary: Compatibility alias for tokenized message proof (capilot-mobile)
+      parameters: *id005
+      responses: *id006
+  /api/v1/capilot-mobile/credits/chat/{conversationId}:
     get:
       tags:
-      - AI
-      summary: Read PWRC-backed Copilot credit account
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-      description: Returns available/reserved/total PWRC credit state for the authenticated organization/user context.
-  /copilot/credits/purchase-intent:
-    post:
-      tags:
-      - AI
-      summary: Prepare a PWRC/Copilot credit purchase intent
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Validated request error
-        '401':
-          description: Authentication required
-        '202':
-          description: Accepted / prepared
-      description: Preparing a purchase intent never credits the account before confirmed funding evidence.
-  /solana/programs:
+      - Compatibility
+      summary: Compatibility alias for conversation credit summary (capilot-mobile)
+      parameters: *id003
+      responses: *id004
+  /api/v1/copilot-mobile/conversations/{conversationId}/credits:
     get:
       tags:
-      - Tokens
-      summary: List canonical Solana, Metaplex, Pyth, Jupiter and Helium program identifiers
-      responses:
-        '200':
-          description: Program identifier catalog
+      - Compatibility
+      summary: Compatibility alias for tokenized chat credit summary (copilot-mobile)
+      parameters: *id003
+      responses: *id004
+  /api/v1/copilot-mobile/conversations/{conversationId}/messages/{messageId}/proof:
+    get:
+      tags:
+      - Compatibility
+      summary: Compatibility alias for tokenized message proof (copilot-mobile)
+      parameters: *id005
+      responses: *id006
+  /api/v1/copilot-mobile/credits/chat/{conversationId}:
+    get:
+      tags:
+      - Compatibility
+      summary: Compatibility alias for conversation credit summary (copilot-mobile)
+      parameters: *id003
+      responses: *id004
 components:
   securitySchemes:
     sessionCookie:

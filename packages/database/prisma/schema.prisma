@@ -35,7 +35,6 @@ model EnergyAsset {
   longitude      Decimal?     @db.Decimal(9, 6)
   metadata       Json         @default("{}")
   telemetry      Telemetry[]
-  connectedDevices ConnectedDevice[]
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   @@index([organizationId, status])
@@ -95,8 +94,6 @@ model User {
   displayName String       @map("display_name")
   memberships Membership[]
   chats       AIChat[]
-  savedCopilotPrompts CopilotSavedPrompt[]
-  copilotFeedback CopilotMessageFeedback[]
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
   @@map("users")
@@ -130,15 +127,32 @@ model AIChat {
 }
 
 model AIMessage {
-  id        String   @id @default(uuid()) @db.Uuid
-  chatId    String   @db.Uuid @map("chat_id")
-  userId    String   @db.Uuid @map("user_id")
-  role      ChatRole
-  content   String
-  metadata  Json     @default("{}")
-  chat      AIChat   @relation(fields:[chatId],references:[id],onDelete:Cascade)
-  createdAt DateTime @default(now()) @map("created_at")
+  id                     String   @id @default(uuid()) @db.Uuid
+  chatId                 String   @db.Uuid @map("chat_id")
+  userId                 String   @db.Uuid @map("user_id")
+  role                   ChatRole
+  content                String?
+  contentCiphertext      String?  @map("content_ciphertext")
+  contentNonce           String?  @map("content_nonce")
+  contentAuthTag         String?  @map("content_auth_tag")
+  contentHash            String?  @map("content_hash")
+  encryptionKeyId        String?  @map("encryption_key_id")
+  quoteHash              String?  @map("quote_hash")
+  responseHash           String?  @map("response_hash")
+  tokenProofHash         String?  @unique @map("token_proof_hash")
+  reservationId          String?  @map("reservation_id")
+  messageUnitId          String?  @map("message_unit_id")
+  receiptId              String?  @map("receipt_id")
+  receiptHash            String?  @map("receipt_hash")
+  pwrcDebitBaseUnits     Decimal? @db.Decimal(78,0) @map("pwrc_debit_base_units")
+  referenceValueUsd      Decimal? @db.Decimal(12,6) @map("reference_value_usd")
+  settlementStatus       String?  @map("settlement_status")
+  metadata               Json     @default("{}")
+  chat                   AIChat   @relation(fields:[chatId],references:[id],onDelete:Cascade)
+  createdAt              DateTime @default(now()) @map("created_at")
   @@index([chatId,createdAt])
+  @@index([receiptId])
+  @@index([reservationId])
   @@map("ai_messages")
 }
 
@@ -184,360 +198,327 @@ model P2PEnergyOrder {
 }
 
 
-model ConnectedDevice {
-  id                 String   @id @default(uuid()) @db.Uuid
-  organizationId     String   @db.Uuid @map("organization_id")
-  assetId            String?  @db.Uuid @map("asset_id")
-  deviceId           String   @map("device_id")
-  kind               String
-  manufacturer       String
-  model              String
-  firmware           String?
-  serialNumber       String?  @map("serial_number")
-  status             String   @default("UNCONFIGURED")
-  network            String
-  healthScore        Int      @default(0) @map("health_score")
-  currentOutputW     BigInt?  @map("current_output_w")
-  cumulativeEnergyWh BigInt?  @map("cumulative_energy_wh")
-  lastSeenAt         DateTime? @map("last_seen_at")
-  version            Int      @default(1)
-  metadata           Json     @default("{}")
-  asset              EnergyAsset? @relation(fields:[assetId],references:[id],onDelete:SetNull)
-  telemetry          DeviceTelemetry[]
-  commands           DeviceCommand[]
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
-  @@unique([organizationId,deviceId])
-  @@index([organizationId,status])
-  @@index([assetId])
-  @@map("connected_devices")
-}
-
-model DeviceTelemetry {
-  id          BigInt          @id @default(autoincrement())
-  deviceId    String          @db.Uuid @map("device_id")
-  device      ConnectedDevice @relation(fields:[deviceId],references:[id],onDelete:Cascade)
-  metric      String
-  value       Decimal         @db.Decimal(24,6)
-  unit        String
-  quality     String          @default("GOOD")
-  recordedAt  DateTime        @map("recorded_at")
-  createdAt   DateTime        @default(now()) @map("created_at")
-  @@index([deviceId,metric,recordedAt(sort:Desc)])
-  @@map("device_telemetry")
-}
-
-model DeviceCommand {
-  id                    String          @id @default(uuid()) @db.Uuid
-  organizationId        String          @db.Uuid @map("organization_id")
-  deviceId              String          @db.Uuid @map("device_id")
-  commandType           String          @map("command_type")
-  expectedDeviceVersion Int             @map("expected_device_version")
-  state                 String          @default("REVIEW_REQUIRED")
-  reason                String
-  requestedBy           String          @map("requested_by")
-  idempotencyKey        String          @map("idempotency_key")
-  approvedBy            String?         @map("approved_by")
-  requestId             String          @map("request_id")
-  traceId               String          @map("trace_id")
-  correlationId         String          @map("correlation_id")
-  externalReference     String?         @map("external_reference")
-  device                ConnectedDevice @relation(fields:[deviceId],references:[id],onDelete:Cascade)
-  createdAt             DateTime        @default(now()) @map("created_at")
-  updatedAt             DateTime        @updatedAt @map("updated_at")
-  @@unique([organizationId,idempotencyKey])
-  @@index([organizationId,state,createdAt(sort:Desc)])
-  @@map("device_commands")
-}
-
-model CopilotSavedPrompt {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid @map("user_id")
-  promptId  String   @map("prompt_id")
-  user      User     @relation(fields:[userId],references:[id],onDelete:Cascade)
-  createdAt DateTime @default(now()) @map("created_at")
-  @@unique([userId,promptId])
-  @@map("copilot_saved_prompts")
-}
-
-model CopilotMessageFeedback {
-  id        String    @id @default(uuid()) @db.Uuid
-  messageId String    @db.Uuid @map("message_id")
-  userId    String    @db.Uuid @map("user_id")
-  value     String
-  reason    String?
-  user      User      @relation(fields:[userId],references:[id],onDelete:Cascade)
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  @@unique([messageId,userId])
-  @@index([userId,createdAt(sort:Desc)])
-  @@map("copilot_message_feedback")
-}
-
-model AcpProviderDirectory {
-  id                  String   @id
-  organizationId      String?  @map("organization_id")
-  publicId            String   @unique @map("public_id")
-  name                String
-  participantType     String   @map("participant_type")
-  walletAddress       String   @map("wallet_address")
-  identityHash        String   @map("identity_hash")
-  apiEndpoint         String   @map("api_endpoint")
-  eventEndpoint       String?  @map("event_endpoint")
-  credentialReference String?  @map("credential_reference")
-  status              String   @default("active")
-  capabilities        String[] @default([])
-  offerings           Json     @default("[]")
-  chains              Int[]    @default([])
-  categories          String[] @default([])
-  regions             String[] @default([])
-  successfulJobs      Int      @default(0) @map("successful_jobs")
-  successRate         Decimal? @db.Decimal(6,3) @map("success_rate")
-  metadata            Json     @default("{}")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
-  @@index([status,participantType,name])
-  @@map("acp_provider_directory")
-}
-
 model EnergyNetworkParticipant {
-  id              String   @id
-  organizationId  String?  @map("organization_id")
-  publicId        String   @unique @map("public_id")
-  name            String
-  participantType String   @map("participant_type")
-  country         String
-  region          String?
-  latitude        Decimal? @db.Decimal(9,6)
-  longitude       Decimal? @db.Decimal(9,6)
-  capabilities    String[] @default([])
-  energySources   String[] @default([]) @map("energy_sources")
-  markets         String[] @default([])
-  verified        Boolean  @default(false)
-  publicProfile   Boolean  @default(false) @map("public_profile")
-  metadata        Json     @default("{}")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id String @id
+  organizationId String? @map("organization_id")
+  publicId String @unique @map("public_id")
+  name String
+  participantType String @map("participant_type")
+  country String
+  region String?
+  latitude Decimal? @db.Decimal(9,6)
+  longitude Decimal? @db.Decimal(9,6)
+  capabilities String[] @default([])
+  energySources String[] @default([]) @map("energy_sources")
+  markets String[] @default([])
+  verified Boolean @default(false)
+  publicProfile Boolean @default(false) @map("public_profile")
+  metadata Json @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
   @@index([publicProfile,participantType,country,region])
   @@map("energy_network_participants")
 }
-
-model CopilotCreditAccount {
-  id              String   @id
-  organizationId  String   @db.Uuid @map("organization_id")
-  userId          String   @db.Uuid @map("user_id")
-  balancePwrcRaw  Decimal  @default(0) @db.Decimal(78,0) @map("balance_pwrc_raw")
-  reservedPwrcRaw Decimal  @default(0) @db.Decimal(78,0) @map("reserved_pwrc_raw")
-  version         Int      @default(1)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  @@unique([organizationId,userId])
-  @@map("copilot_credit_accounts")
-}
-
-model CopilotCreditLedgerEntry {
-  id                String   @id
-  organizationId    String   @db.Uuid @map("organization_id")
-  accountId         String   @map("account_id")
-  entryType         String   @map("entry_type")
-  pwrcRaw           Decimal  @db.Decimal(78,0) @map("pwrc_raw")
-  direction         String
-  requestId         String?  @map("request_id")
-  quoteId           String?  @map("quote_id")
-  reservationId     String?  @map("reservation_id")
-  externalReference String?  @map("external_reference")
-  metadata          Json     @default("{}")
-  createdAt         DateTime @default(now()) @map("created_at")
-  @@index([accountId,createdAt(sort:Desc)])
-  @@map("copilot_credit_ledger_entries")
-}
-
-model CopilotCreditReservation {
-  id              String   @id
-  organizationId  String   @db.Uuid @map("organization_id")
-  accountId       String   @map("account_id")
-  requestId       String   @map("request_id")
-  quoteId         String   @map("quote_id")
-  pricingClass    String   @map("pricing_class")
-  usdCharge       Decimal  @db.Decimal(12,6) @map("usd_charge")
-  pwrcUsdPrice    Decimal  @db.Decimal(24,12) @map("pwrc_usd_price")
-  reservedPwrcRaw Decimal  @db.Decimal(78,0) @map("reserved_pwrc_raw")
-  settledPwrcRaw  Decimal  @default(0) @db.Decimal(78,0) @map("settled_pwrc_raw")
-  state           String   @default("reserved")
-  expiresAt       DateTime @map("expires_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  settledAt       DateTime? @map("settled_at")
-  @@unique([organizationId,requestId])
-  @@index([state,expiresAt])
-  @@map("copilot_credit_reservations")
-}
-
-model VaultRecord {
-  id              String   @id
-  organizationId  String   @map("organization_id")
-  classification  String
-  contentHash     String   @map("content_hash")
-  storageReference String  @map("storage_reference")
-  retentionPolicy String   @map("retention_policy")
-  metadata        Json     @default("{}")
-  createdAt       DateTime @default(now()) @map("created_at")
-  @@unique([organizationId,contentHash,storageReference])
-  @@map("vault_records")
-}
-
-model RewardAllocation {
-  id             String   @id
-  organizationId String   @map("organization_id")
-  participantId  String   @map("participant_id")
-  epoch           String
-  reason          String
-  pwrcRaw         Decimal  @db.Decimal(78,0) @map("pwrc_raw")
-  evidenceIds     String[] @default([]) @map("evidence_ids")
-  state           String   @default("PENDING")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  @@unique([organizationId,participantId,epoch,reason])
-  @@map("reward_allocations")
-}
-
-model ErpDocument {
-  id                String   @id
-  organizationId    String   @map("organization_id")
-  documentType      String   @map("document_type")
-  externalReference String?  @map("external_reference")
-  counterpartyId    String?  @map("counterparty_id")
-  currency          String
-  amountMinor       Decimal  @db.Decimal(78,0) @map("amount_minor")
-  status             String
-  sourceSystem       String   @map("source_system")
-  metadata           Json     @default("{}")
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
-  @@index([organizationId,status,createdAt(sort:Desc)])
-  @@map("erp_documents")
-}
-
-model CmrRelationship {
-  id               String   @id
-  organizationId   String   @map("organization_id")
-  participantId    String   @map("participant_id")
-  relationshipType String   @map("relationship_type")
-  status            String
-  ownerId           String?  @map("owner_id")
-  tags              String[] @default([])
-  consents          String[] @default([])
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
-  @@unique([organizationId,participantId,relationshipType])
-  @@map("cmr_relationships")
-}
-
-model CmrInteraction {
-  id             String   @id
-  organizationId String   @map("organization_id")
-  relationshipId String   @map("relationship_id")
-  channel        String
-  summary        String
-  occurredAt     DateTime @map("occurred_at")
-  actorId        String   @map("actor_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  @@index([organizationId,relationshipId,occurredAt(sort:Desc)])
-  @@map("cmr_interactions")
-}
-
 model LocalEnergyListing {
-  id               String   @id
-  organizationId   String   @db.Uuid @map("organization_id")
-  participantId    String   @map("participant_id")
-  mode             String
-  source           String
-  assetId          String?  @map("asset_id")
-  quantityWh       BigInt   @map("quantity_wh")
-  availableWh      BigInt   @map("available_wh")
-  priceMinorPerKwh BigInt   @map("price_minor_per_kwh")
-  currency         String
-  deliveryStart    DateTime @map("delivery_start")
-  deliveryEnd      DateTime @map("delivery_end")
-  state            String   @default("ACTIVE")
-  version          Int      @default(1)
-  metadata         Json     @default("{}")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-  reservations     LocalEnergyReservation[]
+  id String @id
+  organizationId String @map("organization_id")
+  participantId String @map("participant_id")
+  mode String
+  source String
+  assetId String? @map("asset_id")
+  quantityWh BigInt @map("quantity_wh")
+  availableWh BigInt @map("available_wh")
+  priceMinorPerKwh BigInt @map("price_minor_per_kwh")
+  currency String
+  deliveryStart DateTime @map("delivery_start")
+  deliveryEnd DateTime @map("delivery_end")
+  state String @default("ACTIVE")
+  version Int @default(1)
+  metadata Json @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  reservations LocalEnergyReservation[]
   @@index([mode,state,deliveryStart])
-  @@index([organizationId,updatedAt(sort:Desc)])
   @@map("local_energy_listings")
 }
-
 model LocalEnergyReservation {
-  id                          String   @id
-  organizationId              String   @db.Uuid @map("organization_id")
-  listingId                   String   @map("listing_id")
-  counterpartyParticipantId   String   @map("counterparty_participant_id")
-  quantityWh                  BigInt   @map("quantity_wh")
-  listingVersion              Int      @map("listing_version")
-  state                       String   @default("REVIEW_REQUIRED")
-  idempotencyKey              String   @map("idempotency_key")
-  deliveryEvidenceId          String?  @map("delivery_evidence_id")
-  reconciliationReference     String?  @map("reconciliation_reference")
+  id String @id
+  organizationId String @map("organization_id")
+  listingId String @map("listing_id")
+  counterpartyParticipantId String @map("counterparty_participant_id")
+  quantityWh BigInt @map("quantity_wh")
+  listingVersion Int @map("listing_version")
+  state String @default("REVIEW_REQUIRED")
+  idempotencyKey String @map("idempotency_key")
+  deliveryEvidenceId String? @map("delivery_evidence_id")
+  reconciliationReference String? @map("reconciliation_reference")
   externalSettlementReference String? @map("external_settlement_reference")
-  createdAt                   DateTime @default(now()) @map("created_at")
-  updatedAt                   DateTime @updatedAt @map("updated_at")
-  listing                     LocalEnergyListing @relation(fields:[listingId],references:[id],onDelete:Restrict)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  listing LocalEnergyListing @relation(fields:[listingId],references:[id],onDelete:Restrict)
   @@unique([organizationId,idempotencyKey])
   @@index([listingId,state,createdAt(sort:Desc)])
-  @@index([organizationId,state,updatedAt(sort:Desc)])
   @@map("local_energy_reservations")
 }
-
+model ErpDocument {
+ id String @id
+ organizationId String @map("organization_id")
+ documentType String @map("document_type")
+ externalReference String? @map("external_reference")
+ counterpartyId String? @map("counterparty_id")
+ currency String
+ amountMinor Decimal @db.Decimal(78,0) @map("amount_minor")
+ status String
+ sourceSystem String @map("source_system")
+ metadata Json @default("{}")
+ createdAt DateTime @default(now()) @map("created_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
+ @@index([organizationId,status,createdAt(sort:Desc)])
+ @@map("erp_documents")
+}
+model CmrRelationship {
+ id String @id
+ organizationId String @map("organization_id")
+ participantId String @map("participant_id")
+ relationshipType String @map("relationship_type")
+ status String
+ ownerId String? @map("owner_id")
+ tags String[] @default([])
+ consents String[] @default([])
+ createdAt DateTime @default(now()) @map("created_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
+ @@unique([organizationId,participantId,relationshipType])
+ @@map("cmr_relationships")
+}
+model RewardAllocation {
+ id String @id
+ organizationId String @map("organization_id")
+ participantId String @map("participant_id")
+ epoch String
+ reason String
+ pwrcRaw Decimal @db.Decimal(78,0) @map("pwrc_raw")
+ evidenceIds String[] @default([]) @map("evidence_ids")
+ state String @default("PENDING")
+ createdAt DateTime @default(now()) @map("created_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
+ @@unique([organizationId,participantId,epoch,reason])
+ @@map("reward_allocations")
+}
 model TreasuryAccount {
-  id             String   @id
-  organizationId String   @db.Uuid @map("organization_id")
-  code           String
-  name           String
-  accountType    String   @map("account_type")
-  asset          String
-  balanceRaw     Decimal  @default(0) @db.Decimal(78,0) @map("balance_raw")
-  status         String   @default("ACTIVE")
-  version        Int      @default(1)
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-  postings       TreasuryPosting[]
-  @@unique([organizationId,code,asset])
-  @@index([organizationId,accountType,status])
-  @@map("treasury_accounts")
+ id String @id
+ organizationId String @map("organization_id")
+ accountType String @map("account_type")
+ asset String
+ balanceRaw Decimal @default(0) @db.Decimal(78,0) @map("balance_raw")
+ reservedRaw Decimal @default(0) @db.Decimal(78,0) @map("reserved_raw")
+ version Int @default(1)
+ updatedAt DateTime @updatedAt @map("updated_at")
+ @@unique([organizationId,accountType,asset])
+ @@map("treasury_accounts")
+}
+model TreasuryAllocation {
+ id String @id
+ organizationId String @map("organization_id")
+ sourceAccountId String @map("source_account_id")
+ destinationAccountId String @map("destination_account_id")
+ asset String
+ amountRaw Decimal @db.Decimal(78,0) @map("amount_raw")
+ reason String
+ policyHash String @map("policy_hash")
+ expectedSourceVersion Int @map("expected_source_version")
+ idempotencyKey String @map("idempotency_key")
+ state String @default("PENDING_APPROVAL")
+ createdAt DateTime @default(now()) @map("created_at")
+ postedAt DateTime? @map("posted_at")
+ @@unique([organizationId,idempotencyKey])
+ @@map("treasury_allocations")
+}
+model VaultRecord {
+ id String @id
+ organizationId String @map("organization_id")
+ classification String
+ contentHash String @map("content_hash")
+ storageReference String @map("storage_reference")
+ retentionPolicy String @map("retention_policy")
+ metadata Json @default("{}")
+ createdAt DateTime @default(now()) @map("created_at")
+ @@unique([organizationId,contentHash,storageReference])
+ @@map("vault_records")
+}
+model AssetGraphNode {
+ id String @id
+ organizationId String @map("organization_id")
+ nodeType String @map("node_type")
+ label String
+ metadata Json @default("{}")
+ version Int @default(1)
+ updatedAt DateTime @updatedAt @map("updated_at")
+ @@index([organizationId,nodeType])
+ @@map("asset_graph_nodes")
+}
+model AssetGraphRelationship {
+ id String @id
+ organizationId String @map("organization_id")
+ fromId String @map("from_id")
+ toId String @map("to_id")
+ relationshipType String @map("relationship_type")
+ evidenceIds String[] @default([]) @map("evidence_ids")
+ validFrom DateTime @map("valid_from")
+ validTo DateTime? @map("valid_to")
+ @@index([organizationId,fromId,toId,relationshipType])
+ @@map("asset_graph_relationships")
+}
+model DeviceCommandIntent {
+ id String @id
+ organizationId String @map("organization_id")
+ deviceId String @map("device_id")
+ commandType String @map("command_type")
+ requestedBy String @map("requested_by")
+ expectedDeviceVersion Int @map("expected_device_version")
+ reason String
+ state String @default("REVIEW_REQUIRED")
+ requestId String @map("request_id")
+ traceId String @map("trace_id")
+ correlationId String @map("correlation_id")
+ createdAt DateTime @default(now()) @map("created_at")
+ updatedAt DateTime @updatedAt @map("updated_at")
+ @@index([organizationId,deviceId,state])
+ @@map("device_command_intents")
+}
+model RenewableRevenueEvent {
+ id String @id
+ organizationId String @map("organization_id")
+ assetId String? @map("asset_id")
+ source String
+ energyWh BigInt @map("energy_wh")
+ currency String
+ grossMinor Decimal @db.Decimal(78,0) @map("gross_minor")
+ evidenceIds String[] @default([]) @map("evidence_ids")
+ state String @default("CALCULATED")
+ createdAt DateTime @default(now()) @map("created_at")
+ @@index([organizationId,assetId,createdAt(sort:Desc)])
+ @@map("renewable_revenue_events")
 }
 
-model TreasuryJournal {
-  id                 String   @id
-  organizationId     String   @db.Uuid @map("organization_id")
-  businessReference  String   @map("business_reference")
-  journalType        String   @map("journal_type")
-  sourceJournalId    String?  @map("source_journal_id")
-  reason             String?
-  requestId          String   @map("request_id")
-  traceId            String   @map("trace_id")
-  correlationId      String   @map("correlation_id")
-  policyHash         String?  @map("policy_hash")
-  postedAt           DateTime @default(now()) @map("posted_at")
-  postings           TreasuryPosting[]
-  @@unique([organizationId,businessReference])
-  @@index([organizationId,postedAt(sort:Desc)])
-  @@map("treasury_journals")
+
+model ChatCreditAccount {
+  id                  String   @id
+  userId              String   @db.Uuid @unique @map("user_id")
+  availableBaseUnits  Decimal  @default(0) @db.Decimal(78,0) @map("available_base_units")
+  reservedBaseUnits   Decimal  @default(0) @db.Decimal(78,0) @map("reserved_base_units")
+  spentBaseUnits      Decimal  @default(0) @db.Decimal(78,0) @map("spent_base_units")
+  version             Int      @default(1)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  @@map("chat_credit_accounts")
 }
 
-model TreasuryPosting {
-  id             String          @id
-  organizationId String          @db.Uuid @map("organization_id")
-  journalId      String          @map("journal_id")
-  accountId      String          @map("account_id")
-  asset          String
-  amountRaw      Decimal         @db.Decimal(78,0) @map("amount_raw")
-  direction      String
-  createdAt      DateTime        @default(now()) @map("created_at")
-  journal        TreasuryJournal @relation(fields:[journalId],references:[id],onDelete:Restrict)
-  account        TreasuryAccount @relation(fields:[accountId],references:[id],onDelete:Restrict)
-  @@index([organizationId,journalId])
-  @@index([organizationId,accountId,createdAt(sort:Desc)])
-  @@map("treasury_postings")
+model ChatCreditQuote {
+  id                  String   @id
+  userId              String   @db.Uuid @map("user_id")
+  chatId              String   @db.Uuid @map("chat_id")
+  requestId           String   @unique @map("request_id")
+  quoteHash           String   @unique @map("quote_hash")
+  canonicalPayload    Json     @map("canonical_payload")
+  messageUnits        Int      @default(1) @map("message_units")
+  pwrcBaseUnits       Decimal  @db.Decimal(78,0) @map("pwrc_base_units")
+  referenceValueUsd   Decimal  @db.Decimal(12,6) @map("reference_value_usd")
+  expiresAt           DateTime @map("expires_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  @@index([userId,chatId,createdAt(sort:Desc)])
+  @@map("chat_credit_quotes")
+}
+
+model ChatCreditReservation {
+  id                  String   @id
+  accountId           String   @map("account_id")
+  userId              String   @db.Uuid @map("user_id")
+  chatId              String   @db.Uuid @map("chat_id")
+  quoteId             String   @map("quote_id")
+  quoteHash           String   @map("quote_hash")
+  requestId           String   @unique @map("request_id")
+  reservedBaseUnits   Decimal  @db.Decimal(78,0) @map("reserved_base_units")
+  state               String   @default("RESERVED")
+  expiresAt           DateTime @map("expires_at")
+  settledAt           DateTime? @map("settled_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  @@index([userId,chatId,state,createdAt(sort:Desc)])
+  @@index([quoteHash])
+  @@map("chat_credit_reservations")
+}
+
+model ChatMessageUnit {
+  id                  String   @id
+  userId              String   @db.Uuid @map("user_id")
+  chatId              String   @db.Uuid @map("chat_id")
+  messageId           String   @db.Uuid @unique @map("message_id")
+  reservationId       String   @unique @map("reservation_id")
+  units               Int      @default(1)
+  pwrcDebitBaseUnits  Decimal  @db.Decimal(78,0) @map("pwrc_debit_base_units")
+  referenceValueUsd   Decimal  @db.Decimal(12,6) @map("reference_value_usd")
+  state               String   @default("SETTLED")
+  createdAt           DateTime @default(now()) @map("created_at")
+  @@index([userId,chatId,createdAt(sort:Desc)])
+  @@map("chat_message_units")
+}
+
+model ChatReceipt {
+  id                  String   @id
+  userId              String   @db.Uuid @map("user_id")
+  chatId              String   @db.Uuid @map("chat_id")
+  messageId           String   @db.Uuid @unique @map("message_id")
+  reservationId       String   @map("reservation_id")
+  quoteHash           String   @map("quote_hash")
+  responseHash        String   @map("response_hash")
+  receiptHash         String   @unique @map("receipt_hash")
+  signature           String
+  signingKeyId        String   @map("signing_key_id")
+  pwrcDebitBaseUnits  Decimal  @db.Decimal(78,0) @map("pwrc_debit_base_units")
+  referenceValueUsd   Decimal  @db.Decimal(12,6) @map("reference_value_usd")
+  issuedAt            DateTime @map("issued_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  @@index([reservationId])
+  @@index([receiptHash])
+  @@map("chat_receipts")
+}
+
+model ChatTokenProof {
+  id                  String   @id
+  userId              String   @db.Uuid @map("user_id")
+  chatId              String   @db.Uuid @map("chat_id")
+  messageId           String   @db.Uuid @unique @map("message_id")
+  quoteHash           String   @map("quote_hash")
+  reservationId       String   @map("reservation_id")
+  responseId          String   @db.Uuid @map("response_id")
+  responseHash        String   @map("response_hash")
+  receiptId           String   @map("receipt_id")
+  receiptHash         String   @map("receipt_hash")
+  messageUnitId       String   @map("message_unit_id")
+  tokenProofHash      String   @unique @map("token_proof_hash")
+  settlementStatus    String   @default("SETTLED") @map("settlement_status")
+  transferable        Boolean  @default(false)
+  mintedAsset         Boolean  @default(false) @map("minted_asset")
+  financialInstrument Boolean  @default(false) @map("financial_instrument")
+  createdAt           DateTime @default(now()) @map("created_at")
+  @@index([userId,chatId,createdAt(sort:Desc)])
+  @@index([receiptId])
+  @@map("chat_token_proofs")
+}
+
+model ChatCreditLedgerEntry {
+  id                  String   @id
+  accountId           String   @map("account_id")
+  userId              String   @db.Uuid @map("user_id")
+  chatId              String?  @db.Uuid @map("chat_id")
+  messageId           String?  @db.Uuid @map("message_id")
+  reservationId       String?  @map("reservation_id")
+  receiptId           String?  @map("receipt_id")
+  entryType           String   @map("entry_type")
+  baseUnits           Decimal  @db.Decimal(78,0) @map("base_units")
+  externalReference   String?  @unique @map("external_reference")
+  metadata            Json     @default("{}")
+  createdAt           DateTime @default(now()) @map("created_at")
+  @@index([userId,chatId,createdAt(sort:Desc)])
+  @@index([receiptId])
+  @@map("chat_credit_ledger_entries")
 }

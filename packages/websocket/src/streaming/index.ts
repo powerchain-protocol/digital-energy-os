@@ -1,1 +1,1 @@
-export const FALLBACK_ORDER=["websocket","sse","polling"] as const;
+export const domain = "streaming" as const;

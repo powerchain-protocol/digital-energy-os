@@ -1,4 +1,4 @@
-export type EnergyCommodity = "SOLAR_MWH" | "WIND_MWH" | "HYDRO_MWH" | "REC" | "CRT";
+export type EnergyCommodity = "SOLAR_MWH" | "WIND_MWH" | "HYDRO_MWH" | "REC" | "CCT";
 export type OrderSide = "buy" | "sell";
 export type OrderStatus = "open" | "partially_filled" | "filled" | "cancelled";
 

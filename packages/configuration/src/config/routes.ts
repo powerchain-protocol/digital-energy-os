@@ -39,11 +39,15 @@ export const ROUTES = {
   leaderboard: "/leaderboard",
   legacyExchange: "/energy-exchange",
   p2pEnergy: "/p2p-energy",
+  energyNetwork: "/energy-network",
+  ems: "/ems",
+  erp: "/erp",
+  cmr: "/cmr",
+  rewards: "/rewards",
+  treasury: "/treasury",
+  vault: "/vault",
   renewables: "/renewables",
   energy: "/energy",
-  myEnergy: "/my-energy",
-  myEnergyMonitoring: "/my-energy/monitoring",
-  myEnergyDevices: "/my-energy/devices",
   energySolar: "/energy/solar",
   energyWind: "/energy/wind",
   energyStorage: "/energy/storage",
@@ -79,14 +83,6 @@ export const ROUTES = {
   checkout: "/checkout",
   protocols: "/protocols",
   exploreProjects: "/explore/projects",
-  energyNetwork: "/energy-network",
-  ems: "/ems",
-  erp: "/erp",
-  cmr: "/cmr",
-  rewards: "/rewards",
-  treasury: "/treasury",
-  vault: "/vault",
-
 } as const;
 
 export const routes = {

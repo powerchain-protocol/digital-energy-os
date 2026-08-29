@@ -1,7 +1,1 @@
-import { createHmac,timingSafeEqual } from "node:crypto";
-import type { PowerChainChannel } from "../channels/index";
-export interface RealtimeTicket{version:1;subject:string;organizationId?:string;scopes:string[];channels:PowerChainChannel[];issuedAt:number;expiresAt:number;nonce:string}
-const encode=(value:unknown)=>Buffer.from(JSON.stringify(value)).toString("base64url");
-const sign=(payload:string,secret:string)=>createHmac("sha256",secret).update(payload).digest("base64url");
-export function issueRealtimeTicket(input:Omit<RealtimeTicket,"version"|"issuedAt"|"expiresAt"|"nonce">&{ttlSeconds?:number},secret:string){const issuedAt=Math.floor(Date.now()/1000);const ticket:RealtimeTicket={version:1,subject:input.subject,...(input.organizationId?{organizationId:input.organizationId}:{}),scopes:[...new Set(input.scopes)],channels:[...new Set(input.channels)],issuedAt,expiresAt:issuedAt+Math.max(30,Math.min(input.ttlSeconds??300,900)),nonce:crypto.randomUUID()};const payload=encode(ticket);return`${payload}.${sign(payload,secret)}`}
-export function verifyRealtimeTicket(token:string,secret:string):RealtimeTicket{const[payload,signature]=token.split(".");if(!payload||!signature)throw new Error("REALTIME_TICKET_INVALID");const expected=sign(payload,secret),a=Buffer.from(expected),b=Buffer.from(signature);if(a.length!==b.length||!timingSafeEqual(a,b))throw new Error("REALTIME_TICKET_INVALID");let ticket:RealtimeTicket;try{ticket=JSON.parse(Buffer.from(payload,"base64url").toString("utf8")) as RealtimeTicket}catch{throw new Error("REALTIME_TICKET_INVALID")};if(ticket.version!==1||ticket.expiresAt<=Math.floor(Date.now()/1000))throw new Error("REALTIME_TICKET_EXPIRED");return ticket}
+export const domain = "auth" as const;

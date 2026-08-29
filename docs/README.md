@@ -6,12 +6,17 @@ Start with the PPA architecture profile, then consult PTSP for publication rules
 
 Cloudflare, Vercel, AWS, Docker, and Kubernetes deployment guidance is in `docs/deployment/CLOUD-PROVIDERS.md`.
 
-## Product and operating references
+## Canonical v1.0.0 additions
 
-- [Control Plane](./CONTROL-PLANE.md)
-- [Energy Management System](./EMS.md)
-- [Energy Network](./ENERGY-NETWORK.md)
-- [Local Energy](./LOCAL-ENERGY.md)
-- [Copilot Credits](./COPILOT-CREDITS.md)
-- [Token Framework](./TOKEN-FRAMEWORK.md)
-- [Whitepaper](./WHITEPAPER.md)
+- [Whitepaper](WHITEPAPER.md)
+- [Control Plane](architecture/CONTROL-PLANE.md)
+- [Energy Management System](architecture/EMS.md)
+- [Local Energy](architecture/LOCAL-ENERGY.md)
+- [Business Operations](architecture/BUSINESS-OPERATIONS.md)
+- [CCT Program](programs/CCT.md)
+- [Next.js Solana/PowerChain proxies](api/NEXTJS-SOLANA-PROXIES.md)
+- [OpenAPI](api/swagger.yaml)
+- [Postman collection](api/postman/PowerChain-v1.0.0.postman_collection.json)
+- [Build validation](BUILD-VALIDATION.md)
+- [Tokenized Copilot chat](COPILOT-TOKENIZED-CHAT.md)
+- [Copilot chat UX](COPILOT-CHAT-UX.md)

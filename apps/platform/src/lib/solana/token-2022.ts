@@ -11,5 +11,5 @@ export function validateToken2022Metadata(input:Token2022MetadataConfig){
 export const POWERCHAIN_TOKEN_2022_PROFILES = {
  PWRC:{name:"PowerChain",symbol:"PWRC",decimals:9,metadataPointer:true},
  REC:{name:"PowerChain Renewable Certificate",symbol:"REC",decimals:0,metadataPointer:true},
- CRT:{name:"PowerChain Carbon Credit",symbol:"CRT",decimals:6,metadataPointer:true}
+ CCT:{name:"PowerChain Carbon Credit",symbol:"CCT",decimals:6,metadataPointer:true}
 } as const;

@@ -1,9 +1,9 @@
 export const POWERCHAIN_ASSETS = [
   { symbol: "PWRC", name: "PowerChain", network: "solana", kind: "custom" },
-  { symbol: "wPWRC", name: "Wrapped PowerChain", network: "sui", kind: "bridge" },
-  { symbol: "CRT", name: "Carbon Credit Token", network: "sui", kind: "custom" },
+  { symbol: "wPWRC", name: "Wrapped PowerChain", network: "solana", kind: "bridge" },
+  { symbol: "CCT", name: "Carbon Credit Token", network: "solana", kind: "custom" },
   { symbol: "SOL", name: "Solana", network: "solana", kind: "token" },
-  { symbol: "SUI", name: "Sui", network: "sui", kind: "token" },
+  { symbol: "SUI", name: "Sui", network: "solana", kind: "token" },
   { symbol: "USDC", name: "USD Coin", network: "solana", kind: "token" }
 ] as const;
 

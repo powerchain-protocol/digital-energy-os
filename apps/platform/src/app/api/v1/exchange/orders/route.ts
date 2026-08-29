@@ -4,7 +4,7 @@ import { createExchangeOrder, listOrganizationOrders } from "@/energy/exchange";
 
 const orderSchema = z.object({
   organizationId: z.string().min(1),
-  commodity: z.enum(["SOLAR_MWH", "WIND_MWH", "HYDRO_MWH", "REC", "CRT"]),
+  commodity: z.enum(["SOLAR_MWH", "WIND_MWH", "HYDRO_MWH", "REC", "CCT"]),
   side: z.enum(["buy", "sell"]),
   quantity: z.number().positive(),
   limitPrice: z.number().positive(),

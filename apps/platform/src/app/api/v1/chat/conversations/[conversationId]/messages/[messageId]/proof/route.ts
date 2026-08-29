@@ -1,0 +1,3 @@
+import { tokenizedChatService } from "@/lib/chat/tokenized-chat-service";
+import { operationalContext,operationalError,operationalJson } from "@/lib/api/operations-context";
+export async function GET(request:Request,{params}:{params:Promise<{conversationId:string;messageId:string}>}){try{const context=await operationalContext(request),{conversationId,messageId}=await params;const proof=await tokenizedChatService.proof(context.user,conversationId,messageId);return proof?operationalJson(proof,context,{headers:{"cache-control":"no-store"}}):Response.json({error:{code:"CHAT_PROOF_NOT_FOUND",message:"Settled tokenized response proof not found"}},{status:404})}catch(error){return operationalError(error)}}

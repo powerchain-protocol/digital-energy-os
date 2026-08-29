@@ -1,2 +1,1 @@
-import { EnergyNetworkWorkspace } from "@/components/energy-network/energy-network-workspace";
-export default function EnergyNetworkPage(){return <EnergyNetworkWorkspace/>}
+import { Shell } from "@/components/shell";import { EnergyNetworkWorkspace } from "@/components/operations/energy-network-workspace";export default function Page(){return <Shell><main className="pc-page"><div className="pc-container"><EnergyNetworkWorkspace/></div></main></Shell>}

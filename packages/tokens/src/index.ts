@@ -8,4 +8,4 @@ export * as vesting from "./vesting/index";
 export * as treasury from "./treasury/index";
 export * as pricing from "./pricing/index";
 
-export * as cct from "./cct/index";
+export * as framework from "./framework/index";

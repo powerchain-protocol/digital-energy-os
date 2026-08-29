@@ -1,5 +1,6 @@
 const production = process.env.NODE_ENV === "production";
-const requiredInProduction = ["DATABASE_URL"];
+const tokenizedChatEnabled = process.env.POWERCHAIN_CHAT_TOKENIZED_PROOFS_ENABLED !== "false";
+const requiredInProduction = ["DATABASE_URL", ...(tokenizedChatEnabled ? ["POWERCHAIN_CHAT_ENCRYPTION_KEY_B64", "POWERCHAIN_CHAT_RECEIPT_SIGNING_KEY_B64"] : [])];
 const missing = requiredInProduction.filter((key) => !process.env[key]);
 
 if (production && missing.length) {
@@ -20,6 +21,18 @@ for (const key of urlKeys) {
   const value = process.env[key];
   if (value && !value.startsWith("https://")) {
     console.error(`${key} must use HTTPS`);
+    process.exit(1);
+  }
+}
+
+
+for (const key of ["POWERCHAIN_CHAT_ENCRYPTION_KEY_B64", "POWERCHAIN_CHAT_RECEIPT_SIGNING_KEY_B64"]) {
+  const value = process.env[key];
+  if (!value) continue;
+  let decoded;
+  try { decoded = Buffer.from(value, "base64"); } catch { decoded = Buffer.alloc(0); }
+  if (decoded.length !== 32) {
+    console.error(`${key} must decode to exactly 32 bytes`);
     process.exit(1);
   }
 }

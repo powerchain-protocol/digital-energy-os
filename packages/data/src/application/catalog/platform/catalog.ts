@@ -84,7 +84,7 @@ export const PLATFORM_LAYERS: PlatformLayer[] = [
     description: "Unified commerce for energy, environmental assets, hardware, software and professional services.",
     capabilities: [
       { id: "energy-market", name: "Energy Marketplace", description: "Spot, scheduled, bilateral, community and capacity energy markets.", href: "/exchange", status: "available", services: ["Energy", "Storage", "Charging", "Flexibility"] },
-      { id: "carbon-market", name: "Carbon Marketplace", description: "Issue, trade, transfer and retire verified environmental assets.", href: "/carbon", status: "available", services: ["CRT", "REC", "GO", "Retirement"] },
+      { id: "carbon-market", name: "Carbon Marketplace", description: "Issue, trade, transfer and retire verified environmental assets.", href: "/carbon", status: "available", services: ["CCT", "REC", "GO", "Retirement"] },
       { id: "hardware-market", name: "Hardware Marketplace", description: "Certified smart meters, gateways, chargers, controllers and edge devices.", href: "/products/devices", status: "available", services: ["Meters", "Gateways", "Chargers", "Sensors"] },
       { id: "service-market", name: "Service Marketplace", description: "Installation, verification, maintenance, finance and professional services.", href: "/marketplace", status: "preview", services: ["Installers", "Auditors", "Finance", "Support"] },
     ],

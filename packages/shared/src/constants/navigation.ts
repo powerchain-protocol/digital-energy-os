@@ -37,20 +37,14 @@ const admins: AppRole[] = ["admin", "super-admin"];
 
 export const NAVIGATION_GROUPS: NavigationGroup[] = [
   {
-    label: "My Energy",
-    items: [
-      { label: "Overview", href: ROUTES.myEnergy, icon: HomeIcon, roles: ["consumer", "prosumer", "client"] },
-      { label: "Energy Monitoring", href: ROUTES.myEnergyMonitoring, icon: BarChartIcon, roles: ["consumer", "prosumer", "client"] },
-      { label: "Connected Devices", href: ROUTES.myEnergyDevices, icon: MixerHorizontalIcon, roles: ["consumer", "prosumer", "client"] },
-    ],
-  },
-  {
     label: "Operations",
     items: [
       { label: "Overview", href: ROUTES.home, icon: DashboardIcon, roles: all },
       { label: "Ecosystem", href: ROUTES.ecosystem, icon: RocketIcon, roles: all },
       { label: "Intelligence Cloud", href: ROUTES.platform, icon: GlobeIcon, roles: all, description: "Clouds, fabrics, runtimes and studios" },
       { label: "Energy", href: ROUTES.energy, icon: LightningBoltIcon, roles: all },
+      { label: "Energy Network", href: ROUTES.energyNetwork, icon: GlobeIcon, roles: all },
+      { label: "EMS", href: ROUTES.ems, icon: MixerHorizontalIcon, roles: operators },
       { label: "AI Energy Intelligence", href: ROUTES.intelligence, icon: MagicWandIcon },
       { label: "Proof of Energy", href: ROUTES.proofOfEnergy, icon: Link2Icon },
       { label: "Blockchain", href: ROUTES.blockchain, icon: GlobeIcon, roles: operators },
@@ -66,7 +60,6 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
     items: [
       { label: "Exchange", href: ROUTES.exchange, icon: BarChartIcon, roles: all },
       { label: "Local P2P Energy", href: ROUTES.p2pEnergy, icon: LightningBoltIcon, roles: all },
-      { label: "Energy Network", href: ROUTES.energyNetwork, icon: GlobeIcon, roles: all },
       { label: "Marketplace", href: ROUTES.marketplace, icon: GlobeIcon, roles: all },
       { label: "Carbon Exchange", href: ROUTES.carbonExchange, icon: GlobeIcon, roles: all },
       { label: "Certification", href: ROUTES.certification, icon: ReaderIcon, roles: all },
@@ -79,7 +72,6 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
     label: "Assets & Edge",
     items: [
       { label: "Portfolio", href: ROUTES.portfolio, icon: CubeIcon, roles: ["prosumer", "client", "company", "admin", "super-admin"] },
-      { label: "Energy Management", href: ROUTES.ems, icon: LightningBoltIcon, roles: operators },
       { label: "Hardware Fleet", href: ROUTES.hardwares, icon: CubeIcon, roles: operators },
       { label: "Device Products", href: ROUTES.deviceProducts, icon: BackpackIcon, roles: all },
       { label: "Firmware", href: ROUTES.firmwares, icon: GearIcon, roles: operators },
@@ -90,16 +82,16 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
     label: "Business",
     items: [
       { label: "Wallet", href: ROUTES.wallet, icon: BackpackIcon, roles: all },
-      { label: "Treasury", href: ROUTES.treasury, icon: BackpackIcon, roles: operators },
-      { label: "Rewards", href: ROUTES.rewards, icon: BarChartIcon, roles: all },
-      { label: "ERP", href: ROUTES.erp, icon: FileTextIcon, roles: operators },
-      { label: "CMR", href: ROUTES.cmr, icon: PersonIcon, roles: operators },
-      { label: "Evidence Vault", href: ROUTES.vault, icon: ReaderIcon, roles: operators },
       { label: "Tokenization", href: ROUTES.tokenization, icon: CubeIcon, roles: all },
       { label: "PWRC Token", href: ROUTES.tokenPwrc, icon: CubeIcon, roles: all },
       { label: "Rewards & Leaderboard", href: ROUTES.leaderboard, icon: BarChartIcon, roles: all },
       { label: "Governance", href: ROUTES.governance, icon: CubeIcon, roles: all },
       { label: "Billing", href: ROUTES.billing, icon: FileTextIcon, roles: all },
+      { label: "Rewards", href: ROUTES.rewards, icon: BarChartIcon, roles: all },
+      { label: "Treasury", href: ROUTES.treasury, icon: BackpackIcon, roles: operators },
+      { label: "ERP", href: ROUTES.erp, icon: FileTextIcon, roles: operators },
+      { label: "CMR", href: ROUTES.cmr, icon: PersonIcon, roles: operators },
+      { label: "Vault", href: ROUTES.vault, icon: CubeIcon, roles: operators },
       { label: "Pricing", href: ROUTES.pricing, icon: FileTextIcon, roles: all },
       { label: "CRM", href: ROUTES.crm, icon: PersonIcon, roles: ["company", "admin", "super-admin"] },
       { label: "Case Studies", href: ROUTES.caseStudies, icon: HomeIcon, roles: all },
@@ -108,7 +100,11 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
   {
     label: "References",
     items: [
-      { label: "Documentation Library", href: ROUTES.docs, icon: ReaderIcon, roles: all, description: "Architecture, engineering, APIs, integrations, standards and product documentation" },
+      { label: "Documentation", href: ROUTES.docs, icon: ReaderIcon, roles: all, description: "Platform guides, API references and standards" },
+      { label: "Architecture", href: ROUTES.architecture, icon: CubeIcon, roles: all },
+      { label: "Engineering Framework", href: ROUTES.framework, icon: RocketIcon, roles: all },
+      { label: "Technical Standards", href: ROUTES.standards, icon: FileTextIcon, roles: all },
+      { label: "Protocols", href: ROUTES.protocols, icon: Link2Icon, roles: all },
       { label: "Legal & Policies", href: ROUTES.docsLegal, icon: FileTextIcon, roles: all },
     ],
   },

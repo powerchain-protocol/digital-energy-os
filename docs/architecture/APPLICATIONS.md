@@ -18,6 +18,7 @@ and `GET /meta` in addition to its domain routes.
 | `explorer` | 3106 | Canonical Solana and Sui explorer resolution |
 | `websocket-gateway` | 3107 | Channel subscriptions and realtime delivery at `/ws` |
 | `workers` | 3108 | Idempotent asynchronous jobs and reconciliation processors |
+| `ems` | 3010 | Energy Management System facade for companies, utilities, grid operators, communities and energy partners |
 
 ## Commands
 
@@ -34,6 +35,7 @@ Each service can also run independently:
 ```bash
 pnpm --filter @powerchain/checkout-app dev
 pnpm --filter @powerchain/marketplace-app start
+pnpm --filter @powerchain/ems-app dev
 ```
 
 Set `HOST` and `PORT` to override an individual service listener. Cross-service
@@ -51,7 +53,4 @@ wallet signing.
   execution.
 - Worker jobs require idempotency keys and preserve explicit queue states.
 
-The initial runtime uses process-local repositories to make every lifecycle
-executable without infrastructure. Production deployments should replace these
-repositories with the canonical database and queue adapters while retaining the
-same domain interfaces and state guards.
+Economic and operational authority is database-backed where a durable lifecycle is required. Local Energy uses integer Wh accounting with serializable transactions and compare-and-set reservations. Energy Network, ERP, CMR, rewards, treasury, vault, Asset Graph, device intents and revenue records use organization-scoped PostgreSQL persistence. Optional integration adapters can report `UNCONFIGURED` without blocking unrelated physical-energy operations. Process-local demo repositories are not authoritative for production economic state.

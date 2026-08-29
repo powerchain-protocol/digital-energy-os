@@ -1,0 +1,5 @@
+import test from "node:test";import assert from "node:assert/strict";import fs from "node:fs";
+test("Local Energy persists integer Wh and RENT",()=>{const sql=fs.readFileSync("packages/database/prisma/migrations/20260828000100_control_plane_energy_ops/migration.sql","utf8");assert.match(sql,/quantity_wh BIGINT/);assert.match(sql,/BUY','SELL','RENT/);assert.match(sql,/SETTLEMENT_READY/)});
+test("Reservation uses serializable CAS",()=>{const source=fs.readFileSync("packages/database/src/repositories/operations.ts","utf8");assert.match(source,/serializable/);assert.match(source,/version=\$4/);assert.match(source,/available_wh >= \$1/)});
+test("CCT is canonical Token-2022",()=>{const source=fs.readFileSync("packages/token-framework/src/index.ts","utf8");assert.match(source,/id:"CCT"/);assert.match(source,/standard:"TOKEN_2022"/)});
+test("Control Plane keeps consequential actions approval governed",()=>{const source=fs.readFileSync("packages/control-plane/src/index.ts","utf8");assert.match(source,/MARKETPLACE_TRADE/);assert.match(source,/requiresApproval/)});

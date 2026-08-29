@@ -1,4 +1,0 @@
-import { CopilotRepository } from "@powerchain/database/copilot";
-import { withApi,apiJson,ApiError } from "@/lib/api/with-api";
-const repository=new CopilotRepository();
-export async function POST(request:Request,{params}:{params:Promise<{message_id:string}>}){return withApi(request,{auth:"required",json:true,mutation:true},async context=>{const{message_id}=await params;const body=context.body as Record<string,unknown>;const value=body.value;if(value!=="helpful"&&value!=="unhelpful")throw new ApiError("COPILOT_FEEDBACK_INVALID","Feedback must be helpful or unhelpful",400);const reason=typeof body.reason==="string"?body.reason.trim().slice(0,500):undefined;return apiJson(await repository.feedback({userId:context.user!.id,messageId:message_id,value,...(reason?{reason}:{})}),context,{status:201})})}

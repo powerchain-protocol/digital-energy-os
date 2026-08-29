@@ -1,7 +1,0 @@
-import { issueRealtimeTicket } from "@powerchain/websocket/auth";
-import type { PowerChainChannel } from "@powerchain/websocket/channels";
-import { withApi,apiJson,ApiError } from "@/lib/api/with-api";
-
-function secret(){const value=process.env.POWERCHAIN_REALTIME_TICKET_SECRET?.trim()||process.env.POWERCHAIN_INTERNAL_SERVICE_SECRET?.trim();if(!value)throw new ApiError("REALTIME_AUTH_UNCONFIGURED","Realtime ticket signing is not configured",503);return value}
-function allowed(role:string):PowerChainChannel[]{const base:PowerChainChannel[]=["platform.status","energy.telemetry","market.quotes","settlement.status","notifications","acp.jobs","acp.evidence","acp.reconciliation"];if(["company","admin","super-admin"].includes(role))base.push("acp.approvals","acp.operations");if(["admin","super-admin"].includes(role))base.push("treasury.allocations","treasury.reconciliation","treasury.close");return base}
-export async function POST(request:Request){return withApi(request,{auth:"required",mutation:true},context=>{const channels=allowed(context.user!.role);const scopes=channels.map(channel=>`${channel}:subscribe`);const token=issueRealtimeTicket({subject:context.user!.id,organizationId:context.organizationId!,scopes,channels,ttlSeconds:300},secret());const gateway=process.env.POWERCHAIN_REALTIME_PUBLIC_URL?.trim()??"http://127.0.0.1:3107";return apiJson({ticket:token,expiresInSeconds:300,gateway,channels,fallbackOrder:["websocket","sse","polling"]},context,{headers:{"cache-control":"no-store"}})})}

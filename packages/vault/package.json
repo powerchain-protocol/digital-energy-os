@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Tenant-isolated evidence and credential-reference vault contracts",
+  "author": "PowerChain Protocol",
+  "license": "UNLICENSED",
   "exports": "./src/index.ts"
 }

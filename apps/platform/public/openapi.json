@@ -1,0 +1,1539 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PowerChain API",
+    "version": "1.0.0",
+    "description": "Versioned APIs for the PowerChain Renewable Energy Operating System, including identity, AI, Proof of Energy, tokenization, cross-chain PWRC, marketplace settlement, smart meters, carbon, telemetry and platform configuration.\n\nAll Solana/PowerChain read routes are same-origin Next.js server proxies. Helius keys, custom RPC URLs, Pyth feed configuration, CoinGecko keys, and CoinMarketCap keys remain server-side."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "PowerChain platform origin"
+    }
+  ],
+  "security": [
+    {
+      "sessionCookie": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Identity"
+    },
+    {
+      "name": "AI"
+    },
+    {
+      "name": "Energy"
+    },
+    {
+      "name": "Tokens"
+    },
+    {
+      "name": "Bridge"
+    },
+    {
+      "name": "Marketplace"
+    },
+    {
+      "name": "Settlement"
+    },
+    {
+      "name": "Platform"
+    },
+    {
+      "name": "Local Energy"
+    },
+    {
+      "name": "EMS"
+    },
+    {
+      "name": "Energy Network"
+    },
+    {
+      "name": "Business Operations"
+    },
+    {
+      "name": "Control Plane"
+    },
+    {
+      "name": "Token Framework"
+    },
+    {
+      "name": "Solana"
+    },
+    {
+      "name": "Developer Platform"
+    },
+    {
+      "name": "Compatibility"
+    },
+    {
+      "name": "Tokenized Chat"
+    }
+  ],
+  "paths": {
+    "/api/assets/{mint}": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility Solana asset endpoint",
+        "description": "Compatibility alias for /api/v1/solana/assets/{mint}. Delegates to the exact same server implementation.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Solana mint public key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/postman": {
+      "get": {
+        "tags": [
+          "Developer Platform"
+        ],
+        "summary": "Download the canonical Postman collection",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/solana/overview": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility Solana overview endpoint",
+        "description": "Compatibility alias for /api/v1/solana/overview. Delegates to the exact same server implementation.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/swagger/": {
+      "get": {
+        "tags": [
+          "Developer Platform"
+        ],
+        "summary": "Open Swagger UI",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/token/market": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility token market endpoint",
+        "description": "Compatibility alias for /api/v1/solana/market. Unlike the canonical v1 endpoint, this alias may default to configured PWRC_MINT/POWERCHAIN_PWRC_MINT when mint is omitted. It delegates to the same market resolver.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mint",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional mint. Defaults to configured PWRC mint only on this compatibility alias."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/ai/agents": {
+      "get": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "List PowerChain renewable-energy agents and skills",
+        "responses": {
+          "200": {
+            "description": "Agent catalog"
+          }
+        }
+      }
+    },
+    "/api/v1/ai/models": {
+      "get": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "List GRIDLLM, LoRA and retrieval models",
+        "responses": {
+          "200": {
+            "description": "AI model catalog"
+          }
+        }
+      }
+    },
+    "/api/v1/ai/settings": {
+      "get": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Read public PowerChain AI configuration",
+        "responses": {
+          "200": {
+            "description": "AI configuration"
+          }
+        }
+      }
+    },
+    "/api/v1/asset-graph": {
+      "get": {
+        "tags": [
+          "Control Plane"
+        ],
+        "summary": "Read tenant-scoped Asset Graph nodes and relationships",
+        "responses": {
+          "200": {
+            "description": "Asset Graph snapshot"
+          }
+        }
+      }
+    },
+    "/api/v1/attestations": {
+      "post": {
+        "tags": [
+          "Energy"
+        ],
+        "summary": "Create a DePIN oracle attestation",
+        "responses": {
+          "201": {
+            "description": "Attestation created"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signin": {
+      "post": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Sign in with email and password",
+        "responses": {
+          "200": {
+            "description": "Session created"
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Create a user and organization account",
+        "responses": {
+          "201": {
+            "description": "Account created"
+          }
+        }
+      }
+    },
+    "/api/v1/bridge/pwrc/quote": {
+      "get": {
+        "tags": [
+          "Bridge"
+        ],
+        "summary": "Quote a PowerChain \u2194 Solana PWRC transfer",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "direction",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "powerchain-to-solana",
+                "solana-to-powerchain"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1000.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bridge quote"
+          },
+          "400": {
+            "description": "Invalid direction or amount"
+          }
+        }
+      }
+    },
+    "/api/v1/bridge/pwrc/transfer": {
+      "post": {
+        "tags": [
+          "Bridge"
+        ],
+        "summary": "Prepare a signature-required PWRC bridge transfer",
+        "description": "Solana PWRC circulating supply must never exceed native PWRC locked for the Solana integration.",
+        "responses": {
+          "201": {
+            "description": "Transfer prepared"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/api/v1/certification/certificates": {
+      "get": {
+        "summary": "List tokenized certificates",
+        "responses": {
+          "200": {
+            "description": "Certificates"
+          }
+        }
+      },
+      "post": {
+        "summary": "Request certificate issuance",
+        "responses": {
+          "202": {
+            "description": "Issuance accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/certification/programs": {
+      "get": {
+        "summary": "List certification programs",
+        "responses": {
+          "200": {
+            "description": "Certification programs"
+          }
+        }
+      }
+    },
+    "/api/v1/chat": {
+      "get": {
+        "tags": [
+          "Tokenized Chat"
+        ],
+        "summary": "List authenticated encrypted Copilot conversations",
+        "responses": {
+          "200": {
+            "description": "Conversation list"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tokenized Chat"
+        ],
+        "summary": "Create or continue a PWRC-metered Copilot conversation",
+        "description": "Persists an immutable quote, atomically reserves 10,000 PWRC, stores chat content encrypted at rest, and creates a deterministic non-transferable proof only after the assistant response is delivered and settled.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique financial/chat operation key. Replays cannot create a second settled debit."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message"
+                ],
+                "properties": {
+                  "chatId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "modelId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response delivered and PWRC settlement completed"
+          },
+          "402": {
+            "description": "Insufficient PWRC Copilot credits"
+          },
+          "409": {
+            "description": "Idempotency or settlement conflict"
+          },
+          "503": {
+            "description": "Database/encryption/signing configuration unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/cmr/relationships": {
+      "get": {
+        "tags": [
+          "Business Operations"
+        ],
+        "summary": "List customer and market relationships",
+        "responses": {
+          "200": {
+            "description": "CMR relationships"
+          }
+        }
+      }
+    },
+    "/api/v1/config/networks": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "List supported Solana and Sui networks without secrets",
+        "responses": {
+          "200": {
+            "description": "Network catalog"
+          }
+        }
+      }
+    },
+    "/api/v1/config/public": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Read browser-safe public PowerChain configuration",
+        "description": "Never returns API keys, private RPC credentials, signing material, or wallet secrets.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/control-plane/evaluate": {
+      "post": {
+        "tags": [
+          "Control Plane"
+        ],
+        "summary": "Evaluate an action intent against the canonical PowerChain control boundary",
+        "responses": {
+          "200": {
+            "description": "Policy/approval decision"
+          }
+        }
+      }
+    },
+    "/api/v1/device-control/intents": {
+      "post": {
+        "tags": [
+          "Control Plane"
+        ],
+        "summary": "Create a device command intent without dispatching it",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Device action prepared for review"
+          }
+        }
+      }
+    },
+    "/api/v1/ems/summary": {
+      "get": {
+        "tags": [
+          "EMS"
+        ],
+        "summary": "Read organization Energy Management System summary",
+        "responses": {
+          "200": {
+            "description": "EMS state and module metrics"
+          }
+        }
+      }
+    },
+    "/api/v1/energy-network/search": {
+      "get": {
+        "tags": [
+          "Energy Network"
+        ],
+        "summary": "Search tenant-safe energy participants and infrastructure",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "consumer",
+                "prosumer",
+                "retailer",
+                "renewable_generator",
+                "grid_operator",
+                "utility",
+                "community",
+                "aggregator",
+                "energy_company",
+                "service_provider",
+                "partner"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Participant search state and records"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/v1/energy/prices": {
+      "get": {
+        "summary": "Fetch sourced regional energy prices and tariffs",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "region",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Explicit provider-state price records"
+          }
+        }
+      }
+    },
+    "/api/v1/erp/documents": {
+      "get": {
+        "tags": [
+          "Business Operations"
+        ],
+        "summary": "List organization ERP documents",
+        "responses": {
+          "200": {
+            "description": "ERP documents or explicit empty/unconfigured state"
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Liveness health check",
+        "responses": {
+          "200": {
+            "description": "Platform process is alive"
+          }
+        }
+      }
+    },
+    "/api/v1/local-energy/listings": {
+      "get": {
+        "tags": [
+          "Local Energy"
+        ],
+        "summary": "List canonical integer-Wh Local Energy listings",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mode",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BUY",
+                "SELL",
+                "RENT"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listings or explicit unconfigured/empty state"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Local Energy"
+        ],
+        "summary": "Create a BUY, SELL or RENT Local Energy listing",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Listing created"
+          },
+          "400": {
+            "description": "Idempotency or request error"
+          },
+          "422": {
+            "description": "Domain validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/local-energy/reservations": {
+      "post": {
+        "tags": [
+          "Local Energy"
+        ],
+        "summary": "Create a compare-and-set Wh reservation",
+        "description": "Creates REVIEW_REQUIRED only. Reservation does not prove delivery, reconciliation or financial settlement.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Reservation accepted for review"
+          },
+          "409": {
+            "description": "Concurrent listing version/availability conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/marketplace/orders": {
+      "post": {
+        "tags": [
+          "Marketplace"
+        ],
+        "summary": "Create a marketplace order",
+        "responses": {
+          "201": {
+            "description": "Order created"
+          }
+        }
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Read the authenticated user and session",
+        "responses": {
+          "200": {
+            "description": "Authenticated principal"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/v1/measurements": {
+      "post": {
+        "tags": [
+          "Energy"
+        ],
+        "summary": "Submit a signed smart-meter measurement",
+        "responses": {
+          "201": {
+            "description": "Measurement accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/measurements/batch": {
+      "post": {
+        "tags": [
+          "Energy"
+        ],
+        "summary": "Submit a batch of smart-meter measurements",
+        "responses": {
+          "201": {
+            "description": "Measurements accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "tags": [
+          "Developer Platform"
+        ],
+        "summary": "Download OpenAPI 3.1 as JSON",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/openapi.yaml": {
+      "get": {
+        "tags": [
+          "Developer Platform"
+        ],
+        "summary": "Download OpenAPI 3.1 as YAML",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/payments": {
+      "post": {
+        "summary": "Create a decimal-safe payment authorization",
+        "responses": {
+          "201": {
+            "description": "Payment authorization created"
+          }
+        }
+      }
+    },
+    "/api/v1/powerchain/overview": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Read PowerChain Digital Energy OS overview",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/powerchain/programs": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Read PowerChain program deployment state",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "PowerChain program registry with on-chain executable-account verification, including Launchpad, launch-policy, Token-2022 vesting, token factory, escrow, energy, treasury, bridge and CCT bindings when configured."
+      }
+    },
+    "/api/v1/programs": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "List canonical PowerChain programs",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "List PowerChain projects",
+        "responses": {
+          "200": {
+            "description": "Project registry"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{slug}": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Read a PowerChain project by slug or public ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        }
+      }
+    },
+    "/api/v1/proof-of-energy/verify": {
+      "post": {
+        "tags": [
+          "Energy"
+        ],
+        "summary": "Verify an energy measurement and oracle consensus",
+        "responses": {
+          "200": {
+            "description": "Verification result"
+          }
+        }
+      }
+    },
+    "/api/v1/ready": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Production readiness check",
+        "description": "Returns HTTP 503 when a required production dependency is unavailable.",
+        "responses": {
+          "200": {
+            "description": "Platform is ready"
+          },
+          "503": {
+            "description": "Required dependency is not ready"
+          }
+        }
+      }
+    },
+    "/api/v1/revenue/quote": {
+      "post": {
+        "tags": [
+          "EMS"
+        ],
+        "summary": "Calculate exact renewable revenue from integer Wh",
+        "responses": {
+          "200": {
+            "description": "Revenue quote"
+          }
+        }
+      }
+    },
+    "/api/v1/rewards/allocations": {
+      "get": {
+        "tags": [
+          "Business Operations"
+        ],
+        "summary": "List evidence-backed PWRC reward allocations",
+        "responses": {
+          "200": {
+            "description": "Reward allocations"
+          }
+        }
+      }
+    },
+    "/api/v1/sessions": {
+      "get": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Read the current authenticated session",
+        "responses": {
+          "200": {
+            "description": "Session state"
+          }
+        }
+      }
+    },
+    "/api/v1/settlements": {
+      "post": {
+        "tags": [
+          "Settlement"
+        ],
+        "summary": "Create a signature-required settlement",
+        "responses": {
+          "201": {
+            "description": "Settlement created"
+          }
+        }
+      }
+    },
+    "/api/v1/solana/assets/{mint}": {
+      "get": {
+        "tags": [
+          "Solana"
+        ],
+        "summary": "Inspect a Solana mint and sourced asset metadata",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Solana mint public key"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mint inspection and asset state"
+          },
+          "400": {
+            "description": "Invalid mint"
+          }
+        },
+        "description": "Combines Solana RPC with optional Helius DAS. Reports SPL Token vs Token-2022 ownership, parsed mint type, supply, decimals, mint/freeze authorities, parsed Token-2022 extensions when exposed by RPC, and supplemental Helius metadata."
+      }
+    },
+    "/api/v1/solana/market": {
+      "get": {
+        "tags": [
+          "Solana"
+        ],
+        "summary": "Resolve sourced Solana token market state for an explicit mint",
+        "description": "The canonical v1 endpoint always requires mint. Server-side resolution order is Pyth (when the mint has an explicit feed mapping), CoinGecko, CoinMarketCap, then optional Birdeye compatibility fallback. No provider credential is exposed.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required Solana token mint public key."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sourced market state"
+          },
+          "400": {
+            "description": "Mint is missing or invalid"
+          }
+        }
+      }
+    },
+    "/api/v1/solana/overview": {
+      "get": {
+        "tags": [
+          "Solana"
+        ],
+        "summary": "Read Solana RPC/cluster health and runtime state",
+        "responses": {
+          "200": {
+            "description": "Cluster health/runtime state"
+          }
+        },
+        "description": "Same-origin Next.js server proxy over the canonical Solana service. Reads RPC health, Solana core version, slot, block height, epoch info, latest blockhash and genesis hash. Provider URLs and credentials are never returned."
+      }
+    },
+    "/api/v1/solana/programs": {
+      "get": {
+        "tags": [
+          "Solana"
+        ],
+        "summary": "Verify Solana and PowerChain/Launchpad program deployments",
+        "responses": {
+          "200": {
+            "description": "Program registry and deployment verification"
+          }
+        },
+        "description": "Returns standard Solana program IDs and verifies configured PowerChain/Launchpad program addresses with getAccountInfo. DEPLOYED requires an existing executable account; merely configuring an address is not treated as deployment."
+      }
+    },
+    "/api/v1/status": {
+      "get": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Read platform and integration status",
+        "responses": {
+          "200": {
+            "description": "Platform status"
+          }
+        }
+      }
+    },
+    "/api/v1/token-framework/cct": {
+      "get": {
+        "tags": [
+          "Token Framework"
+        ],
+        "summary": "Read canonical CCT Token-2022 configuration",
+        "responses": {
+          "200": {
+            "description": "CCT definition and deployment readiness"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Token Framework"
+        ],
+        "summary": "Prepare evidence-backed CCT issuance intent",
+        "responses": {
+          "202": {
+            "description": "CCT issuance intent prepared; execution not performed"
+          }
+        }
+      }
+    },
+    "/api/v1/token/allocations": {
+      "get": {
+        "tags": [
+          "Tokens"
+        ],
+        "summary": "Read configured PWRC allocation policy",
+        "description": "Allocation percentages are configuration-backed. The API returns UNCONFIGURED instead of inventing a distribution when the canonical policy is absent.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/tokens/energy/burn": {
+      "post": {
+        "tags": [
+          "Tokens"
+        ],
+        "summary": "Burn an energy token",
+        "responses": {
+          "200": {
+            "description": "Burn recorded"
+          }
+        }
+      }
+    },
+    "/api/v1/tokens/energy/mint": {
+      "post": {
+        "tags": [
+          "Tokens"
+        ],
+        "summary": "Mint a verified kWh or MWh token",
+        "responses": {
+          "201": {
+            "description": "Energy token prepared or minted"
+          }
+        }
+      }
+    },
+    "/api/v1/tokens/energy/retire": {
+      "post": {
+        "tags": [
+          "Tokens"
+        ],
+        "summary": "Retire an energy token and preserve provenance",
+        "responses": {
+          "200": {
+            "description": "Retirement recorded"
+          }
+        }
+      }
+    },
+    "/api/v1/transactions": {
+      "post": {
+        "tags": [
+          "Settlement"
+        ],
+        "summary": "Prepare a validated Solana, Sui or EVM transaction",
+        "responses": {
+          "201": {
+            "description": "Transaction prepared"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/api/v1/treasury/summary": {
+      "get": {
+        "tags": [
+          "Business Operations"
+        ],
+        "summary": "Read organization treasury accounts and allocation intents",
+        "responses": {
+          "200": {
+            "description": "Treasury summary"
+          }
+        }
+      }
+    },
+    "/api/v1/vault/records": {
+      "get": {
+        "tags": [
+          "Business Operations"
+        ],
+        "summary": "List tenant-scoped evidence and vault records",
+        "responses": {
+          "200": {
+            "description": "Vault records"
+          }
+        }
+      }
+    },
+    "/api/v1/chat/conversations/{conversationId}/credits": {
+      "get": {
+        "tags": [
+          "Tokenized Chat"
+        ],
+        "summary": "Read deterministic credit and proof summary for a conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    },
+    "/api/v1/chat/conversations/{conversationId}/messages/{messageId}/proof": {
+      "get": {
+        "tags": [
+          "Tokenized Chat"
+        ],
+        "summary": "Read and verify the tokenized proof for a settled assistant response",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "messageId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proof hashes, receipt metadata and verification checks; no plaintext encryption material"
+          },
+          "404": {
+            "description": "Settled proof not found"
+          }
+        }
+      }
+    },
+    "/api/v1/credits/chat/{conversationId}": {
+      "get": {
+        "tags": [
+          "Tokenized Chat"
+        ],
+        "summary": "Compatibility credit summary for a Copilot conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    },
+    "/api/v1/chat/credits": {
+      "get": {
+        "tags": [
+          "Tokenized Chat"
+        ],
+        "summary": "Read authenticated PWRC chat credit account and canonical message-unit pricing",
+        "responses": {
+          "200": {
+            "description": "Available/reserved/spent credits and fixed v1.0.0 chat unit"
+          }
+        }
+      }
+    },
+    "/api/v1/capilot/conversations/{conversationId}/credits": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for tokenized chat credit summary (capilot)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    },
+    "/api/v1/capilot/conversations/{conversationId}/messages/{messageId}/proof": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for tokenized message proof (capilot)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "messageId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proof hashes, receipt metadata and verification checks; no plaintext encryption material"
+          },
+          "404": {
+            "description": "Settled proof not found"
+          }
+        }
+      }
+    },
+    "/api/v1/capilot/credits/chat/{conversationId}": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for conversation credit summary (capilot)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    },
+    "/api/v1/capilot-mobile/conversations/{conversationId}/credits": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for tokenized chat credit summary (capilot-mobile)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    },
+    "/api/v1/capilot-mobile/conversations/{conversationId}/messages/{messageId}/proof": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for tokenized message proof (capilot-mobile)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "messageId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proof hashes, receipt metadata and verification checks; no plaintext encryption material"
+          },
+          "404": {
+            "description": "Settled proof not found"
+          }
+        }
+      }
+    },
+    "/api/v1/capilot-mobile/credits/chat/{conversationId}": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for conversation credit summary (capilot-mobile)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    },
+    "/api/v1/copilot-mobile/conversations/{conversationId}/credits": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for tokenized chat credit summary (copilot-mobile)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    },
+    "/api/v1/copilot-mobile/conversations/{conversationId}/messages/{messageId}/proof": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for tokenized message proof (copilot-mobile)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "messageId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proof hashes, receipt metadata and verification checks; no plaintext encryption material"
+          },
+          "404": {
+            "description": "Settled proof not found"
+          }
+        }
+      }
+    },
+    "/api/v1/copilot-mobile/credits/chat/{conversationId}": {
+      "get": {
+        "tags": [
+          "Compatibility"
+        ],
+        "summary": "Compatibility alias for conversation credit summary (copilot-mobile)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message units, spent base units/PWRC, tokenized response count and proof references"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "powerchain_session"
+      }
+    }
+  }
+}

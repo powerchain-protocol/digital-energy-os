@@ -1,0 +1,3 @@
+import { tokenizedChatService } from "@/lib/chat/tokenized-chat-service";
+import { operationalContext,operationalError,operationalJson } from "@/lib/api/operations-context";
+export async function GET(request:Request,{params}:{params:Promise<{conversationId:string}>}){try{const context=await operationalContext(request),{conversationId}=await params;const summary=await tokenizedChatService.credits(context.user,conversationId);return summary?operationalJson(summary,context,{headers:{"cache-control":"no-store"}}):Response.json({error:{code:"CHAT_NOT_FOUND",message:"Conversation not found"}},{status:404})}catch(error){return operationalError(error)}}

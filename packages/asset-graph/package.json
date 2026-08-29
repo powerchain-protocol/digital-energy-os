@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Canonical tenant-scoped Asset Graph relationships and provenance",
+  "author": "PowerChain Protocol",
+  "license": "UNLICENSED",
   "exports": "./src/index.ts"
 }

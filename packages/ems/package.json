@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Energy Management System domain for companies, partnerships, utilities and operators",
+  "author": "PowerChain Protocol",
+  "license": "UNLICENSED",
   "exports": "./src/index.ts",
   "dependencies": {
-    "@powerchain/energy-monitoring": "workspace:*",
-    "@powerchain/energy-network": "workspace:*",
-    "@powerchain/local-energy": "workspace:*"
+    "@powerchain/local-energy": "workspace:*",
+    "@powerchain/energy-network": "workspace:*"
   }
 }

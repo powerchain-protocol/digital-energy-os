@@ -9,6 +9,13 @@ const required = [
   "docs/architecture/PROOF_OF_ENERGY.md",
   "docs/architecture/INTEGRATION-FABRIC.md",
   "docs/programs/OVERVIEW.md",
+  "docs/WHITEPAPER.md",
+  "docs/architecture/CONTROL-PLANE.md",
+  "docs/architecture/EMS.md",
+  "docs/architecture/LOCAL-ENERGY.md",
+  "docs/programs/CCT.md",
+  "docs/COPILOT-TOKENIZED-CHAT.md",
+  "docs/COPILOT-CHAT-UX.md",
 ];
 
 for (const file of required) {

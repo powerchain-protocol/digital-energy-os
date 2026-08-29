@@ -10,13 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@powerchain/application-runtime": "workspace:*",
-    "@powerchain/acp-contracts": "workspace:*",
-    "@powerchain/acp-domain": "workspace:*",
-    "@powerchain/acp-sdk": "workspace:*",
-    "@powerchain/database": "workspace:*",
-    "@powerchain/evidence": "workspace:*",
-    "@powerchain/ledger": "workspace:*"
+    "@powerchain/application-runtime": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.23.12"

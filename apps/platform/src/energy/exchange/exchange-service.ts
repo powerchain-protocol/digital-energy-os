@@ -8,7 +8,7 @@ export function listMarketQuotes(): MarketQuote[] {
     { commodity: "SOLAR_MWH", bid: 43.72, ask: 44.05, last: 43.91, change24h: 1.8, volume24h: 12840 },
     { commodity: "WIND_MWH", bid: 39.18, ask: 39.66, last: 39.44, change24h: -0.6, volume24h: 9340 },
     { commodity: "REC", bid: 8.42, ask: 8.57, last: 8.49, change24h: 2.4, volume24h: 88200 },
-    { commodity: "CRT", bid: 22.10, ask: 22.46, last: 22.31, change24h: 0.9, volume24h: 45100 }
+    { commodity: "CCT", bid: 22.10, ask: 22.46, last: 22.31, change24h: 0.9, volume24h: 45100 }
   ];
 }
 

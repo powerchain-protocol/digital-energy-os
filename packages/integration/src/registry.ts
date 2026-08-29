@@ -11,17 +11,8 @@ export interface IntegrationDefinition {
   documentationPath: string;
 }
 export const integrationDefinitions: IntegrationDefinition[] = [
-  {
-    id: "helius-iot", slug: "helius-iot", name: "Helius IoT / DePIN",
-    summary: "Solana RPC, DAS and realtime on-chain observations for connected-device and DePIN identities; never substitutes for meter telemetry.",
-    category: "depin", availability: "available", capabilities: ["RPC","DAS","WebSockets","webhooks","DePIN identity"], documentationPath: "/docs/integrations#helius-iot",
-  },
-  {
-    id: "wayfinder", slug: "wayfinder", name: "Wayfinder",
-    summary: "Optional server-side route and research evaluation. PowerChain retains policy, approval and execution authority.",
-    category: "infrastructure", availability: "beta", capabilities: ["route evaluation","research context","prepare-only"], documentationPath: "/docs/integrations#wayfinder",
-  },
-
+  { id: "helius-iot", slug: "helius-iot", name: "Helius IoT / DePIN", summary: "Solana DAS and RPC observations for DePIN device identity without replacing physical meter truth.", category: "depin", availability: "available", capabilities: ["DAS", "RPC", "device identity", "realtime observations"], documentationPath: "/docs/integrations#helius-iot" },
+  { id: "wayfinder", slug: "wayfinder", name: "Wayfinder", summary: "Optional route and research evaluation with PowerChain retaining policy, approval and wallet authority.", category: "infrastructure", availability: "beta", capabilities: ["route evaluation", "research context", "prepare-only"], documentationPath: "/docs/integrations#wayfinder" },
   {
     id: "stripe",
     slug: "stripe",

@@ -1,4 +1,14 @@
 "use client";
+
 import { Shell } from "@/components/shell";
 import { ChatInterface } from "@/components/chat/chat-interface";
-export default function ChatPage(){return <Shell><div className="content-container space-y-4"><div><p className="eyebrow">POWERCHAIN COPILOT</p><h1 className="page-title">Copilot Chat</h1><p className="page-subtitle">Context-aware renewable infrastructure intelligence with evidence, streaming verification, persistent conversations and review-controlled actions.</p></div><ChatInterface/></div></Shell>}
+import { SectionHeading } from "@/components/ui/section-heading";
+
+export default function ChatPage() {
+  return (
+    <Shell>
+      <SectionHeading eyebrow="AI workspace" title="Renewables copilot" description="Analyze energy operations, market conditions, tokenomics and PowerChain infrastructure with GRIDLLM." className="mb-5" />
+      <ChatInterface />
+    </Shell>
+  );
+}

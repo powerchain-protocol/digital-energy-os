@@ -1,0 +1,4 @@
+import fs from "node:fs";
+const required=["apps/ems/package.json","packages/ems/package.json","packages/local-energy/package.json","packages/control-plane/package.json","packages/asset-graph/package.json","packages/device-control/package.json","packages/revenue-engine/package.json","packages/token-framework/package.json","apps/platform/src/app/api/v1/local-energy/listings/route.ts","apps/platform/src/app/api/v1/local-energy/reservations/route.ts",".env.example"];
+const missing=required.filter(file=>!fs.existsSync(file));if(missing.length){console.error(`Local Energy doctor failed. Missing: ${missing.join(", ")}`);process.exit(1)}
+const root=JSON.parse(fs.readFileSync("package.json","utf8"));if(root.version!=="1.0.0")throw new Error("Root version must remain 1.0.0");console.log(`Local Energy doctor passed (${required.length} required artifacts).`);

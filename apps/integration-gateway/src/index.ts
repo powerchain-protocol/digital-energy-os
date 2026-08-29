@@ -11,14 +11,11 @@ import {
   StripeAdapter,
   createIntegrationContext,
   getIntegration,
-  HeliusIoTAdapter,
-  WayfinderAdapter,
   integrationDefinitions,
   searchIntegrations,
 } from "@powerchain/integration";
 import { CircleAdapter } from "@powerchain/integration/web3/circle";
 import { HeliusAdapter } from "@powerchain/integration/web3/helius";
-import { acpAdapterReadiness,getAcpAdapter,ingestPowerChainProviderEvent,verifyInternalBody } from "./acp-runtime.ts";
 
 export const applicationName = "integration-gateway" as const;
 
@@ -79,10 +76,6 @@ async function executeProvider(
         },
         context,
       );
-    case "helius-iot":
-      return new HeliusIoTAdapter().execute({operation:body.operation as any,payload},context);
-    case "wayfinder":
-      return new WayfinderAdapter().execute({operation:body.operation as any,payload},context);
     case "circle":
       return new CircleAdapter(
         process.env.CIRCLE_BASE_URL,
@@ -147,7 +140,7 @@ export const application = createApplication({
       "protected-execution",
     ],
   },
-  readiness: async () => integrationDefinitions.length > 0 && (await acpAdapterReadiness()).ready,
+  readiness: () => integrationDefinitions.length > 0,
   routes: [
     {
       method: "GET",
@@ -203,56 +196,6 @@ export const application = createApplication({
                 : 422,
         });
       },
-    },
-
-    {
-      method:"POST",
-      path:"/internal/acp/providers/discover",
-      summary:"Discover providers through the PowerChain ACP provider network",
-      async handler(request){const raw=await request.text();verifyInternalBody(raw,request.headers.get("x-powerchain-internal-signature")??undefined);const body=JSON.parse(raw);return json({data:await getAcpAdapter().discoverProviders(body)});},
-    },
-    {
-      method:"POST",
-      path:"/internal/acp/jobs/create",
-      summary:"Create an externally authorized ACP job",
-      async handler(request){const raw=await request.text();verifyInternalBody(raw,request.headers.get("x-powerchain-internal-signature")??undefined);return json({data:await getAcpAdapter().createJob(JSON.parse(raw))});},
-    },
-    {
-      method:"POST",
-      path:"/internal/acp/jobs/fund",
-      summary:"Dispatch an exact authorized ACP funding operation",
-      async handler(request){const raw=await request.text();verifyInternalBody(raw,request.headers.get("x-powerchain-internal-signature")??undefined);return json({data:await getAcpAdapter().fundJob(JSON.parse(raw))});},
-    },
-    {
-      method:"POST",
-      path:"/internal/acp/jobs/complete",
-      summary:"Dispatch an exact authorized ACP completion operation",
-      async handler(request){const raw=await request.text();verifyInternalBody(raw,request.headers.get("x-powerchain-internal-signature")??undefined);return json({data:await getAcpAdapter().completeJob(JSON.parse(raw))});},
-    },
-    {
-      method:"POST",
-      path:"/internal/acp/jobs/reject",
-      summary:"Dispatch an exact authorized ACP rejection operation",
-      async handler(request){const raw=await request.text();verifyInternalBody(raw,request.headers.get("x-powerchain-internal-signature")??undefined);return json({data:await getAcpAdapter().rejectJob(JSON.parse(raw))});},
-    },
-    {
-      method:"POST",
-      path:"/internal/acp/jobs/get",
-      summary:"Read the external ACP lifecycle snapshot for reconciliation",
-      async handler(request){const raw=await request.text();verifyInternalBody(raw,request.headers.get("x-powerchain-internal-signature")??undefined);return json({data:await getAcpAdapter().getJob(JSON.parse(raw))});},
-    },
-
-    {
-      method:"POST",
-      path:"/api/v1/acp/provider-events/:providerId",
-      summary:"Ingest a signed external provider observation into the durable ACP event inbox",
-      async handler(request,{params}){const raw=await request.text();const result=await ingestPowerChainProviderEvent({providerId:params.providerId,signature:request.headers.get("x-powerchain-provider-signature")??undefined,body:raw});return json({data:result},{status:202});},
-    },
-    {
-      method:"GET",
-      path:"/api/v1/acp-adapter/health",
-      summary:"Read the isolated ACP adapter health state",
-      async handler(){return json(await acpAdapterReadiness());},
     },
   ],
 });

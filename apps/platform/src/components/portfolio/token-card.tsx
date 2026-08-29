@@ -5,7 +5,7 @@ import Image from "next/image";
 const tokens = {
   pwrc: { name: "PowerChain", symbol: "PWRC", subtitle: "Utility & governance token", image: "/assets/tokens/pwrc.png", balance: "1,245,678.90", value: "$24,913,578" },
   wpwrc: { name: "Wrapped PowerChain", symbol: "wPWRC", subtitle: "Sui bridge representation", image: "/assets/tokens/wpwrc-sui.png", balance: "245,678.90", value: "$491,358" },
-  crt: { name: "Carbon Credit Token", symbol: "CRT", subtitle: "Tokenized verified carbon credits", image: "/assets/tokens/crt.png", balance: "128,450", value: "128,450 tCO₂e" },
+  cct: { name: "PowerChain Carbon Credit Token", symbol: "CCT", subtitle: "Tokenized verified carbon credits", image: "/assets/tokens/crt.png", balance: "128,450", value: "128,450 tCO₂e" },
 } as const;
 
 export function TokenCard({ kind }: { kind: keyof typeof tokens }) {

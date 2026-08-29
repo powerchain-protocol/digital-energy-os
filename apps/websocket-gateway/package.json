@@ -11,9 +11,7 @@
   },
   "dependencies": {
     "@powerchain/application-runtime": "workspace:*",
-    "@powerchain/websocket": "workspace:*",
-    "@powerchain/database": "workspace:*",
-    "@powerchain/acp-contracts": "workspace:*"
+    "@powerchain/websocket": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.23.12"

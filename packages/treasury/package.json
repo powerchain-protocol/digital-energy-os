@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Immutable treasury allocation command contracts",
+  "author": "PowerChain Protocol",
+  "license": "UNLICENSED",
   "exports": "./src/index.ts"
 }

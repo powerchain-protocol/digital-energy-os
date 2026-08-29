@@ -1,1 +1,2 @@
-import { HELIUM_PROGRAM_IDS,METAPLEX_PROGRAM_IDS,PYTH_SOLANA_PROGRAM_IDS,SOLANA_PROGRAM_IDS } from "@powerchain/token-framework"; import { withApi,apiJson } from "@/lib/api/with-api"; export async function GET(request:Request){return withApi(request,{auth:"required"},async context=>apiJson({version:"1.0.0",solana:SOLANA_PROGRAM_IDS,metaplex:METAPLEX_PROGRAM_IDS,pyth:PYTH_SOLANA_PROGRAM_IDS,helium:HELIUM_PROGRAM_IDS},context))}
+import { getSolanaPrograms } from "@/lib/server/powerchain-api";
+export async function GET(){return Response.json({ok:true,data:await getSolanaPrograms()},{headers:{"cache-control":"public, max-age=30, stale-while-revalidate=60","x-powerchain-api-origin":"nextjs-server-proxy"}})}

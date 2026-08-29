@@ -5,7 +5,7 @@ const assets = [
   ["kWh Token", "Verified retail renewable electricity"],
   ["MWh Token", "Wholesale renewable electricity"],
   ["REC Token", "Renewable energy certificates"],
-  ["CRT Token", "Verified carbon credits"],
+  ["CCT Token", "Verified carbon credits"],
   ["BESS Token", "Storage capacity and reserve"],
 ];
 export default function Page() {

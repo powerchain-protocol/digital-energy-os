@@ -92,16 +92,16 @@
       "status": "scaffold"
     },
     {
-      "id": "carbon-credit-token",
-      "name": "PowerChain Carbon Credit Token",
+      "id": "cct-registry",
+      "name": "PowerChain CCT Registry",
       "domain": "carbon",
       "networkTargets": [
         "devnet",
         "mainnet-beta"
       ],
-      "standard": "Token-2022 + Metaplex metadata",
-      "purpose": "Evidence-gated CCT issuance and retirement controls",
-      "status": "deployment-config-required"
+      "purpose": "Evidence-backed CCT Token-2022 issuance and retirement registry",
+      "status": "scaffold",
+      "deploymentBlocker": "POWERCHAIN_CCT_PROGRAM_ID must be set to a deployed non-placeholder address"
     }
   ]
 }

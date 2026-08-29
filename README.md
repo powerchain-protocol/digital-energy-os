@@ -1,6 +1,8 @@
-# PowerChain 1.0.0
+# PowerChain | Digital Energy Infrastructure
 
-PowerChain is a renewable-energy operating system for asset operations, energy markets, metering, tokenization, settlement, AI-assisted workflows, and multi-network Web3 integrations.
+**v1.0.0**
+
+PowerChain is a Digital Energy Operating System for physical-energy operations, verified Energy RWA, local markets, metering, Energy Management Systems, settlement, AI-assisted workflows, DePIN and multi-network Solana/Sui infrastructure.
 
 ## Description
 
@@ -8,9 +10,14 @@ PowerChain unifies physical energy infrastructure and digital settlement in one 
 
 ## Core features
 
+- Local Energy BUY / SELL / RENT with integer-Wh compare-and-set reservations
+- First-class Energy Management System (`apps/ems`) plus ERP, CMR, Rewards, Treasury and Vault workspaces
+- PowerChain Control Plane, Asset Graph, Device Control, Renewable Revenue Engine and token framework
+- CCT on Solana Token-2022 with evidence-backed issuance and retirement boundaries
+- Energy Network directory for consumers, prosumers, retailers, renewable generators and grid operators
 - Renewable asset operations, telemetry, metering, forecasting, and digital twins
 - P2P energy exchange, marketplace checkout, PPAs, credits, and settlement workflows
-- PWRC utility token, Sui-bridged wPWRC, and CRT carbon credit token experiences
+- PWRC utility token, Sui-bridged wPWRC, and CCT Carbon Credit Token experiences
 - Proof of Energy, certification, audit evidence, conformance, and traceability
 - Solana and Sui wallet, RPC, liquidity, asset, bridge, and payment integrations
 - Helius, Helium, Metaplex, Jupiter, Raydium, Meteora, Orca, Cetus, and Pyth adapters
@@ -24,6 +31,7 @@ PowerChain unifies physical energy infrastructure and digital settlement in one 
 | Area                                                              | Canonical owner                |
 | ----------------------------------------------------------------- | ------------------------------ |
 | Production Next.js application and API routes                     | `apps/platform`                |
+| First-class Energy Management System                               | `apps/ems`                     |
 | Deployable application runtime and HTTP adapter                   | `packages/application-runtime` |
 | Configuration, environment parsing, routes, redirects, clusters   | `packages/configuration`       |
 | Shared contexts, constants, common components, helpers and errors | `packages/shared`              |
@@ -122,7 +130,13 @@ Deployment commands, environment boundaries, and provider-specific setup are doc
 
 ## Documentation
 
-See `docs/README.md` for architecture, standards, program, API, security, deployment, and integration guidance. Machine-readable OpenAPI is canonical at `docs/api/swagger.yaml` and can be copied to the app with `pnpm openapi:generate`.
+See `docs/README.md` and `docs/WHITEPAPER.md` for architecture, standards, Local Energy, EMS, program, API, security, deployment, and integration guidance. Machine-readable OpenAPI is canonical at `docs/api/swagger.yaml` and can be copied to the app with `pnpm openapi:generate`.
+
+Developer endpoints: `GET /api/swagger/`, `GET /api/v1/openapi.json`, `GET /api/v1/openapi.yaml`, and `GET /api/postman`. Canonical runtime discovery includes `/api/v1/health`, `/api/v1/ready`, `/api/v1/powerchain/overview`, `/api/v1/solana/overview`, `/api/v1/solana/programs`, `/api/v1/solana/market`, and `/api/v1/solana/assets/:mint`.
+
+## Solana website-origin API
+
+The Next.js platform exposes the canonical Solana/PowerChain read surface on the website origin. `/api/v1/solana/overview` reports RPC health, Solana core version, slot, block height, epoch, latest blockhash and genesis hash without exposing RPC URLs. `/api/v1/solana/programs` and `/api/v1/powerchain/programs` verify configured PowerChain/Launchpad program addresses as executable accounts. `/api/v1/solana/assets/:mint` distinguishes SPL Token from Token-2022 and reports supply, decimals, authorities and parsed extensions. `/api/v1/solana/market` requires an explicit mint and resolves sourced market state through Pyth, CoinGecko and CoinMarketCap (with optional Birdeye fallback). The shorter `/api/*` routes remain compatibility aliases over the same server implementation; only `/api/token/market` may default to configured PWRC.
 
 ## Security
 
@@ -132,8 +146,6 @@ Never commit API keys, database passwords, private keys, wallet seed phrases, or
 
 Proprietary software unless a package states otherwise.
 
-## Energy Management, Local Energy and Copilot Credits
+## Tokenized Copilot chat proofs
 
-PowerChain v1.0.0 now includes a first-class EMS service and operator workspaces for EMS, ERP, CMR, Rewards, Treasury and Vault. Local Energy uses integer Wh and supports BUY, SELL and RENT listings with compare-and-set reservations. Copilot usage is settled against a PWRC-backed internal credit ledger: base messages cost $0.020 (10,000 PWRC at the canonical $0.000002 reference) and authenticated real-data messages cost $0.015 (7,500 PWRC). EUR and SOL values are display conversions sourced from Pyth/Jupiter or explicit configuration; they are never fabricated.
-
-Solana integration constants include SPL Token, Token-2022, Associated Token, Metaplex Token Metadata/Core/Bubblegum and the Pyth Receiver. Jupiter quote integration is isolated behind `@powerchain/integration`; Token API v2 is used for token discovery.
+PowerChain Copilot v1.0.0 uses a PWRC-backed internal credit ledger and deterministic response receipts. One completed response equals **1 MSG UNIT = 10,000 PWRC = 10,000,000,000,000 base units**. New chat records are AES-256-GCM encrypted at rest; settled assistant messages bind `quoteHash → reservationId → responseHash → receiptHash → PWRC debit → proofHash`. Proofs are explicitly non-transferable and are not minted assets or financial instruments. See `docs/COPILOT-TOKENIZED-CHAT.md`.

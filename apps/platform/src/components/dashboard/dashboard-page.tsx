@@ -11,11 +11,9 @@ import { HealthPanel } from "./health-panel";
 import { AssetStrip } from "./asset-strip";
 import { GenerationChart } from "./generation-chart";
 import { GenerationMix } from "./generation-mix";
-import { MyEnergyDashboard } from "@/components/energy/my-energy-dashboard";
 
 export function DashboardPage(){
  const {role,can}=useAccess();
- if(role==="consumer"||role==="prosumer"||role==="client")return <Shell><div className="content-container"><MyEnergyDashboard/></div></Shell>;
  const dashboard=roleDashboards[role]??roleDashboards.consumer;
  const quickActions=dashboard.quickActions??[dashboard.primaryAction].filter((value): value is string=>Boolean(value));
  return <Shell><div className="dashboard-page">

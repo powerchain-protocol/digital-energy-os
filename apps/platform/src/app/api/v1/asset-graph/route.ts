@@ -1,4 +1,1 @@
-import { AssetGraphRepository } from "@powerchain/database/asset-graph";
-import { withApi,apiJson } from "@/lib/api/with-api";
-const repository=new AssetGraphRepository();
-export async function GET(request:Request){return withApi(request,{auth:"required"},async context=>apiJson(await repository.snapshot(context.organizationId!),context,{headers:{"cache-control":"no-store"}}))}
+import { databaseConfigured,OperationsRepository,serializeBigints } from "@powerchain/database/operations";import { operationalContext,operationalError,operationalJson } from "@/lib/api/operations-context";const repo=new OperationsRepository();export async function GET(request:Request){try{const c=await operationalContext(request);if(!databaseConfigured())return operationalJson({state:"UNCONFIGURED",nodes:[],relationships:[]},c);const [nodes,relationships]=await Promise.all([repo.listTable("asset_graph_nodes",c.organizationId,200),repo.listTable("asset_graph_relationships",c.organizationId,400)]);return operationalJson(serializeBigints({state:nodes.length?"READY":"EMPTY",nodes,relationships}),c)}catch(e){return operationalError(e)}}

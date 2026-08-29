@@ -1,2 +1,1 @@
-export { PowerChainRealtimeClient } from "../client/index";
-export type { RealtimeClientOptions,RealtimeEnvelope,RealtimeTransport } from "../client/index";
+export const domain = "reconnect" as const;

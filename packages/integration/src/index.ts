@@ -14,7 +14,4 @@ export * from "./payments";
 export * from "./registry";
 
 export * from "./helius-iot";
-
 export * from "./wayfinder";
-
-export * from "./jupiter";

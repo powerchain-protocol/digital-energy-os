@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Searchable participant and infrastructure directory for local energy",
+  "author": "PowerChain Protocol",
+  "license": "UNLICENSED",
   "exports": "./src/index.ts"
 }

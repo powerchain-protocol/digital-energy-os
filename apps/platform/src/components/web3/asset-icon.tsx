@@ -9,13 +9,13 @@ import { cn } from "@/utils/util";
 const assetSources: Record<PowerChainAssetSymbol, string[]> = {
   PWRC: tokenAssetSources("PWRC").map(({ src }) => src),
   wPWRC: tokenAssetSources("wPWRC").map(({ src }) => src),
-  CRT: tokenAssetSources("CRT").map(({ src }) => src),
+  CCT: tokenAssetSources("CCT").map(({ src }) => src),
   SOL: ["/assets/networks/solana.svg", "https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png", "https://cryptoicons.cc/128/color/sol.png"],
   SUI: ["/assets/networks/sui.svg", "https://s2.coinmarketcap.com/static/img/coins/64x64/20947.png", "https://cryptoicons.cc/128/color/sui.png"],
   USDC: ["https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png", "https://cryptoicons.cc/128/color/usdc.png"]
 };
 
-const labels: Record<PowerChainAssetSymbol, string> = { PWRC: "PW", wPWRC: "wP", CRT: "CR", SOL: "SOL", SUI: "SUI", USDC: "$" };
+const labels: Record<PowerChainAssetSymbol, string> = { PWRC: "PW", wPWRC: "wP", CCT: "CR", SOL: "SOL", SUI: "SUI", USDC: "$" };
 
 export function AssetIcon({ symbol, size = 32, className = "" }: { symbol: PowerChainAssetSymbol; size?: number; className?: string }) {
   const [sourceIndex, setSourceIndex] = useState(0);

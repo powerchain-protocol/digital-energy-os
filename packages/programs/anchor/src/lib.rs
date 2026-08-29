@@ -20,5 +20,3 @@ pub mod proof_of_energy;
 pub mod config;
 
 pub mod certificate_registry;
-
-pub mod carbon_credit;

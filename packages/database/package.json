@@ -7,16 +7,8 @@
     ".": "./src/index.ts",
     "./clients/supabase": "./src/clients/supabase/index.ts",
     "./clients/*": "./src/clients/*.ts",
-    "./acp": "./src/repositories/acp.ts",
-    "./realtime": "./src/repositories/realtime.ts",
-    "./energy-monitoring": "./src/repositories/energy-monitoring.ts",
-    "./copilot": "./src/repositories/copilot.ts",
-    "./acp-provider-network": "./src/repositories/acp-provider-network.ts",
-    "./copilot-credits": "./src/repositories/copilot-credits.ts",
-    "./energy-network": "./src/repositories/energy-network.ts",
-    "./local-energy": "./src/repositories/local-energy.ts",
-    "./operator-workspaces": "./src/repositories/operator-workspaces.ts",
-    "./asset-graph": "./src/repositories/asset-graph.ts"
+    "./operations": "./src/repositories/operations.ts",
+    "./tokenized-chat": "./src/repositories/tokenized-chat.ts"
   },
   "scripts": {
     "db:generate": "prisma generate --schema prisma/schema.prisma",
@@ -32,12 +24,9 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.112.3",
     "pg": "8.23.0",
-    "@powerchain/acp-contracts": "workspace:*",
-    "@powerchain/energy-monitoring": "workspace:*",
-    "@powerchain/credits": "workspace:*",
-    "@powerchain/energy-network": "workspace:*",
     "@powerchain/local-energy": "workspace:*",
-    "@powerchain/asset-graph": "workspace:*"
+    "@powerchain/energy-network": "workspace:*",
+    "@powerchain/credits": "workspace:*"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",

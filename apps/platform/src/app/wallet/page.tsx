@@ -19,7 +19,7 @@ export default function WalletPage() {
             </p>
             <h1 className="mt-1 text-3xl font-black tracking-tight">Wallet</h1>
             <p className="mt-1 muted">
-            PWRC, Sui wPWRC, CRT and Solana account data with Sui interoperability.
+            PWRC, Sui wPWRC, CCT and Solana account data with Sui interoperability.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm">

@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "Customer and market relationship model for energy participants",
+  "author": "PowerChain Protocol",
+  "license": "UNLICENSED",
   "exports": "./src/index.ts"
 }

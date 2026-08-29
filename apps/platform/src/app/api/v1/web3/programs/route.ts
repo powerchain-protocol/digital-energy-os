@@ -1,3 +1,0 @@
-import { withApi,apiJson } from "@/lib/api/with-api";
-import { SOLANA_PROGRAM_IDS,METAPLEX_PROGRAM_IDS,PYTH_SOLANA_PROGRAM_IDS,JUPITER_PROGRAM_IDS,HELIUM_PROGRAM_IDS,HELIUM_MINTS,JUPITER_API } from "@powerchain/token-framework";
-export async function GET(request:Request){return withApi(request,{auth:"optional"},async context=>apiJson({version:"1.0.0",solana:SOLANA_PROGRAM_IDS,metaplex:METAPLEX_PROGRAM_IDS,pyth:PYTH_SOLANA_PROGRAM_IDS,jupiter:JUPITER_PROGRAM_IDS,helium:HELIUM_PROGRAM_IDS,heliumMints:HELIUM_MINTS,jupiterApi:JUPITER_API,authorityNote:"Program IDs identify external programs only. They do not grant PowerChain execution or wallet authority."},context,{headers:{"cache-control":"public, max-age=3600"}}))}

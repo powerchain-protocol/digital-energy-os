@@ -1,0 +1,3 @@
+import { tokenizedChatService } from "@/lib/chat/tokenized-chat-service";
+import { operationalContext,operationalError,operationalJson } from "@/lib/api/operations-context";
+export async function GET(request:Request){try{const context=await operationalContext(request);const account=await tokenizedChatService.account(context.user);return operationalJson({account:account??{availableBaseUnits:"0",reservedBaseUnits:"0",spentBaseUnits:"0",availablePwrc:"0",reservedPwrc:"0",spentPwrc:"0"},pricing:{messageUnits:1,pwrc:"10000",baseUnits:"10000000000000",referenceValueUsd:"0.020000",onchainPerMessage:false}},context,{headers:{"cache-control":"no-store"}})}catch(error){return operationalError(error)}}

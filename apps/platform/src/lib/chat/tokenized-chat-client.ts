@@ -1,0 +1,8 @@
+import type { ConversationCreditSummary,MessageTokenProofResponse } from "@/types/ai/chat";
+
+async function api<T>(path:string):Promise<T>{const response=await fetch(path,{cache:"no-store"});const body=await response.json().catch(()=>null);if(!response.ok)throw new Error(body?.error?.message??`Request failed with ${response.status}`);return body.data as T}
+export function getConversationCreditSummary(conversationId:string){return api<ConversationCreditSummary>(`/api/v1/chat/conversations/${encodeURIComponent(conversationId)}/credits`)}
+export function getMessageTokenProof(conversationId:string,messageId:string){return api<MessageTokenProofResponse>(`/api/v1/chat/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(messageId)}/proof`)}
+function stable(value:unknown):string{if(value===null||typeof value!=="object")return JSON.stringify(value);if(Array.isArray(value))return `[${value.map(stable).join(",")}]`;const record=value as Record<string,unknown>;return `{${Object.keys(record).sort().map(key=>`${JSON.stringify(key)}:${stable(record[key])}`).join(",")}}`}
+async function sha256Hex(value:string){const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,"0")).join("")}
+export async function verifyMessageTokenProof(record:MessageTokenProofResponse){const localProofHash=await sha256Hex(stable(record.proof));return{valid:localProofHash===record.proofHash&&record.verification.proofHashValid&&record.verification.receiptHashValid&&record.verification.receiptSignatureValid&&record.verification.semanticsValid,localProofHash,serverProofHash:record.proofHash,checks:record.verification}}

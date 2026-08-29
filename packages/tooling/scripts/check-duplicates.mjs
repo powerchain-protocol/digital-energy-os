@@ -11,6 +11,7 @@ const forbidden = [
   "integration",
   "k8s",
   "terraform",
+  "scripts",
   "tests",
   "Dockerfile",
   "docker-compose.yml",

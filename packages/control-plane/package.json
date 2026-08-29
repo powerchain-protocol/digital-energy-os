@@ -3,11 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "exports": "./src/index.ts",
-  "dependencies": {
-    "@powerchain/policy": "workspace:*",
-    "@powerchain/approvals": "workspace:*",
-    "@powerchain/audit": "workspace:*",
-    "@powerchain/observability": "workspace:*"
-  }
+  "description": "Canonical PowerChain identity, policy, context, approval and execution boundary",
+  "author": "PowerChain Protocol",
+  "license": "UNLICENSED",
+  "exports": "./src/index.ts"
 }

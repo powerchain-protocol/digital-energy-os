@@ -1,2 +1,1 @@
-import { redirect } from "next/navigation";
-export default function LegacyCrtPage(){redirect("/tokens/cct")}
+import { permanentRedirect } from "next/navigation";export default function LegacyCarbonCreditTokenPage(){permanentRedirect("/tokens/cct")}

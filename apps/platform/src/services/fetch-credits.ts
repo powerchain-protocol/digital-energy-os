@@ -1,4 +1,0 @@
-"use client";
-import type { CopilotCreditMarketRates,CopilotCreditQuoteView,CopilotDisplayCurrency,CopilotMessagePricingClass } from "@powerchain/credits/types";
-export async function fetchCreditRates():Promise<CopilotCreditMarketRates>{const r=await fetch("/api/v1/copilot/credits/rates",{cache:"no-store"});const b=await r.json();if(!r.ok)throw new Error(b?.error?.message??"Credit rates unavailable");return b.data}
-export async function fetchCreditQuote(pricingClass:CopilotMessagePricingClass,currency:CopilotDisplayCurrency):Promise<CopilotCreditQuoteView>{const r=await fetch("/api/v1/copilot/credits/quote",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({pricingClass,currency})});const b=await r.json();if(!r.ok)throw new Error(b?.error?.message??"Credit quote unavailable");return b.data}

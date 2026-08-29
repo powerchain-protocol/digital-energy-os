@@ -1,6 +1,6 @@
 export type AssetKind = "token" | "network" | "wallet" | "brand";
 
-export type PowerChainTokenAsset = "PWRC" | "CRT" | "wPWRC";
+export type PowerChainTokenAsset = "PWRC" | "CCT" | "wPWRC";
 
 export interface AssetSource {
   src: string;
@@ -14,7 +14,7 @@ const CRYPTOICONS_ROOT = "https://cryptoicons.cc/assets/icon";
 
 export const TOKEN_ASSET_PATHS: Readonly<Record<PowerChainTokenAsset, string>> = {
   PWRC: "/assets/tokens/pwrc.png",
-  CRT: "/assets/tokens/crt.png",
+  CCT: "/assets/tokens/crt.png",
   wPWRC: "/assets/tokens/wpwrc-sui.png",
 };
 
@@ -35,7 +35,7 @@ export function localAssetUrl(kind: AssetKind, name: string, extension = "svg"):
 
 export function tokenAssetSources(symbol: string): AssetSource[] {
   const normalized = normalizeAssetSymbol(symbol);
-  const canonicalSymbol = normalized === "wpwrc" ? "wPWRC" : normalized === "crt" || normalized === "cct" ? "CRT" : normalized === "pwrc" ? "PWRC" : undefined;
+  const canonicalSymbol = normalized === "wpwrc" ? "wPWRC" : normalized === "crt" || normalized === "cct" ? "CCT" : normalized === "pwrc" ? "PWRC" : undefined;
   const localPath = canonicalSymbol ? TOKEN_ASSET_PATHS[canonicalSymbol] : localAssetUrl("token", normalized);
   const sources: AssetSource[] = [
     { src: localPath, local: true, alt: `${canonicalSymbol ?? symbol.toUpperCase()} token` },

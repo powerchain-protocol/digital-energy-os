@@ -1,0 +1,1 @@
+export default function Page(){return <main><div className="page"><p className="eyebrow">Energy Management System</p><h1>One EMS over the canonical PowerChain ledger</h1><p>Companies, partnerships, electricity retailers, utilities, grid operators and communities use the same metering, local-energy, billing, settlement, rewards and treasury contracts.</p></div></main>}

@@ -22,10 +22,10 @@ export const POWERCHAIN_PROTOCOL = {
       symbol: "wPWRC",
       decimals: 9,
     },
-    CRT: {
+    CCT: {
       chain: "sui",
       address: process.env.NEXT_PUBLIC_CRT_MINT ?? "",
-      symbol: "CRT",
+      symbol: "CCT",
       decimals: 6,
     },
   },

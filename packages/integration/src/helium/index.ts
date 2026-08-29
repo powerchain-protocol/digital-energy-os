@@ -1,12 +1,54 @@
-import type { IntegrationAdapter,IntegrationContext,IntegrationHealth,IntegrationResult } from "../core";
-import { HELIUM_MINTS,HELIUM_PROGRAM_IDS } from "@powerchain/token-framework";
-export interface HeliumWalletQuery{walletPublicKey:string}
-export interface HeliumWalletSnapshot{walletPublicKey:string;hotspots:unknown[];balances:unknown;raw:Record<string,unknown>}
-function validAddress(value:string){return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(value)}
-export class HeliumEntityApiAdapter implements IntegrationAdapter<HeliumWalletQuery,HeliumWalletSnapshot>{
- readonly provider="helium-entity-api";
- constructor(private readonly endpoint=(process.env.HELIUM_ENTITY_API_URL??"https://entities.nft.helium.io/v2").replace(/\/$/,"")){}
- async execute(request:HeliumWalletQuery,context:IntegrationContext):Promise<IntegrationResult<HeliumWalletSnapshot>>{const wallet=request.walletPublicKey.trim();if(!validAddress(wallet))return{state:"unavailable",source:this.provider,observedAt:new Date().toISOString(),error:{code:"VALIDATION_FAILED",message:"A valid Solana wallet public key is required",retryable:false}};try{const response=await fetch(`${this.endpoint}/wallet/${encodeURIComponent(wallet)}`,{headers:{accept:"application/json","x-request-id":context.requestId},signal:context.signal,cache:"no-store"});if(!response.ok)return{state:response.status===429?"degraded":"unavailable",source:this.provider,observedAt:new Date().toISOString(),error:{code:response.status===429?"RATE_LIMITED":"PROVIDER_UNAVAILABLE",message:`Helium Entity API returned ${response.status}`,retryable:response.status===429||response.status>=500,providerStatus:response.status}};const raw=await response.json() as Record<string,unknown>;const hotspots=Array.isArray(raw.hotspots)?raw.hotspots:Array.isArray(raw.entities)?raw.entities:[];const balances=raw.balances??raw.tokenBalances??{};return{state:"available",source:this.provider,observedAt:new Date().toISOString(),data:{walletPublicKey:wallet,hotspots,balances,raw}}}catch(error){const timedOut=context.signal.aborted;return{state:timedOut?"degraded":"unavailable",source:this.provider,observedAt:new Date().toISOString(),error:{code:timedOut?"TIMEOUT":"PROVIDER_UNAVAILABLE",message:error instanceof Error?error.message:"Helium Entity API request failed",retryable:true}}}}
- async health():Promise<IntegrationHealth>{return{provider:this.provider,state:this.endpoint.startsWith("https://")?"available":"misconfigured",checkedAt:new Date().toISOString()}}
+import type {
+  IntegrationAdapter,
+  IntegrationContext,
+  IntegrationHealth,
+  IntegrationResult,
+} from "../core";
+import { unavailable } from "../core";
+export interface HeliumHotspotQuery {
+  latitude: number;
+  longitude: number;
+  radiusKm: number;
 }
-export const HELIUM_SOLANA_REGISTRY={programs:HELIUM_PROGRAM_IDS,mints:HELIUM_MINTS,entityApi:"https://entities.nft.helium.io/v2",dataAuthority:"Helium Entity API + Solana program accounts",note:"Entity API activity status is not treated as live device telemetry. PowerChain device truth remains sourced from configured device/meter telemetry."} as const;
+export interface HeliumHotspot {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  status: string;
+}
+export class HeliumAdapter implements IntegrationAdapter<
+  HeliumHotspotQuery,
+  HeliumHotspot[]
+> {
+  readonly provider = "helium";
+  constructor(private readonly endpoint?: string) {}
+  async execute(
+    _request: HeliumHotspotQuery,
+    _context: IntegrationContext,
+  ): Promise<IntegrationResult<HeliumHotspot[]>> {
+    if (!this.endpoint)
+      return unavailable(
+        this.provider,
+        "INVALID_CONFIGURATION",
+        "Helium provider endpoint is not configured",
+      );
+    return unavailable(
+      this.provider,
+      "PROVIDER_UNAVAILABLE",
+      "Helium discovery provider did not return a validated response",
+      true,
+    );
+  }
+  async health(): Promise<IntegrationHealth> {
+    return {
+      provider: this.provider,
+      state: this.endpoint ? "unavailable" : "misconfigured",
+      checkedAt: new Date().toISOString(),
+      errorCode: this.endpoint
+        ? "PROVIDER_UNAVAILABLE"
+        : "INVALID_CONFIGURATION",
+      circuitState: "closed",
+    };
+  }
+}
